@@ -1,0 +1,33 @@
+/* Scroll SOLO si hay más de 6 filas */
+.tabla-scroll {
+  max-height: 260px; /* ~6 filas visibles */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+/* Cabecera fija */
+.tabla-scroll table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #198754; /* verde Bootstrap */
+  color: #fff;
+  z-index: 2;
+  font-size: 12px;
+}
+
+/* Tamaño compacto */
+.tabla-scroll table {
+  font-size: 12px;
+}
+
+/* Hover suave */
+.tabla-scroll tbody tr:hover {
+  background-color: #f1fdf6;
+}
+
+/* Alinear números */
+.tabla-scroll td.text-end {
+  font-variant-numeric: tabular-nums;
+}
