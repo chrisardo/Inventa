@@ -1,0 +1,8 @@
+{
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.30",
+        "phpmailer/phpmailer": "^7.0",
+        "twilio/sdk": "^8.9",
+        "paypal/rest-api-sdk-php": "^1.14"
+    }
+}

@@ -1,0 +1,60 @@
+Fecha: 2025-12-13 21:43:31
+ID User: 2
+Año filtro: Todos
+Filtro ventas: WHERE tv.id_user = 2
+Filtro clientes: WHERE c.id_user = 2 AND c.Eliminado = 0
+Query ventas: 
+    SELECT MONTH(tv.fecha_venta) AS mes, 
+           SUM(tv.total_venta) AS total
+    FROM ticket_ventas tv
+    WHERE tv.id_user = 2
+    GROUP BY mes
+    ORDER BY mes
+
+Query cantidad: 
+    SELECT MONTH(tv.fecha_venta) AS mes,
+           SUM(dt.cantidad_pedido_producto) AS total
+    FROM detalle_ticket_ventas dt
+    INNER JOIN ticket_ventas tv ON dt.id_ticket_ventas = tv.id_ticket_ventas
+    WHERE tv.id_user = 2
+    GROUP BY mes
+    ORDER BY mes
+
+Query clientes mes: 
+    SELECT MONTH(c.fecha_registro) AS mes,
+           COUNT(*) AS total
+    FROM clientes c
+    WHERE c.id_user = 2 AND c.Eliminado = 0
+    GROUP BY mes
+    ORDER BY mes
+
+Query rubro: 
+    SELECT r.nombre AS rubro,
+           COUNT(c.idCliente) AS total
+    FROM clientes c
+    INNER JOIN rubros r ON c.id_rubro = r.id_rubro
+    WHERE c.id_user = 2 AND c.Eliminado = 0
+    GROUP BY r.nombre
+    ORDER BY total DESC
+
+Query top productos: 
+    SELECT p.nombre AS producto,
+           SUM(dt.cantidad_pedido_producto) AS total
+    FROM detalle_ticket_ventas dt
+    INNER JOIN ticket_ventas tv ON dt.id_ticket_ventas = tv.id_ticket_ventas
+    INNER JOIN producto p ON dt.idProducto = p.idProducto
+    WHERE tv.id_user = 2
+    GROUP BY p.nombre
+    ORDER BY total DESC
+    LIMIT 6
+
+Query top clientes: 
+    SELECT c.nombre AS cliente,
+           SUM(tv.total_venta) AS total
+    FROM ticket_ventas tv
+    INNER JOIN clientes c ON tv.idCliente = c.idCliente
+    WHERE tv.id_user = 2
+    GROUP BY c.nombre
+    ORDER BY total DESC
+    LIMIT 6
+
