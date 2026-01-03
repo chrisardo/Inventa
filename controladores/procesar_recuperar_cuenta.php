@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($resultado->num_rows === 1) {
         $u = $resultado->fetch_assoc();
-        header("Location: restablecer_contrasena.php?uid=" . $u["usId"]);
+        header("Location: ./restablecer_contrasena.php?uid=" . $u["id_user"]);
         exit;
     } else {
         $mensaje = "No se encontró ninguna cuenta con ese correo o celular.";

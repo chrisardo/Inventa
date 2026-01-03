@@ -146,5 +146,5 @@ if ($method === 'sms') {
 /* ===============================
    REDIRECCIÓN
 ================================ */
-header("Location: ../codigo_seguridad.php?uid=$usId&token=$token");
+header("Location: ../codigo_seguridad.php?usId=$usId&token=$token");
 exit;

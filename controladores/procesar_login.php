@@ -13,9 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Todos los campos son obligatorios.";
     } else {
 
-        // Buscar usuario
         $stmt = $conexion->prepare("
-            SELECT id_user, username, email, contrasena, nombreEmpresa
+            SELECT id_user, username, email, contrasena, nombreEmpresa, estado
             FROM usuario_acceso
             WHERE username = ? OR email = ?
         ");
@@ -27,16 +26,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $row = $result->fetch_assoc();
 
-            // 🔐 Verificar contraseña
             if (password_verify($password, $row['contrasena'])) {
-                $_SESSION['usId'] = $row['id_user'];
 
-                header("Location: index.php");
-                exit();
+                if (strtolower($row['estado']) !== 'activo') {
+                    $error = "Tu cuenta está baneada o inactiva. Contacta al administrador.";
+                } else {
+                    $_SESSION['usId'] = $row['id_user'];
+                    $_SESSION['username'] = $row['username'];
+
+                    header("Location: index.php");
+                    exit();
+                }
             } else {
                 $error = "Usuario o contraseña incorrectos.";
             }
-
         } else {
             $error = "Usuario o contraseña incorrectos.";
         }
@@ -44,5 +47,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
     }
 
-    $conn->close();
+    $conexion->close();
 }

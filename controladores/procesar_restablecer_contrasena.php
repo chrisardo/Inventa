@@ -1,12 +1,12 @@
 <?php
 include "conexion.php";
 
-if (!isset($_GET["usId"])) {
+if (!isset($_GET["uid"])) {
     header("Location: recuperar_cuenta.php");
     exit;
 }
 
-$usId = (int) $_GET["usId"];
+$usId = (int) $_GET["uid"];
 
 $sql = "SELECT nombreEmpresa, email, celular, imagen
         FROM usuario_acceso

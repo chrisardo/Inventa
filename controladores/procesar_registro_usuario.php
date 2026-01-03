@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $imagenType = mime_content_type($imagenTmp);
 
     $tiposPermitidos = ['image/png', 'image/jpeg'];
-    $maxSize = 1.6 * 1024 * 1024; // 1.6 MB
+    $maxSize = 1.8 * 1024 * 1024; // 1.6 MB
 
     if (!in_array($imagenType, $tiposPermitidos)) {
         $mensaje = "⚠️ La imagen debe ser PNG o JPG.";
@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if ($imagenSize > $maxSize) {
-        $mensaje = "⚠️ La imagen no debe superar 1.6 MB.";
+        $mensaje = "⚠️ La imagen no debe superar 1.8 MB.";
         $tipoAlerta = "warning";
         return;
     }
@@ -112,14 +112,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $imagenBinaria  = file_get_contents($imagenTmp);
     $contrasenaHash = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
     $null = NULL;
+    $rol = 1; // Empresa
+
 
     /* =========================
        INSERTAR USUARIO (BLOB OK)
     ========================== */
     $sql = "INSERT INTO usuario_acceso (
         nombreEmpresa, email, username, contrasena, imagen,
-        direccion, celular, estado, fecha_registro, ruc, password_changed_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'activo', CURDATE(), ?, NOW())";
+        direccion, celular, estado, fecha_registro, ruc, password_changed_at, rol
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'activo', CURDATE(), ?, NOW(),?)";
 
     $stmt = $conexion->prepare($sql);
 
@@ -128,7 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $stmt->bind_param(
-        "ssssbssi",
+        "ssssbssii",
         $empresa,
         $email,
         $username,
@@ -136,7 +138,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $null,       // IMPORTANTE PARA BLOB
         $direccion,
         $celular,
-        $ruc
+        $ruc,
+        $rol
     );
 
     // Enviar la imagen (índice 4 empieza en 0)

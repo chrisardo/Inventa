@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $permitidos = ['image/jpeg', 'image/png'];
         $tipoMime   = mime_content_type($_FILES['imagen']['tmp_name']);
-        $tamanoMax  = 1.5 * 1024 * 1024;
+        $tamanoMax  = 1.8 * 1024 * 1024;
 
         if (!in_array($tipoMime, $permitidos)) {
             $mensaje = "❌ Solo se permiten imágenes JPG o PNG.";
@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if ($_FILES['imagen']['size'] > $tamanoMax) {
-            $mensaje = "❌ La imagen no debe superar 1.5 MB.";
+            $mensaje = "❌ La imagen no debe superar 1.8 MB.";
             $tipoAlerta = "danger";
             return;
         }

@@ -10,8 +10,9 @@ if (!isset($_SESSION['usId'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $usId = $_POST['usId'];
-    $emailActual = trim($_POST['emailActual']);
-    $emailNuevo = trim($_POST['emailNuevo']);
+    $emailActual = $_POST['emailActual'] ?? '';
+    $emailNuevo  = $_POST['emailNuevo']  ?? '';
+
 
     $errors = [];
 

@@ -59,7 +59,7 @@ if ($codigo !== $data['codigo']) {
 /* ===============================
    CORRECTO
 ================================ */
-header("Location: ../nueva_contrasena.php?uid=$usId&token=$token");
+header("Location: ../nueva_contrasena.php?usId=$usId&token=$token");
 exit;
 
 /* ===============================

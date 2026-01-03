@@ -9,97 +9,124 @@ $tipoMensaje = ""; // success, danger, warning, info
 
 // ==== PROCESAR EDICIÓN y GUARDAR CAMBIOS EN LA BASE DE DATOS, PERO PRIMERO VALIDAR QUE EL NOMBRE, CELULAR, DOCUMENTO NO ESTEN VACIOS ====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'editar') {
-    // Validaciones obligatorias menos descripcion, el stock debe ser 0 o mayor a 0, el precio debe ser 0 o mayor a 0
-    if (
-        !empty(trim($_POST['codigo']))  &&
-        !empty(trim($_POST['nombre']))  &&
-        floatval($_POST['precio']) >= 0 &&
-        !empty(trim($_POST['categoria'])) &&
-        !empty(trim($_POST['marca'])) &&
-        !empty(trim($_POST['provedor'])) &&
-        intval($_POST['stock']) >= 0
-    ) {
-        // Todos los campos obligatorios están llenos menos descripcion
 
-        $nombre = $conexion->real_escape_string(trim($_POST['nombre']));
-        $descripcion = $conexion->real_escape_string(trim($_POST['descripcion']));
-        $precio = str_replace(',', '.', $_POST['precio']);
-        $precio = floatval($precio);
-        $codigo = $conexion->real_escape_string(trim($_POST['codigo']));
-        $categoria = intval($_POST['categoria']);
-        $proveedor = intval($_POST['provedor']);
-        $marca = intval($_POST['marca']);
-        $stock = $conexion->real_escape_string(trim($_POST['stock']));
-        $id_unit_medida = 0; // Valor predeterminado
-        $usId = $_SESSION['usId'];
-        if (!isset($_FILES['imagen']) || $_FILES['imagen']['error'] !== UPLOAD_ERR_OK) {
-            //Actualizar el producto del usuario sin cambiar la imagen en la base de datos
-            $idProducto = intval($_POST['idProducto']);
-            $sql = "UPDATE producto SET nombre='$nombre', descripcion='$descripcion', precio=$precio, codigo='$codigo', id_categorias=$categoria, stock='$stock', id_unit_medida=$id_unit_medida,
-                        id_provedor = $proveedor, id_marca = $marca
-                    WHERE idProducto=$idProducto";
-            if ($conexion->query($sql) === TRUE) {
-                $mensaje = "✅ Producto actualizado correctamente.";
-                $tipoAlerta = "success";
-                echo "Producto actualizado sin cambiar imagen.";
-                //ir a la pagina de lista_productos.php
-                @header("Location: ./lista_productos.php");
-                exit();
-            } else {
-                $mensaje = "❌ Error al actualizar el producto: " . $conexion->error;
+    header('Content-Type: application/json');
 
-                $tipoAlerta = "danger";
-                //ir a la pagina de lista_productos.php
-                @header("Location: ./lista_productos.php");
-            }
-        } else {
+    // ===== CAMPOS OBLIGATORIOS =====
+    $requeridos = ['nombre', 'codigo', 'precio', 'costo', 'stock', 'categoria', 'marca', 'provedor'];
 
-            $imagenData = file_get_contents($_FILES['imagen']['tmp_name']);
-            $idProducto = intval($_POST['idProducto']);
-
-            $stmt = $conexion->prepare("
-        UPDATE producto 
-        SET nombre=?, descripcion=?, precio=?, codigo=?, id_categorias=?, stock=?, imagen=?, id_unit_medida=?, id_provedor=?, id_marca=?
-        WHERE idProducto=? AND id_user=?
-    ");
-
-            $null = NULL;
-
-            $stmt->bind_param(
-                "ssdsiibiii",
-                $nombre,
-                $descripcion,
-                $precio,
-                $codigo,
-                $categoria,
-                $stock,
-                $null,
-                $id_unit_medida,
-                $proveedor,
-                $marca,
-                $idProducto,
-                $usId
-            );
-
-            // 👇 AQUÍ SE ENVÍA EL BINARIO REAL
-            $stmt->send_long_data(6, $imagenData);
-
-            if ($stmt->execute()) {
-                @header("Location: ./lista_productos.php");
-                exit();
-            } else {
-                die("Error imagen: " . $stmt->error);
-                @header("Location: ./lista_productos.php");
-            }
+    foreach ($requeridos as $campo) {
+        if (!isset($_POST[$campo]) || trim($_POST[$campo]) === '') {
+            echo json_encode([
+                "tipo" => "danger",
+                "mensaje" => "Todos los campos son obligatorios."
+            ]);
+            exit();
         }
-    } else {
-        $mensaje = "⚠️ Todos los campos son obligatorios.";
-        $tipoAlerta = "warning";
-        echo "Faltan campos obligatorios.";
     }
+
+    // ===== STOCK ENTERO =====
+    if (!ctype_digit($_POST['stock'])) {
+        echo json_encode([
+            "tipo" => "danger",
+            "mensaje" => "El stock debe ser un número entero sin decimales."
+        ]);
+        exit();
+    }
+
+    // ===== VALIDAR IMAGEN =====
+    if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+
+        $max = 1.8 * 1024 * 1024;
+        $mime = mime_content_type($_FILES['imagen']['tmp_name']);
+
+        if ($_FILES['imagen']['size'] > $max) {
+            echo json_encode([
+                "tipo" => "danger",
+                "mensaje" => "La imagen supera los 1.8 MB."
+            ]);
+            exit();
+        }
+
+        if (!in_array($mime, ['image/jpeg', 'image/png'])) {
+            echo json_encode([
+                "tipo" => "danger",
+                "mensaje" => "Solo se permiten imágenes JPG o PNG."
+            ]);
+            exit();
+        }
+
+        $imagenData = file_get_contents($_FILES['imagen']['tmp_name']);
+    }
+
+    // ===== LIMPIAR =====
+    $idProducto = (int)$_POST['idProducto'];
+    $nombre = $conexion->real_escape_string($_POST['nombre']);
+    $codigo = $conexion->real_escape_string($_POST['codigo']);
+    $descripcion = $conexion->real_escape_string($_POST['descripcion'] ?? '');
+    $precio = floatval($_POST['precio']);
+    $costo = floatval($_POST['costo']);
+    $categoria = (int)$_POST['categoria'];
+    $proveedor = (int)$_POST['provedor'];
+    $marca = (int)$_POST['marca'];
+    $stock = (int)$_POST['stock'];
+    $usId = $_SESSION['usId'];
+
+    // ===== UPDATE =====
+    if (isset($imagenData)) {
+
+        $stmt = $conexion->prepare("
+            UPDATE producto SET
+                nombre=?, descripcion=?, precio=?, codigo=?, stock=?, imagen=?,
+                id_categorias=?, id_provedor=?, id_marca=?, costo_compra=?
+            WHERE idProducto=? AND id_user=?
+        ");
+
+        $null = NULL;
+
+        $stmt->bind_param(
+            "ssdsiibiiiii",
+            $nombre,
+            $descripcion,
+            $precio,
+            $codigo,
+            $stock,
+            $null,
+            $categoria,
+            $proveedor,
+            $marca,
+            $costo,
+            $idProducto,
+            $usId
+        );
+
+        $stmt->send_long_data(5, $imagenData);
+        $ok = $stmt->execute();
+    } else {
+
+        $ok = $conexion->query("
+            UPDATE producto SET
+                nombre='$nombre',
+                descripcion='$descripcion',
+                precio=$precio,
+                codigo='$codigo',
+                stock=$stock,
+                id_categorias=$categoria,
+                id_provedor=$proveedor,
+                id_marca=$marca,
+                costo_compra=$costo
+            WHERE idProducto=$idProducto AND id_user=$usId
+        ");
+    }
+
+    echo json_encode([
+        "tipo" => $ok ? "success" : "danger",
+        "mensaje" => $ok
+            ? "Producto actualizado correctamente."
+            : "Error al actualizar el producto."
+    ]);
+    exit();
 }
-
-
 
 
 // ==== ELIMINAR ====
