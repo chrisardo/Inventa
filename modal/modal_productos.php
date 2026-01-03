@@ -9,6 +9,8 @@
                     </div>
 
                     <div class="modal-body">
+                        <div id="alertaProducto" class="alert d-none mt-3"></div>
+
                         <input type="hidden" name="accion" value="editar">
                         <input type="hidden" name="idProducto" id="edit-id">
                         <!--Imagen-->
@@ -20,9 +22,9 @@
                                     name="imagen"
                                     id="edit-imagen"
                                     class="form-control"
-                                    accept="image/*">
-
+                                    accept="image/png, image/jpeg">
                             </div>
+                            <small class="text-muted">Solo JPG o PNG. Máx. 1.8 MB</small>
                         </div>
                         <!--Nombre y documento-->
                         <div class="row g-2 mb-3">
@@ -44,18 +46,51 @@
 
                         <div class="row g-2 mb-3">
                             <div class="col">
-                                <label class="form-label">Stock</label>
+                                <label class="form-label">Costo de compra</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-success text-white"><i class="bi bi-stack"></i></span>
-                                    <input type="text" name="stock" id="edit-stock" class="form-control">
-
+                                    <span class="input-group-text bg-success text-white"> <i class="bi bi-cash-coin"></i></span>
+                                    <input type="number" step="any" min="0" name="costo" id="edit-costo" class="form-control">
                                 </div>
                             </div>
                             <div class="col">
-                                <label class="form-label">Precio</label>
+                                <label class="form-label">Precio a vender</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-success text-white"> <i class="bi bi-cash-coin"></i></span>
                                     <input type="number" step="any" min="0" name="precio" id="edit-precio" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col">
+                                <label class="form-label">Stock</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white"><i class="bi bi-stack"></i></span>
+                                    <input type="number"
+                                        name="stock"
+                                        id="edit-stock"
+                                        class="form-control"
+                                        min="0"
+                                        step="1"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Proveedor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-truck"></i></span>
+                                    <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
+                                    <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
+                                    <select name="provedor" id="edit-provedor" class="form-select" required>
+                                        <option value="">Seleccione proveedor</option>
+                                        <?php
+                                        $resultadoProv = $conexion->query("SELECT id_provedor, nombre, id_user FROM provedores where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
+                                        while ($prov = $resultadoProv->fetch_assoc()) {
+                                            echo '<option value="' . $prov['id_provedor'] . '">'
+                                                . htmlspecialchars($prov['nombre']) .
+                                                '</option>';
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -99,25 +134,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col">
-                                <label class="form-label">Proveedor</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-truck"></i></span>
-                                    <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
-                                    <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
-                                    <select name="provedor" id="edit-provedor" class="form-select" required>
-                                        <option value="">Seleccione proveedor</option>
-                                        <?php
-                                        $resultadoProv = $conexion->query("SELECT id_provedor, nombre, id_user FROM provedores where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
-                                        while ($prov = $resultadoProv->fetch_assoc()) {
-                                            echo '<option value="' . $prov['id_provedor'] . '">'
-                                                . htmlspecialchars($prov['nombre']) .
-                                                '</option>';
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
+
                         </div>
                         <!--descripcion-->
                         <div class="mb-3">
