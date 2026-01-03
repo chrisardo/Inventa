@@ -46,7 +46,7 @@ $tickets = $resTickets->fetch_assoc();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <script src="js/visibilidad_email.js"></script>
 </head>
 
 <body>
@@ -72,7 +72,7 @@ $tickets = $resTickets->fetch_assoc();
                 <!-- Menú desplegable -->
                 <div class="dropdown">
                     <a class="nav-link text-white p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-ellipsis-vertical fa-lg"></i>
+                        <i class="fa-solid fa-gear fa-lg"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow mt-2">
                         <li>
@@ -104,10 +104,10 @@ $tickets = $resTickets->fetch_assoc();
 
 
     <!-- Contenido principal -->
-    <div class="container mt-4">
+    <div class="container mt-0">
         <div class="row justify-content-center">
             <div class="col-md-6 text-center">
-                <h2 class="card-title mb-3"><?= htmlspecialchars($usuario['nombreEmpresa']) ?></h2>
+                <h2 class="card-title mb-0"><?= htmlspecialchars($usuario['nombreEmpresa']) ?></h2>
                 <div class="user-details text-dark">
                     <p class="mb-1">
                         <i class="fas fa-id-card me-2"></i>RUC: <?= $usuario['ruc'] ?>
@@ -118,7 +118,7 @@ $tickets = $resTickets->fetch_assoc();
                 </div>
             </div>
             <div class="row g-3">
-                <div class="col-md-3">
+                <div class="col-3 col-md-3 ">
                     <div class="card border-success mb-3" style="max-width: 18rem;">
                         <div class="card-header text-white bg-success text-center">
                             <i class="fas fa-map-marker-alt me-2"></i> Dirección
@@ -131,17 +131,21 @@ $tickets = $resTickets->fetch_assoc();
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-3 col-md-3 ">
                     <div class="card border-success mb-3" style="max-width: 18rem;">
                         <div class="card-header text-white bg-success text-center">
                             <i class="fas fa-envelope me-2"></i>Email:
                         </div>
                         <div class="card-body">
-                            <p class="text-center"><?= htmlspecialchars($usuario['email']) ?></p>
+                            <span class="email-text">
+                                <?= htmlspecialchars(ocultarEmail($usuario['email'])) ?>
+                            </span>
                         </div>
+
+
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-3 col-md-3 ">
                     <div class="card border-success mb-3" style="max-width: 18rem;">
                         <div class="card-header text-white bg-success text-center">
                             <i class="fas fa-phone me-2"></i>Celular:
@@ -151,7 +155,7 @@ $tickets = $resTickets->fetch_assoc();
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-3 col-md-3 ">
                     <div class="card border-success mb-3" style="max-width: 18rem;">
                         <div class="card-header text-white bg-success text-center">
                             <i class="fas fa-user-check me-2"></i>Estado:
@@ -190,13 +194,26 @@ $tickets = $resTickets->fetch_assoc();
     include 'modal/modal_editar_perfil.php';
     include 'modal/modal_editar_email.php';
     include 'modal/modal_editar_contrasena.php';
+    function ocultarEmail($email)
+    {
+        $partes = explode("@", $email);
+
+        $usuario = $partes[0];
+        $dominio = $partes[1];
+
+        // Mostrar solo los primeros 5 caracteres del usuario
+        $visible = substr($usuario, 0, 3);
+        $oculto  = str_repeat("*", max(strlen($usuario) - 5, 4));
+
+        return $visible . $oculto . "@" . $dominio;
+    }
     ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/actualizar_email.js"></script>
     <script src="js/actualizar_contrasena.js"></script>
-    <script src="js/actualizar_perfil.js"></script>
+
 </body>
 
 </html>

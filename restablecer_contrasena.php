@@ -112,7 +112,7 @@ include 'controladores/procesar_restablecer_contrasena.php';
                         <div class="d-flex justify-content-between mt-4">
                             <a href="recuperar_cuenta.php" class="btn btn-outline-secondary">Regresar</a>
                             <form action="controladores/enviar_codigo_verificacion.php" method="POST">
-                                <input type="hidden" name="id_user" value="<?= $id_user ?>">
+                                <input type="hidden" name="usId" value="<?= $usId ?>">
                                 <input type="hidden" name="method" id="methodSelected" value="email">
 
                                 <button type="submit" class="btn btn-primary">

@@ -394,6 +394,7 @@ if (!empty($usuario['imagen'])) {
                                                         data-nombre="<?php echo htmlspecialchars($fila['nombre']); ?>"
                                                         data-codigo="<?php echo htmlspecialchars($fila['codigo']); ?>"
                                                         data-precio="<?php echo htmlspecialchars($fila['precio']); ?>"
+                                                        data-costo="<?php echo htmlspecialchars($fila['costo_compra']); ?>"
                                                         data-stock="<?php echo htmlspecialchars($fila['stock']); ?>"
                                                         data-categoria="<?php echo htmlspecialchars($fila['id_categorias']); ?>"
                                                         data-provedor="<?php echo htmlspecialchars($fila['id_provedor']); ?>"

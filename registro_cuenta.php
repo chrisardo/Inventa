@@ -18,7 +18,7 @@ include 'controladores/procesar_registro_usuario.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
 
-<body style=" background: linear-gradient(135deg, #2ad867ff, #25cdfcff);">
+<body style=" background: linear-gradient(135deg, #25cdfcff ,#2ad867ff);">
     <div class="container login-container d-flex justify-content-center align-items-center">
         <div class="login-card">
             <div class="login-left">
@@ -39,14 +39,19 @@ include 'controladores/procesar_registro_usuario.php';
                     </a>
                 </div>
                 <form method="POST" enctype="multipart/form-data">
-                    <!--Subir imagen-->
-                    <div class="input-group">
-                        <!--Icono de subir imagen-->
-                        <span class="d-inline-block bg-success text-white p-2 mb-2"
-                            style="width:40px; height:40px; line-height:36px;">
-                            <i class="bi bi-camera-fill fs-4"></i>
-                        </span>
-                        <input class="form-control" type="file" id="imagen" name="imagen"  accept="image/png, image/jpeg" required />
+                    <div class="mb-3">
+                        <!--Subir imagen-->
+                        <div class="input-group">
+                            <!--Icono de subir imagen-->
+                            <span class="d-inline-block bg-success text-white p-2 mb-2"
+                                style="width:40px; height:40px; line-height:36px;">
+                                <i class="bi bi-camera-fill fs-4"></i>
+                            </span>
+                            <input class="form-control" type="file" id="imagen" name="imagen" accept="image/png, image/jpeg" required />
+                        </div>
+                        <small class="text-muted">
+                            *Máximo 1.8 MB · PNG o JPG
+                        </small>
                     </div>
                     <div class="row g-2 mb-3">
 
@@ -100,7 +105,7 @@ include 'controladores/procesar_registro_usuario.php';
                         <div class="col">
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Contraseña"  required>
+                                <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Contraseña" required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     👁️
                                 </button>

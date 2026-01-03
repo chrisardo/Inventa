@@ -304,7 +304,7 @@ if (!empty($usuario['imagen'])) {
                                     <input class="form-control" type="file" id="imagen" name="imagen" accept="image/png, image/jpeg" />
                                 </div>
                                 <small class="text-muted">
-                                    *Máximo 1.5 MB · PNG o JPG
+                                    *Máximo 1.8 MB · PNG o JPG
                                 </small>
                             </div>
                             <div class="row g-2 mb-3">
@@ -324,22 +324,26 @@ if (!empty($usuario['imagen'])) {
                                     </div>
                                 </div>
                             </div>
-                            <!--stock + precio -->
+                            <!--prcio venta + precio compra -->
                             <div class="row g-2 mb-3">
                                 <div class="col">
                                     <div class="input-group">
-                                        <span class="input-group-text bg-success text-white"><i class="bi bi-stack"></i></span>
-                                        <input type="number" min="0" class="form-control" id="stock" name="stock" placeholder="Stock" required>
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-cash-coin"></i></span>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="precio_compra" name="precio_compra" placeholder="Costo de compra" required>
                                     </div>
                                 </div>
-
                                 <div class="col">
                                     <div class="input-group">
-                                        <span class="input-group-text bg-success text-white"><i class="bi bi-cash-coin"></i></span>
-                                        <input type="number" step="any" min="0" class="form-control" id="precio" name="precio" placeholder="Precio" required>
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </span>
+                                        <input type="number" step="0.01" min="0" id="precio_venta"
+                                            class="form-control" name="precio_venta"
+                                            placeholder="Precio de venta" required>
                                     </div>
                                 </div>
                             </div>
+
                             <!-- opciones de categoria + opciones de departamento -->
                             <div class="row g-2 mb-3">
                                 <div class="col">
@@ -383,6 +387,17 @@ if (!empty($usuario['imagen'])) {
                                             }
                                             ?>
                                         </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!--Stock + proveedor-->
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-stack"></i></span>
+                                        <input type="number" min="0" step="1" pattern="[0-9]+"
+                                            class="form-control" id="stock" name="stock" placeholder="Stock" required>
                                     </div>
                                 </div>
                                 <div class="col">

@@ -14,7 +14,7 @@ include 'controladores/procesar_login.php';
     <link rel="stylesheet" href="css/login.css">
 </head>
 
-<body style=" background: linear-gradient(135deg, #2ad867ff, #25cdfcff);">
+<body style=" background: linear-gradient(135deg, #25cdfcff ,#2ad867ff);">
 
     <div class="container login-container d-flex justify-content-center align-items-center vh-100">
         <div class="login-card">
@@ -24,14 +24,14 @@ include 'controladores/procesar_login.php';
                 <p>Por favor, inicia sesión para continuar.</p>
             </div>
             <div class="login-right">
-                <h3 class="mb-4">Iniciar sesión</h3>
+                <h3 class="mb-3">Iniciar sesión</h3>
 
                 <form method="POST" action="">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username o Email</label>
                         <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su usuario o correo">
                     </div>
-                    <div class="mb-3 position-relative">
+                    <div class="mb-2 position-relative">
                         <label for="password" class="form-label">Contraseña</label>
                         <div class="input-group">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
@@ -42,7 +42,7 @@ include 'controladores/procesar_login.php';
                     </div>
 
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="rememberMe">
                             <label class="form-check-label" for="rememberMe">Recordar</label>
@@ -51,13 +51,13 @@ include 'controladores/procesar_login.php';
                     <button type="submit" class="btn btn-danger w-100">Ingresar</button>
 
                     <?php if (!empty($error)): ?>
-                        <div class="alert alert-danger mt-3" role="alert">
+                        <div class="alert alert-danger mt-2" role="alert">
                             <?= $error ?>
                         </div>
                     <?php endif; ?>
                 </form>
                 <!-- Puedes agregar enlaces adicionales aquí, como "¿Olvidaste tu contraseña? y registrarse" -->
-                <div class="mt-3 text-center ">
+                <div class="mt-2 text-center ">
                     <a href="recuperar_cuenta.php" class="text-decoration-none">¿Olvidaste tu contraseña?</a> |
                     <a href="registro_cuenta.php" class="text-decoration-none">Registrarse</a>
                 </div>
