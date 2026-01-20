@@ -62,6 +62,12 @@ include 'controladores/procesar_index.php';
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link text-secondary" href="sucursales.php">
+                                <!--Poner icono de sucursal-->
+                                <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link text-secondary" href="categorias.php">
                                 <!--Poner icono de categorias-->
                                 <i class="fas fa-th-large"></i> Categorías

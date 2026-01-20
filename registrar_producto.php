@@ -74,6 +74,12 @@ if (!empty($usuario['imagen'])) {
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link text-secondary" href="sucursales.php">
+                                <!--Poner icono de sucursal-->
+                                <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link text-secondary" href="categorias.php">
                                 <!--Poner icono de categorias-->
                                 <i class="fas fa-th-large"></i> Categorías
@@ -289,34 +295,84 @@ if (!empty($usuario['imagen'])) {
             </nav>
 
             <!-- Contenido -->
-            <div class="container-fluid p-4">
+            <div class="container-fluid p-3">
                 <!-- Título -->
-                <h2 class="mb-4">Registrar producto</h2>
+                <h2 class="mb-3">Registrar producto</h2>
                 <div class="card">
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
-                            <!--Imagen-->
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-success text-white">
-                                        <i class="bi bi-camera-fill fs-4"></i>
-                                    </span>
-                                    <input class="form-control" type="file" id="imagen" name="imagen" accept="image/png, image/jpeg" />
+                            <!-- Imagen -->
+                            <div class="mb-2">
+                                <div class="card border-0 shadow-sm">
+                                    <!-- Input -->
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="bi bi-image"></i>
+                                        </span>
+                                        <input
+                                            type="file"
+                                            name="imagen"
+                                            id="imagen"
+                                            class="form-control"
+                                            accept="image/png, image/jpeg">
+                                    </div>
+
+                                    <div class="form-text">
+                                        Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <!-- Vista previa -->
+                                        <div id="previewImagen" class="mt-0 d-none">
+                                            <div class="row align-items-center g-3">
+
+                                                <!-- Imagen -->
+                                                <div class="col-auto">
+                                                    <div class="border rounded p-2 bg-light">
+                                                        <img
+                                                            id="previewImg"
+                                                            class="img-fluid rounded"
+                                                            style="width: 70px; height: 60px; object-fit: cover;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Detalles -->
+                                                <div class="col">
+                                                    <ul class="list-group list-group-flush small">
+                                                        <!--<li class="list-group-item px-0">
+                                                        <i class="bi bi-file-earmark-text text-success me-2"></i>
+                                                        <strong>Nombre:</strong>
+                                                        <span id="imgNombre"></span>
+                                                    </li>-->
+                                                        <li class="list-group-item px-0">
+                                                            <i class="bi bi-aspect-ratio text-info me-2"></i>
+                                                            <strong>Tipo:</strong>
+                                                            <span id="imgTipo"></span>
+                                                        </li>
+                                                        <li class="list-group-item px-0">
+                                                            <i class="bi bi-hdd text-warning me-2"></i>
+                                                            <strong>Tamaño:</strong>
+                                                            <span id="imgSize"></span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
-                                <small class="text-muted">
-                                    *Máximo 1.8 MB · PNG o JPG
-                                </small>
                             </div>
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-2">
                                 <div class="col">
+                                    <label for="codigo" class="form-label">SKU/CÓDIGO</label>
                                     <div class="input-group">
                                         <!--codigo del producto-->
                                         <span class="input-group-text bg-success text-white"><i class="bi bi-tag-fill"></i></span>
                                         <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo del producto" required>
                                     </div>
                                 </div>
-
                                 <div class="col">
+                                    <label for="producto" class="form-label">Producto</label>
                                     <div class="input-group">
                                         <!--nombre del producto-->
                                         <span class="input-group-text bg-success text-white"><i class="bi bi-box-seam"></i></span>
@@ -325,14 +381,16 @@ if (!empty($usuario['imagen'])) {
                                 </div>
                             </div>
                             <!--prcio venta + precio compra -->
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-2">
                                 <div class="col">
+                                    <label for="costo" class="form-label">Costo de compra</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white"><i class="bi bi-cash-coin"></i></span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="precio_compra" name="precio_compra" placeholder="Costo de compra" required>
                                     </div>
                                 </div>
                                 <div class="col">
+                                    <label for="precio" class="form-label">Precio a vender</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white">
                                             <i class="bi bi-cash-coin"></i>
@@ -345,8 +403,9 @@ if (!empty($usuario['imagen'])) {
                             </div>
 
                             <!-- opciones de categoria + opciones de departamento -->
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-2">
                                 <div class="col">
+                                    <label for="categoria" class="form-label">Categoria</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white"> <i class="fas fa-th-large"></i></span>
                                         <!--poner un select con opciones de rubro y mostrar los rubros de la base de datos-->
@@ -355,7 +414,7 @@ if (!empty($usuario['imagen'])) {
                                         $resultado = $conexion->query($sql);
                                         ?>
                                         <select class="form-select" id="categoria" name="categoria" required>
-                                            <option value="" disabled selected>Categoria</option>
+                                            <option value="" disabled selected>Selecciona</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {
@@ -367,6 +426,7 @@ if (!empty($usuario['imagen'])) {
                                     </div>
                                 </div>
                                 <div class="col">
+                                    <label for="marca" class="form-label">Marca</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white">
                                             <!--Poner icono de marca-->
@@ -378,7 +438,7 @@ if (!empty($usuario['imagen'])) {
                                         $resultado = $conexion->query($sql);
                                         ?>
                                         <select class="form-select" id="marca" name="marca" required>
-                                            <option value="" disabled selected>Marca</option>
+                                            <option value="" disabled selected>Selecciona</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {
@@ -392,8 +452,9 @@ if (!empty($usuario['imagen'])) {
 
                             </div>
                             <!--Stock + proveedor-->
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-2">
                                 <div class="col">
+                                    <label for="stock" class="form-label">Stock</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white"><i class="bi bi-stack"></i></span>
                                         <input type="number" min="0" step="1" pattern="[0-9]+"
@@ -401,6 +462,7 @@ if (!empty($usuario['imagen'])) {
                                     </div>
                                 </div>
                                 <div class="col">
+                                    <label for="provedor" class="form-label">Proveedor</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white"> <i class="fas fa-truck"></i></span>
                                         <!--poner un select con opciones de rubro y mostrar los rubros de la base de datos-->
@@ -409,7 +471,8 @@ if (!empty($usuario['imagen'])) {
                                         $resultado = $conexion->query($sql);
                                         ?>
                                         <select class="form-select" id="proveedor" name="proveedor" required>
-                                            <option value="" disabled selected>Proveedor</option>
+                                            <option value="" disabled selected>Selecciona</option>
+                                            <option value="">Sin proveedor</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {
@@ -420,11 +483,33 @@ if (!empty($usuario['imagen'])) {
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col">
+                                    <label for="sucursal" class="form-label">Sucursal / Tienda</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"> <i class="fas fa-store me-2"></i>
+                                        </span>
+                                        <!--poner un select con opciones de rubro y mostrar los rubros de la base de datos-->
+                                        <?php
+                                        $sql = "SELECT id_sucursal, nombre, id_user FROM sucursal where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . "";
+                                        $resultado = $conexion->query($sql);
+                                        ?>
+                                        <select class="form-select" id="sucursal" name="sucursal" required>
+                                            <option value="" disabled selected>Selecciona</option>
+                                            <?php
+                                            if ($resultado->num_rows > 0) {
+                                                while ($fila = $resultado->fetch_assoc()) {
+                                                    echo '<option value="' . $fila['id_sucursal'] . '">' . $fila['nombre'] . '</option>';
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <!--Breve descripcion del producto (detalle) -->
                             <div class="mb-3">
                                 <label for="descripcion" class="form-label">Descripción del producto</label>
-                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Breve descripción del producto"></textarea>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="2" placeholder="Breve descripción del producto"></textarea>
                             </div>
                             <!--Boton registrar-->
                             <button type="submit" class="btn btn-primary">Registrar</button>
@@ -444,6 +529,7 @@ if (!empty($usuario['imagen'])) {
             </div>
         </div>
         <script src="js/menu_sidebar.js"></script>
+        <script src="js/visualizar_imagen.js"></script>
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

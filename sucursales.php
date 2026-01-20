@@ -4,11 +4,9 @@ if (!isset($_SESSION['usId'])) {
     header("Location: login.php");
     exit();
 }
-include 'controladores/conexion.php';
-require 'controladores/procesar_lista_productos.php';
-require 'controladores/editar_producto.php';
-$mensaje = "";
-$tipoAlerta = "";
+include 'controladores/procesar_sucursal.php';
+// ✅ EVITAR ERROR DE VARIABLE INDEFINIDA
+$busqueda = isset($_GET['buscar']) ? $_GET['buscar'] : '';
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
 $stmt = $conexion->prepare($sqlFoto);
 $stmt->bind_param("i", $_SESSION['usId']);
@@ -26,7 +24,7 @@ if (!empty($usuario['imagen'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Productos - Inventa</title>
+    <title>Sucursales - Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
@@ -67,7 +65,7 @@ if (!empty($usuario['imagen'])) {
 
                     <ul class="collapse list-unstyled ps-4" id="menuInventario">
                         <li>
-                            <a class="nav-link text-info" href="lista_productos.php">
+                            <a class="nav-link text-secondary" href="lista_productos.php">
                                 <i class="fas fa-box"></i> Ver inventario
                             </a>
                         </li>
@@ -77,7 +75,7 @@ if (!empty($usuario['imagen'])) {
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link text-secondary" href="sucursales.php">
+                            <a class="nav-link text-info" href="sucursales.php">
                                 <!--Poner icono de sucursal-->
                                 <i class="fas fa-store me-2"></i>Sucursal/Tienda
                             </a>
@@ -256,12 +254,13 @@ if (!empty($usuario['imagen'])) {
         </nav>
         <!-- Contenido principal -->
         <div id="content">
-            <!-- Navbar superior FIXED -->
+            <!-- Navbar superior -->
             <nav class="navbar bg-light border-bottom">
                 <div class="container-fluid d-flex align-items-center">
 
                     <!-- Botón sidebar -->
-                    <button id="toggleSidebar" class="btn btn-dark me-3 d-lg-none">
+                    <!-- Botón sidebar -->
+                    <button id="toggleSidebar" class="btn btn-dark me-3  d-lg-none">
                         <i class="fas fa-bars"></i>
                     </button>
 
@@ -298,179 +297,156 @@ if (!empty($usuario['imagen'])) {
             </nav>
 
             <!-- Contenido -->
-            <div id="content" class="container-fluid p-3">
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
-                            <form id="formBuscar" class="d-flex" method="GET" action="lista_productos.php">
-                                <input
-                                    id="inputBuscar"
-                                    class="form-control me-2"
-                                    type="search"
-                                    name="buscar"
-                                    placeholder="Buscar producto por codigo, nombre o fecha"
-                                    value="<?= isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
-                                <button class="btn btn-outline-success" type="submit">
-                                    Buscar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+            <div class="container-fluid p-4">
 
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
-                            <div class="btn-group">
-                                <button
-                                    class="btn btn-secondary dropdown-toggle"
-                                    type="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="bi bi-file-earmark-arrow-down"></i>
-                                    Exportar datos
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="controladores/exportar_productos_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar PDF
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="controladores/exportar_productos_excel.php" target="_blank">
-                                            <i class="fas fa-file-excel"></i> Exportar Excel
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Tabla -->
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <div class="card">
+                <div class="card">
+                    <div class="card-body">
+                        <!--Al darle click al boton de editar debe cargar el rubro en el formulario, para eso verificar si existe el id en la url-->
+                        <?php
+                        if (isset($_GET['id'])) {
+                            $id_sucursal = intval($_GET['id']);
+                            $resultadoEditar = $conexion->query("SELECT * FROM sucursal WHERE id_sucursal  = $id_sucursal");
+                            if ($filaEditar = $resultadoEditar->fetch_assoc()) {
+                                $nombreSucursal = $filaEditar['nombre'];
+                            } else {
+                                echo "<div class='alert alert-danger'>Sucursal no encontrado.</div>";
+                                $nombreSucursal = "";
+                            }
+                        } else {
+                            $nombreSucursal = "";
+                        }
+                        ?>
+                        <div class="card mb-2">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Productos registrados: <?php echo $totalProducto; ?></h5>
+                                <h5 class="card-title mb-0"><?php echo isset($_GET['id']) ? 'Editar' : 'Registrar Nuevo'; ?></h5>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover table-sm w-100">
+                            <div class="card-body">
+                                <form method="POST">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($nombreSucursal); ?>" required>
+                                    </div>
+                                    <?php if (isset($_GET['id'])): ?>
+                                        <input type="hidden" name="id_sucursal" value="<?php echo intval($_GET['id']); ?>">
+                                        <button type="submit" name="accion" value="editar" class="btn btn-primary">Guardar Cambios</button>
+                                        <!--Boton para cancelar la edicion y volver al formulario de registro-->
+                                        <a href="sucursales.php" class="btn btn-secondary">Cancelar</a>
+                                    <?php else: ?>
+                                        <button type="submit" name="accion" value="registrar" class="btn btn-success">Registrar</button>
+                                    <?php endif; ?>
+                                </form>
+                            </div>
+                        </div>
 
-                                    <thead class="table-success text-center">
-                                        <tr>
-                                            <th>Imagen</th>
-                                            <th>Producto</th>
-                                            <th>sku</th>
-                                            <th>Marca</th>
-                                            <th>Precio</th>
-                                            <th>Fecha</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($fila = $resultado->fetch_assoc()): ?>
+                        <?php if (!empty($mensaje)): ?>
+                            <div class="alert alert-<?= $tipoAlerta ?> alert-dismissible fade show" role="alert">
+                                <?= $mensaje ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <!-- Contenido -->
+                <div class="container-fluid p-2">
+                    <!-- Tabla -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Sucursales registrados: <?php echo $totalSucursal; ?></h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
                                             <tr>
-                                                <td>
-                                                    <?php if ($fila['imagen']): ?>
-                                                        <img src="data:image/jpeg;base64,<?= base64_encode($fila['imagen']); ?>"
-                                                            width="50" height="50" />
-                                                    <?php else: ?>
-                                                        <i class="fas fa-box"></i> <?php endif; ?>
-                                                </td>
-                                                <td class="text-truncate-custom"><?php echo htmlspecialchars($fila['nombre']); ?></td>
-                                                <td class="text-truncate-custom"><?php echo htmlspecialchars($fila['codigo']); ?></td>
-                                                <td class="text-truncate-custom">
-                                                    <?= htmlspecialchars($fila['nombre_marca'] ?? 'Sin marca'); ?>
-                                                </td>
-                                                <td><?php echo "S/. " . number_format($fila['precio'], 2); ?></td>
-                                                <td>
-                                                    <?= date('n/Y', strtotime($fila['fecha_registro'])); ?>
-                                                </td>
-                                                <td class="text-truncate-custom">
-                                                    <button
-                                                        class="btn btn-sm btn-warning"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalEditar"
-                                                        data-id="<?php echo $fila['idProducto']; ?>"
-                                                        data-nombre="<?php echo htmlspecialchars($fila['nombre']); ?>"
-                                                        data-codigo="<?php echo htmlspecialchars($fila['codigo']); ?>"
-                                                        data-precio="<?php echo htmlspecialchars($fila['precio']); ?>"
-                                                        data-costo="<?php echo htmlspecialchars($fila['costo_compra']); ?>"
-                                                        data-stock="<?php echo htmlspecialchars($fila['stock']); ?>"
-                                                        data-categoria="<?php echo htmlspecialchars($fila['id_categorias']); ?>"
-                                                        data-provedor="<?php echo htmlspecialchars($fila['id_provedor']); ?>"
-                                                        data-marca="<?php echo htmlspecialchars($fila['id_marca']); ?>"
-                                                        data-sucursal="<?php echo htmlspecialchars($fila['id_sucursal']); ?>"
-                                                        data-descripcion="<?php echo htmlspecialchars($fila['descripcion']); ?>">
-                                                        <i class="fas fa-pen-to-square"></i>
-                                                    </button>
-
-                                                    <!-- Botón para eliminar -->
-                                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="setEliminarId(<?php echo $fila['idProducto']; ?>)">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
+                                                <th>Nombre</th>
+                                                <th>Acciones</th>
                                             </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <?php while ($fila = $resultado->fetch_assoc()): ?>
+                                                <tr>
+
+                                                    <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
+                                                    <td>
+                                                        <!--Boton para editar-->
+                                                        <a href="sucursales.php?id=<?php echo $fila['id_sucursal']; ?>" class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-pen-to-square"></i>
+                                                        </a>
+                                                        <!-- Botón para eliminar -->
+                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="setEliminarId(<?php echo $fila['id_sucursal']; ?>)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+
+
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile; ?>
+                                        </tbody>
+                                    </table>
+                                    <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
+                                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                                        <div class="fw-bold text-success">
+                                            Página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?>
+                                        </div>
+
+                                        <!-- Botones de paginación -->
+                                        <div>
+                                            <?php if ($pagina > 1): ?>
+                                                <a class="btn btn-outline-success btn-sm me-2"
+                                                    href="?pagina=<?php echo $pagina - 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                                    ⬅ Anterior
+                                                </a>
+                                            <?php else: ?>
+                                                <button class="btn btn-outline-success btn-sm me-2" disabled>⬅ Anterior</button>
+                                            <?php endif; ?>
+
+                                            <?php if ($pagina < $totalPaginas): ?>
+                                                <a class="btn btn-outline-success btn-sm"
+                                                    href="?pagina=<?php echo $pagina + 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                                    Siguiente ➡
+                                                </a>
+                                            <?php else: ?>
+                                                <button class="btn btn-outline-success btn-sm" disabled>Siguiente ➡</button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-
-                    <div class="fw-bold text-success">
-                        Página <?= $pagina ?> de <?= $totalPaginas ?>
-                        | Total registros: <?= $totalProducto ?>
-                    </div>
-
-                    <div>
-                        <!-- BOTÓN ANTERIOR -->
-                        <?php if ($pagina > 1): ?>
-                            <a class="btn btn-outline-success btn-sm me-2"
-                                href="?pagina=<?= $pagina - 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                ⬅ Anterior
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm me-2" disabled>
-                                ⬅ Anterior
-                            </button>
-                        <?php endif; ?>
-
-                        <!-- BOTÓN SIGUIENTE -->
-                        <?php if ($pagina < $totalPaginas): ?>
-                            <a class="btn btn-outline-success btn-sm"
-                                href="?pagina=<?= $pagina + 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                Siguiente ➡
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                Siguiente ➡
-                            </button>
-                        <?php endif; ?>
-                    </div>
 
                 </div>
+            </div>
 
+            <!-- Modal de confirmación -->
+            <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEliminarLabel">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas eliminar este sucursal?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="#" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- llamar modal_clientes.php -->
-    <?php include 'modal/modal_productos.php'; ?>
-    <script src="js/lista_productos.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/menu_sidebar.js"></script>
-
+        <script>
+            function setEliminarId(id) {
+                const btn = document.getElementById('btnConfirmarEliminar');
+                btn.href = '?eliminar=' + id;
+            }
+        </script>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/menu_sidebar.js"></script>
 </body>
 
 </html>

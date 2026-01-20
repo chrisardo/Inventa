@@ -6,6 +6,7 @@ if (!isset($_SESSION['usId'])) {
 }
 $usId = $_SESSION['usId'];
 require 'controladores/procesar_lista_proveedores.php';
+require 'controladores/editar_proveedor.php';
 $mensaje = "";
 $tipoAlerta = "";
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
@@ -39,7 +40,7 @@ if (!empty($usuario['imagen'])) {
 </head>
 
 <body>
-     <div class="d-flex vh-100 overflow-hidden">
+    <div class="d-flex vh-100 overflow-hidden">
         <!-- Sidebar -->
         <nav id="sidebar" class="bg-dark text-white p-3 " style="width:250px;">
             <!--poner logo de la empresa-->
@@ -248,7 +249,7 @@ if (!empty($usuario['imagen'])) {
             </ul>
         </nav>
         <!-- Contenido principal -->
-         <div id="content">
+        <div id="content">
             <!-- Navbar superior -->
             <nav class="navbar bg-light border-bottom">
                 <div class="container-fluid d-flex align-items-center">

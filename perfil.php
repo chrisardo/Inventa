@@ -44,6 +44,7 @@ $tickets = $resTickets->fetch_assoc();
     <link rel="stylesheet" href="css/perfil.css">
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="js/visibilidad_email.js"></script>
@@ -191,9 +192,7 @@ $tickets = $resTickets->fetch_assoc();
         </div>
     </div>
     <?php
-    include 'modal/modal_editar_perfil.php';
-    include 'modal/modal_editar_email.php';
-    include 'modal/modal_editar_contrasena.php';
+
     function ocultarEmail($email)
     {
         $partes = explode("@", $email);
@@ -207,13 +206,16 @@ $tickets = $resTickets->fetch_assoc();
 
         return $visible . $oculto . "@" . $dominio;
     }
+    include 'modal/modal_editar_perfil.php';
+    include 'modal/modal_editar_email.php';
+    include 'modal/modal_editar_contrasena.php';
     ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/actualizar_email.js"></script>
     <script src="js/actualizar_contrasena.js"></script>
-
+    <script src="js/actualizar_perfil.js"></script>
 </body>
 
 </html>

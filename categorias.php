@@ -75,6 +75,12 @@ if (!empty($usuario['imagen'])) {
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link text-secondary" href="sucursales.php">
+                                <!--Poner icono de sucursal-->
+                                <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link text-info" href="categorias.php">
                                 <!--Poner icono de categorias-->
                                 <i class="fas fa-th-large"></i> Categorías
@@ -422,7 +428,7 @@ if (!empty($usuario['imagen'])) {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
                         <div class="modal-body">
-                            ¿Estás seguro de que deseas eliminar esta marca?
+                            ¿Estás seguro de que deseas eliminar esta categoria?
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

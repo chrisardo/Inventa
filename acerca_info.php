@@ -72,6 +72,12 @@ if (!empty($usuario['imagen'])) {
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link text-secondary" href="sucursales.php">
+                                <!--Poner icono de sucursal-->
+                                <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link text-secondary" href="categorias.php">
                                 <!--Poner icono de categorias-->
                                 <i class="fas fa-th-large"></i> Categorías
@@ -210,7 +216,7 @@ if (!empty($usuario['imagen'])) {
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
                         data-bs-toggle="collapse"
                         href="#menuPolitica"
                         role="button"
@@ -223,7 +229,7 @@ if (!empty($usuario['imagen'])) {
 
                     <ul class="collapse list-unstyled ps-4" id="menuPolitica">
                         <li>
-                            <a class="nav-link text-info" href="politica_privacidad.php">
+                            <a class="nav-link text-secondary" href="politica_privacidad.php">
                                 <i class="fas fa-user-shield me-2"></i> Política de Privacidad
                             </a>
                         </li>
@@ -235,7 +241,7 @@ if (!empty($usuario['imagen'])) {
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="acerca_info.php">
+                    <a class="nav-link text-info" href="acerca_info.php">
                         <i class="fas fa-info-circle"></i>
                         Acerca de
                     </a>
@@ -330,7 +336,7 @@ if (!empty($usuario['imagen'])) {
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-briefcase"></i>
-                                <a href="https://sites.google.com/view/portafolio-christian-rojas/index" class="text-decoration-none text-dark"  target="_blank">
+                                <a href="https://sites.google.com/view/portafolio-christian-rojas/index" class="text-decoration-none text-dark" target="_blank">
                                     Portafolio web: https://sites.google.com/view/portafolio-christian-rojas/index
                                 </a>
                             </li>

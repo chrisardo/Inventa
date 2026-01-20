@@ -27,8 +27,8 @@ include 'controladores/procesar_registro_usuario.php';
                 <h2> </h2>
                 <p>Por favor, registre una cuenta.</p>
             </div>
-            <div class="login-right">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="login-right py-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <h3 class="mb-0">Registrar cuenta</h3>
 
                     <a href="login.php"
@@ -39,22 +39,68 @@ include 'controladores/procesar_registro_usuario.php';
                     </a>
                 </div>
                 <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <!--Subir imagen-->
-                        <div class="input-group">
-                            <!--Icono de subir imagen-->
-                            <span class="d-inline-block bg-success text-white p-2 mb-2"
-                                style="width:40px; height:40px; line-height:36px;">
-                                <i class="bi bi-camera-fill fs-4"></i>
-                            </span>
-                            <input class="form-control" type="file" id="imagen" name="imagen" accept="image/png, image/jpeg" required />
+                    <!-- Imagen -->
+                    <div class="mb-2">
+                        <div class="card border-0 shadow-sm">
+                            <!-- Input -->
+                            <div class="input-group">
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="bi bi-image"></i>
+                                </span>
+                                <input
+                                    type="file"
+                                    name="imagen"
+                                    id="imagen"
+                                    class="form-control"
+                                    accept="image/png, image/jpeg">
+                            </div>
+
+                            <div class="form-text">
+                                Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
+                            </div>
+                            <div class="card-body p-2">
+                                <!-- Vista previa -->
+                                <div id="previewImagen" class="mt-0 d-none">
+                                    <div class="row align-items-center g-3">
+
+                                        <!-- Imagen -->
+                                        <div class="col-auto">
+                                            <div class="border rounded p-2 bg-light">
+                                                <img
+                                                    id="previewImg"
+                                                    class="img-fluid rounded"
+                                                    style="width: 70px; height: 50px; object-fit: cover;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Detalles -->
+                                        <div class="col">
+                                            <ul class="list-group list-group-flush small">
+                                                <!--<li class="list-group-item px-0">
+                                                        <i class="bi bi-file-earmark-text text-success me-2"></i>
+                                                        <strong>Nombre:</strong>
+                                                        <span id="imgNombre"></span>
+                                                    </li>-->
+                                                <li class="list-group-item px-0">
+                                                    <i class="bi bi-aspect-ratio text-info me-2"></i>
+                                                    <strong>Tipo:</strong>
+                                                    <span id="imgTipo"></span>
+                                                </li>
+                                                <li class="list-group-item px-0">
+                                                    <i class="bi bi-hdd text-warning me-2"></i>
+                                                    <strong>Tamaño:</strong>
+                                                    <span id="imgSize"></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
-                        <small class="text-muted">
-                            *Máximo 1.8 MB · PNG o JPG
-                        </small>
                     </div>
                     <div class="row g-2 mb-3">
-
                         <div class="col">
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white"><i class="bi bi-person"></i></span>
@@ -124,7 +170,7 @@ include 'controladores/procesar_registro_usuario.php';
                     </div>
 
                     <!-- Checkbox -->
-                    <div class="form-check text-start mb-3 text-white">
+                    <div class="form-check text-start mb-2 text-white">
                         <input
                             class="form-check-input"
                             type="checkbox"
@@ -132,7 +178,7 @@ include 'controladores/procesar_registro_usuario.php';
                             name="terminos"
                             required>
 
-                        <label class="form-check-label text-success" for="terminos">
+                        <label class="form-check-label text-success terminos-text " for="terminos">
                             Acepto los
                             <a href="#" data-bs-toggle="modal" data-bs-target="#modalTerminos"
                                 onclick="event.preventDefault();"
@@ -148,7 +194,7 @@ include 'controladores/procesar_registro_usuario.php';
                         </label>
                     </div>
                     <!-- Submit -->
-                    <button class="btn btn-success w-100 py-1 fw-bold">Registrarse </button>
+                    <button class="btn btn-success w-100 py-1  mb-0 fw-bold">Registrarse </button>
                     <!-- Mensaje -->
                     <?php if (!empty($mensaje)): ?>
                         <div class="alert alert-<?= $tipoAlerta ?> mt-2 ">
@@ -181,6 +227,7 @@ include 'controladores/procesar_registro_usuario.php';
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
     </script>
+    <script src="js/visualizar_imagen.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
