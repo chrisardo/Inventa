@@ -12,14 +12,65 @@
                         <input type="hidden" name="accion" value="editar">
                         <input type="hidden" name="idCliente" id="edit-id">
                         <!--Imagen-->
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white"><i class="bi bi-image"></i></span>
-                                <input type="file" name="imagen" id="edit-imagen" class="form-control" accept="image/*">
+                        <div class="mb-2">
+                            <div class="card border-0 shadow-sm">
+                                <!-- Input -->
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white">
+                                        <i class="bi bi-image"></i>
+                                    </span>
+                                    <input
+                                        type="file"
+                                        name="imagen"
+                                        id="edit-imagen"
+                                        class="form-control"
+                                        accept="image/png, image/jpeg">
+                                </div>
+
+                                <div class="form-text">
+                                    Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
+                                </div>
+                                <div class="card-body p-2">
+                                    <!-- Vista previa -->
+                                    <div id="previewImagen" class="mt-0 d-none">
+                                        <div class="row align-items-center g-3">
+
+                                            <!-- Imagen -->
+                                            <div class="col-auto">
+                                                <div class="border rounded p-2 bg-light">
+                                                    <img
+                                                        id="previewImg"
+                                                        class="img-fluid rounded"
+                                                        style="width: 70px; height: 60px; object-fit: cover;">
+                                                </div>
+                                            </div>
+
+                                            <!-- Detalles -->
+                                            <div class="col">
+                                                <ul class="list-group list-group-flush small">
+                                                    <!--<li class="list-group-item px-0">
+                                                        <i class="bi bi-file-earmark-text text-success me-2"></i>
+                                                        <strong>Nombre:</strong>
+                                                        <span id="imgNombre"></span>
+                                                    </li>-->
+                                                    <li class="list-group-item px-0">
+                                                        <i class="bi bi-aspect-ratio text-info me-2"></i>
+                                                        <strong>Tipo:</strong>
+                                                        <span id="imgTipo"></span>
+                                                    </li>
+                                                    <li class="list-group-item px-0">
+                                                        <i class="bi bi-hdd text-warning me-2"></i>
+                                                        <strong>Tamaño:</strong>
+                                                        <span id="imgSize"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                            <small class="text-muted">
-                                *Máximo 1.5 MB · PNG o JPG
-                            </small>
                         </div>
                         <!--Nombre y documento-->
                         <div class="row g-2 mb-2">

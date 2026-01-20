@@ -1,4 +1,19 @@
-    <!-- Modal de editar productos -->
+    <?php
+    if (!empty($mensaje)) {
+        echo "<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+            modal.show();
+            const alert = document.getElementById('alertaProducto');
+            alert.classList.remove('d-none');
+            alert.classList.add('alert-danger');
+            alert.innerHTML = " . json_encode($mensaje) . ";
+        });
+    </script>";
+    }
+    ?>
+
+    <!-- Toda esta parte es modal/modal_productos.php -->
     <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -14,17 +29,65 @@
                         <input type="hidden" name="accion" value="editar">
                         <input type="hidden" name="idProducto" id="edit-id">
                         <!--Imagen-->
-                        <div class="mb-3">
-                            <label class="form-label">Imagen</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white"><i class="bi bi-image"></i></span>
-                                <input type="file"
-                                    name="imagen"
-                                    id="edit-imagen"
-                                    class="form-control"
-                                    accept="image/png, image/jpeg">
+                        <div class="mb-2">
+                            <div class="card border-0 shadow-sm">
+                                <!-- Input -->
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white">
+                                        <i class="bi bi-image"></i>
+                                    </span>
+                                    <input
+                                        type="file"
+                                        name="imagen"
+                                        id="edit-imagen"
+                                        class="form-control"
+                                        accept="image/png, image/jpeg">
+                                </div>
+
+                                <div class="form-text">
+                                    Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
+                                </div>
+                                <div class="card-body p-2">
+                                    <!-- Vista previa -->
+                                    <div id="previewImagen" class="mt-0 d-none">
+                                        <div class="row align-items-center g-3">
+
+                                            <!-- Imagen -->
+                                            <div class="col-auto">
+                                                <div class="border rounded p-2 bg-light">
+                                                    <img
+                                                        id="previewImg"
+                                                        class="img-fluid rounded"
+                                                        style="width: 70px; height: 60px; object-fit: cover;">
+                                                </div>
+                                            </div>
+
+                                            <!-- Detalles -->
+                                            <div class="col">
+                                                <ul class="list-group list-group-flush small">
+                                                    <!--<li class="list-group-item px-0">
+                                                        <i class="bi bi-file-earmark-text text-success me-2"></i>
+                                                        <strong>Nombre:</strong>
+                                                        <span id="imgNombre"></span>
+                                                    </li>-->
+                                                    <li class="list-group-item px-0">
+                                                        <i class="bi bi-aspect-ratio text-info me-2"></i>
+                                                        <strong>Tipo:</strong>
+                                                        <span id="imgTipo"></span>
+                                                    </li>
+                                                    <li class="list-group-item px-0">
+                                                        <i class="bi bi-hdd text-warning me-2"></i>
+                                                        <strong>Tamaño:</strong>
+                                                        <span id="imgSize"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                            <small class="text-muted">Solo JPG o PNG. Máx. 1.8 MB</small>
                         </div>
                         <!--Nombre y documento-->
                         <div class="row g-2 mb-3">
@@ -80,8 +143,9 @@
                                     <span class="input-group-text bg-success text-white"> <i class="fas fa-truck"></i></span>
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
-                                    <select name="provedor" id="edit-provedor" class="form-select" required>
-                                        <option value="">Seleccione proveedor</option>
+                                    <select name="provedor" id="edit-provedor" class="form-select">
+                                        <option value="" disabled selected>Selecciona Proveedor</option>
+                                        <option value="">Sin proveedor</option>
                                         <?php
                                         $resultadoProv = $conexion->query("SELECT id_provedor, nombre, id_user FROM provedores where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
                                         while ($prov = $resultadoProv->fetch_assoc()) {
@@ -134,7 +198,25 @@
                                     </select>
                                 </div>
                             </div>
-
+                            <div class="col">
+                                <label class="form-label">Sucursal</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-industry me-2"></i></span>
+                                    <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
+                                    <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
+                                    <select name="sucursal" id="edit-sucursal" class="form-select" required>
+                                        <option value="">Seleccione sucursal</option>
+                                        <?php
+                                        $resultadoSucursal = $conexion->query("SELECT id_sucursal, nombre, id_user FROM sucursal where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
+                                        while ($sucursal = $resultadoSucursal->fetch_assoc()) {
+                                            echo '<option value="' . $sucursal['id_sucursal'] . '">'
+                                                . htmlspecialchars($sucursal['nombre']) .
+                                                '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <!--descripcion-->
                         <div class="mb-3">

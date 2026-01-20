@@ -16,12 +16,12 @@
                 <table class="table table-striped table-hover text-center table-sm w-100">
                     <thead class="table-success">
                         <tr>
-                            <th>Imagen</th>
+                            <th>Acción</th>
                             <th>Producto</th>
                             <th>Stock</th>
                             <th>Precio</th>
                             <th>Marca</th>
-                            <th>Acción</th>
+                            <th>Imagen</th>
                         </tr>
                     </thead>
                     <tbody id="tablaProductos">
@@ -29,14 +29,14 @@
                         <?php while ($row = mysqli_fetch_assoc($resultado)) { ?>
                             <tr>
                                 <td>
-                                    <?php if ($row['imagen']): ?>
-                                        <img src="data:image/jpeg;base64,<?php echo base64_encode($row['imagen']); ?>"
-                                            width="60">
-                                    <?php else: ?>
-                                        <i class="fas fa-box"></i> <?php endif; ?>
-                                </td>
-                                <td><?php echo $row['nombre']; ?></td>
+                                    <button class="btn btn-success btn-sm"
+                                        <?= ($row['stock'] <= 0) ? 'disabled' : '' ?>
+                                        onclick="agregarAlCarrito(<?= $row['idProducto'] ?>)">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
 
+                                </td>
+                                <td class="text-truncate-custom"><?php echo $row['nombre']; ?></td>
                                 <td>
                                     <?php if ($row['stock'] <= 0): ?>
                                         <span class="badge bg-danger">Sin stock</span>
@@ -49,14 +49,13 @@
 
                                 </td>
                                 <td>S/.<?php echo number_format($row['precio'], 2); ?></td>
-                                <td><?php echo $row['nombre_categoria']; ?></td>
+                                <td class="text-truncate-custom"><?php echo $row['nombre_categoria']; ?></td>
                                 <td>
-                                    <button class="btn btn-success btn-sm"
-                                        <?= ($row['stock'] <= 0) ? 'disabled' : '' ?>
-                                        onclick="agregarAlCarrito(<?= $row['idProducto'] ?>)">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
-
+                                    <?php if ($row['imagen']): ?>
+                                        <img src="data:image/jpeg;base64,<?php echo base64_encode($row['imagen']); ?>"
+                                            width="45">
+                                    <?php else: ?>
+                                        <i class="fas fa-box"></i> <?php endif; ?>
                                 </td>
                             </tr>
                         <?php } ?>
