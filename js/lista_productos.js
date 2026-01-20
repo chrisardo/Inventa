@@ -20,6 +20,7 @@ document
       button.dataset.descripcion;
 
     document.getElementById("edit-categoria").value = button.dataset.categoria;
+    document.getElementById("edit-sucursal").value = button.dataset.sucursal;
     document.getElementById("edit-provedor").value = button.dataset.provedor;
 
     // ✅ ESTO ES LO IMPORTANTE
@@ -43,94 +44,102 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /////////////////////////////////////////////////////
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("#modalEditar form");
   const alerta = document.getElementById("alertaProducto");
 
   form.addEventListener("submit", function (e) {
-    e.preventDefault();
+    alerta.classList.add("d-none");
+    alerta.innerHTML = "";
+    alerta.className = "alert d-none";
 
-    ocultarAlerta();
+    let errores = [];
 
-    // ===== VALIDAR CAMPOS VACÍOS =====
-    const requeridos = [
-      "nombre",
-      "codigo",
-      "precio",
-      "costo",
-      "stock",
-      "categoria",
-      "marca",
-      "provedor",
-    ];
+    const nombre = document.getElementById("edit-nombre").value.trim();
+    const codigo = document.getElementById("edit-codigo").value.trim();
+    const precio = document.getElementById("edit-precio").value.trim();
+    const costo = document.getElementById("edit-costo").value.trim();
+    const stock = document.getElementById("edit-stock").value.trim();
+    const proveedor = document.getElementById("edit-provedor").value;
+    const categoria = document.getElementById("edit-categoria").value;
+    const marca = document.getElementById("edit-marca").value;
+    const sucursal = document.getElementById("edit-sucursal").value;
+    const imagen = document.getElementById("edit-imagen");
 
-    for (let name of requeridos) {
-      const campo = form.querySelector(`[name="${name}"]`);
-      if (!campo || campo.value.trim() === "") {
-        mostrarError("Todos los campos son obligatorios.");
-        return;
+    if (nombre === "") errores.push("El nombre es obligatorio.");
+    if (codigo === "") errores.push("El SKU es obligatorio.");
+    if (precio === "" || parseFloat(precio) <= 0)
+      errores.push("El precio debe ser mayor a 0.");
+    if (costo === "" || parseFloat(costo) < 0)
+      errores.push("El costo no puede estar vacío.");
+    if (stock === "" || !Number.isInteger(Number(stock)) || Number(stock) < 0)
+      errores.push("El stock debe ser un número entero mayor o igual a 0.");
+
+    //if (proveedor === "") errores.push("Debe seleccionar un proveedor.");
+    if (categoria === "") errores.push("Debe seleccionar una categoría.");
+    if (marca === "") errores.push("Debe seleccionar una marca.");
+    if (sucursal === "") errores.push("Debe seleccionar una sucursal.");
+    // VALIDAR IMAGEN (si se selecciona)
+    if (imagen.files.length > 0) {
+      const file = imagen.files[0];
+      const tiposPermitidos = ["image/jpeg", "image/png"];
+      const maxSize = 1.8 * 1024 * 1024;
+
+      if (!tiposPermitidos.includes(file.type)) {
+        errores.push("La imagen debe ser JPG o PNG.");
+      }
+
+      if (file.size > maxSize) {
+        errores.push("La imagen no debe superar 1.8 MB.");
       }
     }
 
-    // ===== VALIDAR SELECT =====
-    const selects = form.querySelectorAll("select");
-    for (let sel of selects) {
-      if (sel.value === "") {
-        mostrarError("Debe seleccionar todas las opciones.");
-        return;
-      }
+    if (errores.length > 0) {
+      e.preventDefault();
+      alerta.classList.remove("d-none");
+      alerta.classList.add("alert-danger");
+      alerta.innerHTML =
+        "<ul class='mb-0'><li>" + errores.join("</li><li>") + "</li></ul>";
     }
+  });
+});
 
-    // ===== VALIDAR STOCK ENTERO =====
-    const stock = form.querySelector('[name="stock"]').value;
-    if (!/^\d+$/.test(stock)) {
-      mostrarError("El stock debe ser un número entero sin decimales.");
+////Previsualizar imagen del modal
+////Previsualizar imagen del modal
+document.addEventListener("DOMContentLoaded", function () {
+  const inputImagen = document.getElementById("edit-imagen");
+  const previewCont = document.getElementById("previewImagen");
+  const previewImg = document.getElementById("previewImg");
+  const imgNombre = document.getElementById("imgNombre");
+  const imgSize = document.getElementById("imgSize");
+  const imgTipo = document.getElementById("imgTipo");
+
+  inputImagen.addEventListener("change", function () {
+    if (!this.files || this.files.length === 0) {
+      previewCont.classList.add("d-none");
       return;
     }
 
-    // ===== VALIDAR IMAGEN =====
-    const imagen = form.querySelector('[name="imagen"]').files[0];
-    if (imagen) {
-      if (!["image/jpeg", "image/png"].includes(imagen.type)) {
-        mostrarError("Solo se permiten imágenes JPG o PNG.");
-        return;
-      }
-      if (imagen.size > 1.8 * 1024 * 1024) {
-        mostrarError("La imagen no debe superar 1.8 MB.");
-        return;
-      }
+    const file = this.files[0];
+
+    // Validaciones básicas
+    const tiposPermitidos = ["image/jpeg", "image/png"];
+    if (!tiposPermitidos.includes(file.type)) {
+      previewCont.classList.add("d-none");
+      return;
     }
 
-    // ===== ENVIAR POR AJAX =====
-    const formData = new FormData(form);
+    // Mostrar datos
+    //imgNombre.textContent = file.name;
+    imgTipo.textContent = file.type;
+    imgSize.textContent = (file.size / 1024).toFixed(2) + " KB";
 
-    fetch("lista_productos.php", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.tipo !== "success") {
-          mostrarError(data.mensaje);
-          return;
-        }
-
-        // ✅ TODO CORRECTO → REDIRIGIR
-        window.location.href = "lista_productos.php";
-      })
-      .catch(() => {
-        mostrarError("Error inesperado del servidor.");
-      });
+    // Previsualizar imagen
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      previewImg.src = e.target.result;
+      previewCont.classList.remove("d-none");
+    };
+    reader.readAsDataURL(file);
   });
-
-  function mostrarError(msg) {
-    alerta.className = "alert alert-danger";
-    alerta.textContent = msg;
-    alerta.classList.remove("d-none");
-  }
-
-  function ocultarAlerta() {
-    alerta.classList.add("d-none");
-    alerta.textContent = "";
-  }
 });
