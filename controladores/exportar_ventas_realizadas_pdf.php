@@ -9,27 +9,46 @@ require_once __DIR__ . "/../fpdf/fpdf.php";
 if (!isset($_SESSION['usId'])) {
     die("Acceso no autorizado.");
 }
-
 $usId = intval($_SESSION['usId']);
 
 // ============================
-//  EXTENSIÓN FPDF PARA TABLAS
+//  OBTENER NOMBRE DE EMPRESA
+// ============================
+$empresa = '';
+$sqlEmpresa = "SELECT nombreEmpresa FROM usuario_acceso WHERE id_user = $usId LIMIT 1";
+$resEmpresa = $conexion->query($sqlEmpresa);
+if ($resEmpresa && $resEmpresa->num_rows > 0) {
+    $empresa = $resEmpresa->fetch_assoc()['nombreEmpresa'];
+}
+
+// ============================
+//  EXTENSIÓN FPDF
 // ============================
 class PDF extends FPDF
 {
+    public $empresa;
+    public $fechaReporte;
+
     function Header()
     {
         $this->SetFont('Arial', 'B', 14);
-        $this->Cell(0, 10, utf8_decode('REPORTE GENERAL DE VENTAS - INVENTA'), 0, 1, 'C');
+        $this->Cell(0, 8, utf8_decode('REPORTE GENERAL DE VENTAS'), 0, 1, 'C');
+
+        $this->SetFont('Arial', 'B', 10);
+        $this->Cell(0, 6, utf8_decode($this->empresa), 0, 1, 'C');
+
+        $this->SetFont('Arial', '', 9);
+        $this->Cell(0, 6, utf8_decode('Fecha de exportación: ') . $this->fechaReporte, 0, 1, 'C');
+
         $this->Ln(3);
 
         $headers = [
-            'Emp',
             'Fecha venta',
             'Serie',
             'Pago',
             'Cliente',
             'Nro. doc',
+            'Tienda', //Sucursal
             'Dep',
             'Dist',
             'Prov',
@@ -47,7 +66,6 @@ class PDF extends FPDF
         ];
 
         $widths = [
-            14,
             14,
             12,
             12,
@@ -97,7 +115,6 @@ class PDF extends FPDF
             $this->MultiCell($widths[$i], $height, utf8_decode($data[$i]), 0, 'L');
             $this->SetXY($x + $widths[$i], $y);
         }
-
         $this->Ln($h);
     }
 
@@ -147,6 +164,8 @@ class PDF extends FPDF
 //      CREAR PDF
 // ============================
 $pdf = new PDF('L', 'mm', 'A4');
+$pdf->empresa = $empresa;
+$pdf->fechaReporte = date('d/m/Y H:i:s');
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 6.5);
 
@@ -155,7 +174,6 @@ $pdf->SetFont('Arial', '', 6.5);
 // ============================
 $sql = "
 SELECT 
-    u.nombreEmpresa,
     tv.fecha_venta,
     tv.serie_venta,
     tv.forma_pago,
@@ -170,19 +188,21 @@ SELECT
     p.nombre AS producto,
     ca.nombre AS categoria,
     IFNULL(m.nombre, 'SIN MARCA') AS marca,
+    IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
     p.stock,
     p.precio,
+    p.costo_compra,
     dt.cantidad_pedido_producto,
     dt.sub_total,
     tv.total_venta
 FROM ticket_ventas tv
 LEFT JOIN detalle_ticket_ventas dt ON dt.id_ticket_ventas = tv.id_ticket_ventas
 LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
+LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
 LEFT JOIN producto p ON dt.idProducto = p.idProducto
 LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
 LEFT JOIN rubros r ON cl.id_rubro = r.id_rubro
 LEFT JOIN departamento dep ON cl.id_departamento = dep.id_departamento
-LEFT JOIN usuario_acceso u ON tv.id_user = u.id_user
 LEFT JOIN marcas m ON m.id_marca = p.id_marca
 WHERE tv.id_user = $usId
 ORDER BY tv.id_ticket_ventas DESC
@@ -197,7 +217,6 @@ if (!$resultado) {
 //      CUERPO DEL PDF
 // ============================
 $widths = [
-    14,
     14,
     12,
     12,
@@ -222,7 +241,6 @@ $widths = [
 while ($fila = $resultado->fetch_assoc()) {
 
     $data = [
-        $fila['nombreEmpresa'],
         $fila['fecha_venta'],
         $fila['serie_venta'],
         $fila['forma_pago'],
@@ -236,7 +254,7 @@ while ($fila = $resultado->fetch_assoc()) {
         $fila['codigo'],
         $fila['producto'],
         $fila['categoria'],
-        $fila['marca'], // ✅ MARCA CORRECTAMENTE INCLUIDA
+        $fila['marca'],
         $fila['stock'],
         number_format($fila['precio'], 2),
         $fila['cantidad_pedido_producto'],

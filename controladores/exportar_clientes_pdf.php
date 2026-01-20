@@ -27,7 +27,7 @@ $pdf->SetFillColor(220, 220, 220);
 
 //$pdf->Cell(8, 8, 'ID', 1, 0, 'C', true);
 $pdf->Cell(35, 8, 'Nombre', 1, 0, 'C', true);
-$pdf->Cell(20, 8, 'DNI/RUC', 1, 0, 'C', true);
+$pdf->Cell(20, 8, 'Nro. Docum', 1, 0, 'C', true);
 $pdf->Cell(22, 8, 'Celular', 1, 0, 'C', true);
 $pdf->Cell(35, 8, 'Email', 1, 0, 'C', true);
 $wpdf = 40;

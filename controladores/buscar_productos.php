@@ -54,15 +54,14 @@ while ($row = mysqli_fetch_assoc($resultado)) {
     ob_start(); ?>
     <tr>
         <td>
-            <?php if (base64_encode($row['imagen'])): ?>
-                <img src="data:image/jpeg;base64,<?php echo base64_encode($row['imagen']); ?>" width="60">
+            <button class="btn btn-success btn-sm"
+                <?= ($row['stock'] <= 0) ? 'disabled' : '' ?>
+                onclick="agregarAlCarrito(<?= $row['idProducto'] ?>)">
+                <i class="fas fa-cart-plus"></i>
+            </button>
 
-            <?php else: ?>
-                <i class="fas fa-box"></i>
-            <?php endif; ?>
         </td>
-        <td><?php echo $row['nombre']; ?></td>
-       
+        <td class="text-truncate-custom"><?php echo $row['nombre']; ?></td>
         <td>
             <?php if ($row['stock'] <= 0): ?>
                 <span class="badge bg-danger">Sin stock</span>
@@ -75,14 +74,14 @@ while ($row = mysqli_fetch_assoc($resultado)) {
 
         </td>
         <td>S/.<?php echo number_format($row['precio'], 2); ?></td>
-        <td><?php echo $row['nombre_categoria']; ?></td>
+        <td class="text-truncate-custom"><?php echo $row['nombre_categoria']; ?></td>
         <td>
-            <button class="btn btn-success btn-sm"
-                <?= ($row['stock'] <= 0) ? 'disabled' : '' ?>
-                onclick="agregarAlCarrito(<?= $row['idProducto'] ?>)">
-                <i class="fas fa-cart-plus"></i>
-            </button>
+            <?php if (base64_encode($row['imagen'])): ?>
+                <img src="data:image/jpeg;base64,<?php echo base64_encode($row['imagen']); ?>" width="45">
 
+            <?php else: ?>
+                <i class="fas fa-box"></i>
+            <?php endif; ?>
         </td>
     </tr>
 <?php

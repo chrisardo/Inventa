@@ -35,7 +35,7 @@ $sheet->getRowDimension(1)->setRowHeight(28);
 // =============================
 $encabezados = [
     "Nombre",
-    "DNI/RUC",
+    "Nro. Documento",
     "Celular",
     "Email",
     "Dirección",

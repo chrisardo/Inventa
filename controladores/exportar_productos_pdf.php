@@ -3,146 +3,214 @@ session_start();
 require_once __DIR__ . "/conexion.php";
 require_once __DIR__ . "/../fpdf/fpdf.php";
 
-// ============================
-//   VALIDAR USUARIO LOGUEADO
-// ============================
-if (!isset($_SESSION['usId'])) {
-    die("Acceso no autorizado.");
+/* ======================================================
+   CLASE PDF EXTENDIDA
+====================================================== */
+class PDF extends FPDF {
+
+    function NbLines($w, $txt) {
+        $cw = &$this->CurrentFont['cw'];
+        if ($w == 0)
+            $w = $this->w - $this->rMargin - $this->x;
+        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+        $s = str_replace("\r", '', $txt);
+        $nb = strlen($s);
+        if ($nb > 0 && $s[$nb - 1] == "\n")
+            $nb--;
+        $sep = -1;
+        $i = 0;
+        $j = 0;
+        $l = 0;
+        $nl = 1;
+
+        while ($i < $nb) {
+            $c = $s[$i];
+            if ($c == "\n") {
+                $i++;
+                $sep = -1;
+                $j = $i;
+                $l = 0;
+                $nl++;
+                continue;
+            }
+            if ($c == ' ')
+                $sep = $i;
+            $l += $cw[$c];
+            if ($l > $wmax) {
+                if ($sep == -1) {
+                    if ($i == $j) $i++;
+                } else {
+                    $i = $sep + 1;
+                }
+                $sep = -1;
+                $j = $i;
+                $l = 0;
+                $nl++;
+            } else {
+                $i++;
+            }
+        }
+        return $nl;
+    }
 }
 
-$usId = intval($_SESSION['usId']);
+/* ======================================================
+   FUNCIÓN IMAGEN SEGURA
+====================================================== */
+function mostrarImagenFPDF($pdf, $blob, $x, $y, $w, $h) {
+    if (empty($blob)) return;
 
-// ============================
-//      CREAR PDF HORIZONTAL
-// ============================
-$pdf = new FPDF('L', 'mm', 'A4');
+    $info = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_buffer($info, $blob);
+    finfo_close($info);
+
+    switch ($mime) {
+        case 'image/jpeg': $type = 'JPG'; $ext = '.jpg'; break;
+        case 'image/png':  $type = 'PNG'; $ext = '.png'; break;
+        case 'image/gif':  $type = 'GIF'; $ext = '.gif'; break;
+        default: return;
+    }
+
+    $tmp = tempnam(sys_get_temp_dir(), 'img_') . $ext;
+    file_put_contents($tmp, $blob);
+    $pdf->Image($tmp, $x, $y, $w, $h, $type);
+    unlink($tmp);
+}
+
+/* ======================================================
+   VALIDAR SESIÓN
+====================================================== */
+if (!isset($_SESSION['usId'])) die("Acceso no autorizado.");
+$usId = (int)$_SESSION['usId'];
+
+/* ======================================================
+   DATOS EMPRESA
+====================================================== */
+$empresa = "EMPRESA";
+$logoEmpresa = null;
+
+$resEmp = $conexion->query("
+    SELECT nombreEmpresa, imagen 
+    FROM usuario_acceso 
+    WHERE id_user = $usId
+");
+
+if ($resEmp && $row = $resEmp->fetch_assoc()) {
+    $empresa = $row['nombreEmpresa'];
+    $logoEmpresa = $row['imagen'];
+}
+
+$fechaExportacion = date("d/m/Y H:i");
+
+/* ======================================================
+   CREAR PDF
+====================================================== */
+$pdf = new PDF('L', 'mm', 'A4');
 $pdf->AddPage();
 
-// ============================
-//      TÍTULO
-// ============================
+/* ======================================================
+   LOGO
+====================================================== */
+if ($logoEmpresa) {
+    mostrarImagenFPDF($pdf, $logoEmpresa, 10, 10, 30, 30);
+}
+
+/* ======================================================
+   TÍTULOS
+====================================================== */
 $pdf->SetFont('Arial', 'B', 16);
 $pdf->Cell(0, 10, utf8_decode('LISTA DE PRODUCTOS - INVENTA'), 0, 1, 'C');
-$pdf->Ln(3);
-$w = [
-    23, // SKU
-    50, // Producto
-    16, // Precio
-    16, // Stock
-    36, // Empresa
-    36, // Proveedor
-    28, // Categoria
-    28, // Marca
-    24, // Fecha
-    20  // Imagen
-];
 
-// ============================
-//      ENCABEZADOS
-// ============================
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(0, 8, utf8_decode('Empresa: ' . $empresa), 0, 1, 'C');
+
+$pdf->SetFont('Arial', '', 9);
+$pdf->Cell(0, 6, utf8_decode('Fecha de exportación: ' . $fechaExportacion), 0, 1, 'C');
+$pdf->Ln(4);
+
+/* ======================================================
+   ANCHOS DE COLUMNAS
+====================================================== */
+$w = [22, 45, 18, 18, 14, 32, 32, 26, 26, 18];
+
+/* ======================================================
+   ENCABEZADOS
+====================================================== */
 $pdf->SetFont('Arial', 'B', 9);
-$pdf->SetFillColor(220, 220, 220);
+$pdf->SetFillColor(220,220,220);
 
+$headers = ['SKU/Código','Producto','Precio','Costo','Stock','Tienda','Proveedor','Categoría','Marca','Imagen'];
+foreach ($headers as $i => $h) {
+    $pdf->Cell($w[$i], 8, utf8_decode($h), 1, 0, 'C', true);
+}
+$pdf->Ln();
 
-$pdf->Cell($w[0], 8, 'SKU/Codigo', 1, 0, 'C', true);
-$pdf->Cell($w[1], 8, 'Producto', 1, 0, 'C', true);
-$pdf->Cell($w[2], 8, 'Precio', 1, 0, 'C', true);
-$pdf->Cell($w[3], 8, 'Stock', 1, 0, 'C', true);
-$pdf->Cell($w[4], 8, 'Empresa', 1, 0, 'C', true);
-$pdf->Cell($w[5], 8, 'Proveedor', 1, 0, 'C', true);
-$pdf->Cell($w[6], 8, utf8_decode('Categoría'), 1, 0, 'C', true);
-$pdf->Cell($w[7], 8, 'Marca', 1, 0, 'C', true);
-$pdf->Cell($w[8], 8, 'Fecha Reg.', 1, 0, 'C', true);
-$pdf->Cell($w[9], 8, 'Imagen', 1, 1, 'C', true);
+/* ======================================================
+   CUERPO
+====================================================== */
+$pdf->SetFont('Arial', '', 7.5);
 
-
-// ============================
-//      CUERPO
-// ============================
-$pdf->SetFont('Arial', '', 8);
-
-// ============================
-//      CONSULTA SQL (SOLO USUARIO LOGUEADO)
-// ============================
 $query = "
     SELECT 
         p.codigo,
         p.nombre,
         p.imagen,
         p.precio,
+        p.costo_compra,
         p.stock,
-        u.nombreEmpresa,
-        IFNULL(c.nombre, 'SIN CATEGORÍA') AS categoria,
-        IFNULL(prov.nombre, 'SIN PROVEEDOR') AS provedor,
-        IFNULL(m.nombre, 'SIN MARCA') AS marca,
-        p.fecha_registro
+        IFNULL(s.nombre,'SIN TIENDA') AS sucursal,
+        IFNULL(c.nombre,'SIN CATEGORÍA') AS categoria,
+        IFNULL(prov.nombre,'SIN PROVEEDOR') AS provedor,
+        IFNULL(m.nombre,'SIN MARCA') AS marca
     FROM producto p
-    LEFT JOIN usuario_acceso u ON u.id_user = p.id_user
+    LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
     LEFT JOIN categorias c ON c.id_categorias = p.id_categorias
     LEFT JOIN provedores prov ON prov.id_provedor = p.id_provedor
     LEFT JOIN marcas m ON m.id_marca = p.id_marca
-    WHERE p.id_user = $usId and p.Eliminado = 0
+    WHERE p.id_user = $usId AND p.Eliminado = 0
     ORDER BY p.idProducto DESC
 ";
 
 $result = $conexion->query($query);
 
-if (!$result) {
-    die("<h3>Error SQL:</h3> " . $conexion->error);
-}
-
-// ============================
-//      RECORRER PRODUCTOS
-// ============================
 while ($fila = $result->fetch_assoc()) {
 
-    // ✅ Formatear SOLO FECHA (SIN HORA)
-    $fecha = $fila['fecha_registro'];
-    if ($fecha && $fecha != "0000-00-00") {
-        $fecha = date("d/m/Y", strtotime($fecha));
-    } else {
-        $fecha = "";
-    }
+    $producto = utf8_decode($fila['nombre']);
+    $lineas = $pdf->NbLines($w[1], $producto);
+    $altura = $lineas * 4.5;   // 🔥 SIN altura mínima
 
-    $pdf->Cell($w[0], 20, utf8_decode($fila['codigo']), 1, 0, 'C');
-    $pdf->Cell($w[1], 20, utf8_decode($fila['nombre']), 1, 0, 'L');
-    $pdf->Cell($w[2], 20, number_format($fila['precio'], 2), 1, 0, 'C');
-    $pdf->Cell($w[3], 20, $fila['stock'], 1, 0, 'C');
-    $pdf->Cell($w[4], 20, utf8_decode($fila['nombreEmpresa']), 1, 0, 'L');
-    $pdf->Cell($w[5], 20, utf8_decode($fila['provedor']), 1, 0, 'L');
-    $pdf->Cell($w[6], 20, utf8_decode($fila['categoria']), 1, 0, 'L');
-    $pdf->Cell($w[7], 20, utf8_decode($fila['marca']), 1, 0, 'L');
-    $pdf->Cell($w[8], 20, $fecha, 1, 0, 'C');
-
-    // ============================
-    //      IMAGEN DESDE LONGBLOB
-    // ============================
     $x = $pdf->GetX();
     $y = $pdf->GetY();
 
-    if (!empty($fila['imagen'])) {
+    $pdf->Cell($w[0], $altura, $fila['codigo'], 1, 0, 'C');
 
-        $info = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_buffer($info, $fila['imagen']);
-        finfo_close($info);
+    $xProd = $pdf->GetX();
+    $yProd = $pdf->GetY();
+    $pdf->MultiCell($w[1], 4.5, $producto, 1);
 
-        $ext = '.jpg';
-        if ($mime === 'image/png') $ext = '.png';
-        if ($mime === 'image/gif') $ext = '.gif';
+    $pdf->SetXY($xProd + $w[1], $yProd);
 
-        $tempImg = tempnam(sys_get_temp_dir(), 'prod_') . $ext;
-        file_put_contents($tempImg, $fila['imagen']);
+    $pdf->Cell($w[2], $altura, number_format($fila['precio'],2), 1, 0, 'R');
+    $pdf->Cell($w[3], $altura, number_format($fila['costo_compra'],2), 1, 0, 'R');
+    $pdf->Cell($w[4], $altura, $fila['stock'], 1, 0, 'C');
+    $pdf->Cell($w[5], $altura, utf8_decode($fila['sucursal']), 1, 0);
+    $pdf->Cell($w[6], $altura, utf8_decode($fila['provedor']), 1, 0);
+    $pdf->Cell($w[7], $altura, utf8_decode($fila['categoria']), 1, 0);
+    $pdf->Cell($w[8], $altura, utf8_decode($fila['marca']), 1, 0);
 
-        $pdf->Image($tempImg, $x + 2, $y + 2, 16, 16);
+    // Imagen centrada verticalmente
+    $xImg = $pdf->GetX();
+    $yImg = $pdf->GetY();
+    $imgSize = min(14, $altura - 2);
+    $imgY = $yImg + (($altura - $imgSize) / 2);
 
-        unlink($tempImg);
-    }
+    mostrarImagenFPDF($pdf, $fila['imagen'], $xImg + 2, $imgY, $imgSize, $imgSize);
 
-    $pdf->Cell(20, 20, '', 1, 1, 'C');
+    $pdf->Cell($w[9], $altura, '', 1, 1);
 }
 
-// ============================
-//      SALIDA PDF
-// ============================
-$pdf->Output('I', 'lista_productos.pdf');
+/* ======================================================
+   SALIDA
+====================================================== */
+$pdf->Output('D', 'lista_productos.pdf');
 exit;

@@ -28,7 +28,7 @@ $sheet->setTitle("Productos");
 // =============================
 //            TÍTULO
 // =============================
-$sheet->mergeCells("A1:I1");
+$sheet->mergeCells("A1:K1");
 $sheet->setCellValue("A1", "LISTA DE PRODUCTOS - INVENTA");
 $sheet->getStyle("A1")->getFont()->setBold(true)->setSize(18);
 $sheet->getStyle("A1")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -40,12 +40,14 @@ $sheet->getRowDimension(1)->setRowHeight(28);
 $encabezados = [
     "Empresa",
     "Producto",
-    "Codigo",
+    "SKU",
     "Stock",
+    "Tienda",
     "Categoria",
     "Marca",
     "Proveedor",
-    "Precio",
+    "Costo compra",
+    "Precio venta",
     "Fecha Registro"
 ];
 
@@ -61,7 +63,7 @@ foreach ($encabezados as $enc) {
 // =============================
 //     ESTILO DE ENCABEZADOS
 // =============================
-$sheet->getStyle("A{$rowHeader}:I{$rowHeader}")->applyFromArray([
+$sheet->getStyle("A{$rowHeader}:K{$rowHeader}")->applyFromArray([
     'font' => [
         'bold' => true,
         'color' => ['rgb' => 'FFFFFF']
@@ -86,14 +88,17 @@ $query = "
         p.codigo,
         p.nombre,
         p.precio,
+        p.costo_compra,
         p.stock,
         u.nombreEmpresa,
+        IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
         IFNULL(c.nombre, 'SIN CATEGORÍA') AS categoria,
         IFNULL(prov.nombre, 'SIN PROVEEDOR') AS proveedor,
         IFNULL(m.nombre, 'SIN MARCA') AS marca,
         p.fecha_registro
     FROM producto p
     LEFT JOIN usuario_acceso u ON u.id_user = p.id_user
+    LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
     LEFT JOIN categorias c ON c.id_categorias = p.id_categorias
     LEFT JOIN provedores prov ON prov.id_provedor = p.id_provedor
     LEFT JOIN marcas m ON m.id_marca = p.id_marca
@@ -124,15 +129,17 @@ while ($fila = $result->fetch_assoc()) {
     $sheet->setCellValue("B{$filaExcel}", $fila['nombre']);
     $sheet->setCellValue("C{$filaExcel}", $fila['codigo']);
     $sheet->setCellValue("D{$filaExcel}", $fila['stock']);
-    $sheet->setCellValue("E{$filaExcel}", $fila['categoria']);
-    $sheet->setCellValue("F{$filaExcel}", $fila['marca']);
-    $sheet->setCellValue("G{$filaExcel}", $fila['proveedor']);
-    $sheet->setCellValue("H{$filaExcel}", $fila['precio']);
-    $sheet->setCellValue("I{$filaExcel}", $fecha);
+    $sheet->setCellValue("E{$filaExcel}", $fila['sucursal']);   // ✅ TIENDA
+    $sheet->setCellValue("F{$filaExcel}", $fila['categoria']);
+    $sheet->setCellValue("G{$filaExcel}", $fila['marca']);
+    $sheet->setCellValue("H{$filaExcel}", $fila['proveedor']);
+     $sheet->setCellValue("I{$filaExcel}", $fila['costo_compra']);
+    $sheet->setCellValue("J{$filaExcel}", $fila['precio']);
+    $sheet->setCellValue("K{$filaExcel}", $fecha);
 
     // Zebra (filas alternas)
     if ($filaExcel % 2 == 0) {
-        $sheet->getStyle("A{$filaExcel}:I{$filaExcel}")->applyFromArray([
+        $sheet->getStyle("A{$filaExcel}:K{$filaExcel}")->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'color' => ['rgb' => 'F2F2F2']
@@ -146,7 +153,7 @@ while ($fila = $result->fetch_assoc()) {
 // =============================
 //            BORDES
 // =============================
-$sheet->getStyle("A3:I" . ($filaExcel - 1))->applyFromArray([
+$sheet->getStyle("A3:K" . ($filaExcel - 1))->applyFromArray([
     'borders' => [
         'allBorders' => [
             'borderStyle' => Border::BORDER_THIN,

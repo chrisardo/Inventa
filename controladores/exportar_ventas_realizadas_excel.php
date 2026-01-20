@@ -15,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 if (!isset($_SESSION['usId'])) {
     die("Acceso no autorizado.");
 }
-
 $usId = intval($_SESSION['usId']);
 
 // =============================
@@ -28,7 +27,7 @@ $sheet->setTitle("Ventas");
 // =============================
 //      TÍTULO
 // =============================
-$sheet->mergeCells("A1:T1");
+$sheet->mergeCells("A1:U1");
 $sheet->setCellValue("A1", "REPORTE GENERAL DE VENTAS - INVENTA");
 $sheet->getStyle("A1")->getFont()->setBold(true)->setSize(16);
 $sheet->getStyle("A1")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -44,12 +43,13 @@ $encabezados = [
     "Forma de Pago",
     "Cliente",
     "DNI/RUC",
+    "Sucursal",
     "Departamento",
     "Distrito",
     "Provincia",
     "Dirección",
     "Rubro",
-    "Código",
+    "SKU",
     "Producto",
     "Categoría",
     "Marca",
@@ -72,7 +72,7 @@ foreach ($encabezados as $enc) {
 // =============================
 //      ESTILO ENCABEZADOS
 // =============================
-$sheet->getStyle("A{$filaHeader}:T{$filaHeader}")->applyFromArray([
+$sheet->getStyle("A{$filaHeader}:U{$filaHeader}")->applyFromArray([
     'font' => [
         'bold' => true,
         'color' => ['rgb' => 'FFFFFF']
@@ -90,7 +90,7 @@ $sheet->getStyle("A{$filaHeader}:T{$filaHeader}")->applyFromArray([
 $sheet->getRowDimension($filaHeader)->setRowHeight(20);
 
 // =============================
-//      CONSULTA SQL (CON MARCA)
+//      CONSULTA SQL (CON SUCURSAL)
 // =============================
 $sql = "
 SELECT 
@@ -100,6 +100,7 @@ SELECT
     tv.forma_pago,
     cl.nombre AS cliente,
     cl.dni_o_ruc,
+    IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
     dep.nombre AS departamento,
     cl.distrito,
     cl.provincia,
@@ -116,8 +117,9 @@ SELECT
     tv.total_venta
 FROM ticket_ventas tv
 LEFT JOIN detalle_ticket_ventas dt ON dt.id_ticket_ventas = tv.id_ticket_ventas
-LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
 LEFT JOIN producto p ON dt.idProducto = p.idProducto
+LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
+LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
 LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
 LEFT JOIN rubros r ON cl.id_rubro = r.id_rubro
 LEFT JOIN departamento dep ON cl.id_departamento = dep.id_departamento
@@ -145,24 +147,25 @@ while ($fila = $resultado->fetch_assoc()) {
     $sheet->setCellValue("D{$filaExcel}", $fila['forma_pago']);
     $sheet->setCellValue("E{$filaExcel}", $fila['cliente']);
     $sheet->setCellValue("F{$filaExcel}", $fila['dni_o_ruc']);
-    $sheet->setCellValue("G{$filaExcel}", $fila['departamento']);
-    $sheet->setCellValue("H{$filaExcel}", $fila['distrito']);
-    $sheet->setCellValue("I{$filaExcel}", $fila['provincia']);
-    $sheet->setCellValue("J{$filaExcel}", $fila['direccion']);
-    $sheet->setCellValue("K{$filaExcel}", $fila['rubro']);
-    $sheet->setCellValue("L{$filaExcel}", $fila['codigo']);
-    $sheet->setCellValue("M{$filaExcel}", $fila['producto']);
-    $sheet->setCellValue("N{$filaExcel}", $fila['categoria']);
-    $sheet->setCellValue("O{$filaExcel}", $fila['marca']); // ✅ MARCA
-    $sheet->setCellValue("P{$filaExcel}", $fila['stock']);
-    $sheet->setCellValue("Q{$filaExcel}", $fila['precio']);
-    $sheet->setCellValue("R{$filaExcel}", $fila['cantidad_pedido_producto']);
-    $sheet->setCellValue("S{$filaExcel}", $fila['sub_total']);
-    $sheet->setCellValue("T{$filaExcel}", $fila['total_venta']);
+    $sheet->setCellValue("G{$filaExcel}", $fila['sucursal']);
+    $sheet->setCellValue("H{$filaExcel}", $fila['departamento']);
+    $sheet->setCellValue("I{$filaExcel}", $fila['distrito']);
+    $sheet->setCellValue("J{$filaExcel}", $fila['provincia']);
+    $sheet->setCellValue("K{$filaExcel}", $fila['direccion']);
+    $sheet->setCellValue("L{$filaExcel}", $fila['rubro']);
+    $sheet->setCellValue("M{$filaExcel}", $fila['codigo']);
+    $sheet->setCellValue("N{$filaExcel}", $fila['producto']);
+    $sheet->setCellValue("O{$filaExcel}", $fila['categoria']);
+    $sheet->setCellValue("P{$filaExcel}", $fila['marca']);
+    $sheet->setCellValue("Q{$filaExcel}", $fila['stock']);
+    $sheet->setCellValue("R{$filaExcel}", $fila['precio']);
+    $sheet->setCellValue("S{$filaExcel}", $fila['cantidad_pedido_producto']);
+    $sheet->setCellValue("T{$filaExcel}", $fila['sub_total']);
+    $sheet->setCellValue("U{$filaExcel}", $fila['total_venta']);
 
     // Zebra
     if ($filaExcel % 2 == 0) {
-        $sheet->getStyle("A{$filaExcel}:T{$filaExcel}")->applyFromArray([
+        $sheet->getStyle("A{$filaExcel}:U{$filaExcel}")->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'color' => ['rgb' => 'F2F2F2']
@@ -176,7 +179,7 @@ while ($fila = $resultado->fetch_assoc()) {
 // =============================
 //      BORDES
 // =============================
-$sheet->getStyle("A3:T" . ($filaExcel - 1))->applyFromArray([
+$sheet->getStyle("A3:U" . ($filaExcel - 1))->applyFromArray([
     'borders' => [
         'allBorders' => [
             'borderStyle' => Border::BORDER_THIN,

@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         empty(trim($_POST['nombre'])) ||
         empty($_POST['categoria']) ||
         empty($_POST['marca']) ||
-        empty($_POST['proveedor']) ||
+        empty($_POST['sucursal']) ||
         empty($_POST['precio_venta']) ||
         empty($_POST['precio_compra']) ||
         empty($_POST['stock'])
@@ -41,7 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $categoria = (int) $_POST['categoria'];
     $marca     = (int) $_POST['marca'];
-    $proveedor = (int) $_POST['proveedor'];
+    $sucursal     = (int) $_POST['sucursal'];
+    $proveedor = !empty($_POST['proveedor']) ? (int) $_POST['proveedor'] : null;
     $id_user   = (int) $_SESSION['usId'];
 
     $id_unit_medida = 0;
@@ -74,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     /* =========================
-       VALIDAR CATEGORÍA / MARCA / PROVEEDOR
+       VALIDAR CATEGORÍA / MARCA / PROVEEDOR / SUCURSAL
     ========================== */
     function validarRelacion($conexion, $tabla, $campo, $id, $id_user)
     {
@@ -99,12 +100,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $tipoAlerta = "danger";
         return;
     }
-
-    if (!validarRelacion($conexion, 'provedores', 'id_provedor', $proveedor, $id_user)) {
-        $mensaje = "❌ Proveedor inválido.";
+    if (!validarRelacion($conexion, 'sucursal', 'id_sucursal', $sucursal, $id_user)) {
+        $mensaje = "❌ Sucursal inválida.";
         $tipoAlerta = "danger";
         return;
     }
+
+
+    if ($proveedor !== null) {
+        if (!validarRelacion($conexion, 'provedores', 'id_provedor', $proveedor, $id_user)) {
+            $mensaje = "❌ Proveedor inválido.";
+            $tipoAlerta = "danger";
+            return;
+        }
+    }
+
 
     /* =========================
        CONTROLAR DUPLICADOS (CÓDIGO)
@@ -159,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ========================== */
     $sql = "INSERT INTO producto (
                 codigo, nombre, imagen, precio, stock,
-                id_unit_medida, id_user, id_categorias,
+                id_sucursal, id_user, id_categorias,
                 fecha_registro, descripcion, id_provedor,
                 Eliminado, id_marca, costo_compra
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)";
@@ -173,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $imagenBinaria,
         $precio_venta,
         $stock,
-        $id_unit_medida,
+        $sucursal,
         $id_user,
         $categoria,
         $descripcion,
