@@ -333,13 +333,33 @@ include 'controladores/procesar_index.php';
                                     <select name="anio" id="anio" class="form-select">
                                         <option value="">-- Todos los años --</option>
                                         <?php
-                                        $sql = "SELECT DISTINCT YEAR(fecha_venta) AS anio 
-                                                FROM ticket_ventas 
-                                                WHERE id_user = {$_SESSION['usId']} 
-                                                ORDER BY anio DESC";
-                                        $res = mysqli_query($conexion, $sql);
+                                        $sql = "
+                                                SELECT anio FROM (
+                                                    SELECT YEAR(fecha_registro) AS anio
+                                                    FROM producto
+                                                    WHERE Eliminado = 0 AND id_user = ?
 
-                                        while ($row = mysqli_fetch_assoc($res)) {
+                                                    UNION
+
+                                                    SELECT YEAR(fecha_registro) AS anio
+                                                    FROM clientes
+                                                    WHERE Eliminado = 0 AND id_user = ?
+
+                                                    UNION
+
+                                                    SELECT YEAR(fecha_venta) AS anio
+                                                    FROM ticket_ventas
+                                                    WHERE id_user = ?
+                                                ) AS anios
+                                                ORDER BY anio DESC
+                                            ";
+
+                                        $stmt = $conexion->prepare($sql);
+                                        $stmt->bind_param("iii", $_SESSION['usId'], $_SESSION['usId'], $_SESSION['usId']);
+                                        $stmt->execute();
+                                        $res = $stmt->get_result();
+
+                                        while ($row = $res->fetch_assoc()) {
                                             $selected = ($anio == $row['anio']) ? 'selected' : '';
                                             echo "<option value='{$row['anio']}' $selected>{$row['anio']}</option>";
                                         }
