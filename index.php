@@ -27,9 +27,15 @@ include 'controladores/procesar_index.php';
 <body>
     <div class="d-flex vh-100 overflow-hidden">
         <!-- Sidebar -->
-        <nav id="sidebar" class="bg-dark text-white p-3 " style="width:250px;">
-            <!--poner logo de la empresa-->
-            <img src="img/icono_dashboard.png" alt="Logo" class="img-fluid rounded mb-4" height="50">
+        <nav id="sidebar" class="bg-dark text-white p-3 ">
+
+            <div class="text-center text-info mb-2">
+                <!--poner logo de la empresa-->
+                <img src="img/icono_dashboard.png" alt="Logo" class=" rounded mb-2" width="180" height="45">
+                <hr class="mx-auto my-1" style="width: 100%; border-top: 4px solid #fdfefe;">
+                <p class="fs-6 lh-base mb-2 fw-bold align-items-center"><?php echo utf8_decode($usuario['nombreEmpresa']); ?></p>
+                <hr class="mx-auto my-1 fw-bold " style="width: 100%; border-top: 4px solid #f9fafa;">
+            </div>
             <!-- CONTENEDOR SCROLLEABLE -->
             <div class="sidebar-menu">
                 <ul class="nav flex-column">
@@ -318,82 +324,91 @@ include 'controladores/procesar_index.php';
 
             <!-- Contenido -->
             <div class="container-fluid p-3">
-                <!-- Título -->
-                <p class="fs-3 lh-base mb-3 fw-bold">Bienvenido: <?php echo utf8_decode($usuario['nombreEmpresa']); ?></p>
-                <div class="row g-3">
-                    <div class="col-3 col-md-3 ">
+                <form method="POST" id="formFiltros">
+                    <div class="row g-3">
+                        <div class="col-md-6 ">
+                            <div class="input-group mb-3 border-success">
+                                <span class="input-group-text bg-success text-white">Filtrar por año: </span>
+                                <div class="card-body border-success">
+                                    <select name="anio" id="anio" class="form-select">
+                                        <option value="">-- Todos los años --</option>
+                                        <?php
+                                        $sql = "SELECT DISTINCT YEAR(fecha_venta) AS anio 
+                                                FROM ticket_ventas 
+                                                WHERE id_user = {$_SESSION['usId']} 
+                                                ORDER BY anio DESC";
+                                        $res = mysqli_query($conexion, $sql);
+
+                                        while ($row = mysqli_fetch_assoc($res)) {
+                                            $selected = ($anio == $row['anio']) ? 'selected' : '';
+                                            echo "<option value='{$row['anio']}' $selected>{$row['anio']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row mb-2 g-3 py-2">
+                    <p class="fs-4 lh-base mb-1 fw-bold">KPI (Indicador Clave de Desempeño)</p>
+                    <div class="col">
                         <div class="card kpi-card border-success mb-3 h-100" style="max-width: 18rem;">
                             <div class="card-header text-black fw-bold bg-info text-center">Monto total</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    S/. <span class="kpi-number" data-value="<?php echo number_format($totalVentas, 2); ?>">0</span>
+                                    S/. <span id="kpi-total-ventas" class="kpi-number kpi-decimal" data-value="<?php echo $totalVentas; ?>">0.00</span>
                                 </p>
 
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 col-md-3">
+                    <div class="col">
+                        <div class="card kpi-card border-success h-100 mb-3">
+                            <div class="card-header text-white text-center
+                                    <?php echo ($gananciaPerdida >= 0) ? 'bg-success' : 'bg-danger'; ?>">
+                                Ganancia o pérdida
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text fs-4 lh-base text-center">
+                                    S/.
+                                    <span id="kpi-ganancia"
+                                        class="kpi-number kpi-decimal"
+                                        data-value="<?php echo $gananciaPerdida; ?>">
+                                        0.00
+                                    </span>
+                                    <i id="icono-ganancia" class="ms-2"></i>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
                         <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
                             <div class="card-header text-white bg-success text-center">Total Clientes</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    <span class="kpi-number" data-value="<?php echo $totalClientes; ?>">0</span>
+                                    <span id="kpi-clientes" class="kpi-number kpi-int" data-value="<?php echo $totalClientes; ?>">0</span>
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 col-md-3">
+                    <div class="col">
                         <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
                             <div class="card-header text-white bg-success text-center">Total Productos</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    <span class="kpi-number" data-value="<?php echo $totalProductos; ?>">0</span>
+                                    <span id="kpi-productos" class="kpi-number kpi-int" data-value="<?php echo $totalProductos; ?>">0</span>
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 col-md-3">
-                        <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
-                            <div class="card-header text-white bg-success text-center">Total Proveedores</div>
-                            <div class="card-body">
-                                <p class="card-text fs-4 lh-base  text-center">
-                                    <span class="kpi-number" data-value="<?php echo $totalProvedores; ?>">0</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container">
                 </div>
 
 
                 <!--Dashboards-->
                 <div class=" ">
                     <!-- Título -->
-                    <p class="fs-3 lh-base mb-3 fw-bold">📊Reportes estadisticos</p>
-                    <form method="GET" id="formFiltros">
-
-                        <div class="row g-3">
-                            <div class="col-md-4 ">
-                                <div class="input-group mb-3 border-success">
-                                    <span class="input-group-text bg-success text-white">Filtrar por año: </span>
-                                    <div class="card-body border-success">
-                                        <select name="anio" id="anio" class="form-select">
-                                            <option value="">-- Todos los años --</option>
-                                            <?php
-                                            $sql = "SELECT DISTINCT YEAR(fecha_venta) AS anio FROM ticket_ventas where id_user = " . $_SESSION['usId'] . " ORDER BY anio DESC";
-                                            $res = mysqli_query($conexion, $sql);
-                                            while ($row = mysqli_fetch_assoc($res)) {
-                                                echo "<option value='{$row['anio']}'>{$row['anio']}</option>";
-                                            }
-                                            ?>
-                                        </select>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    <p class="fs-4 lh-base mb-3 fw-bold">📊Gráficos estadisticos</p>
                     <div class="row row-cols-1 row-cols-md-0">
                         <div class="col-sm-6">
                             <div class="card mb-3" style="max-width: 540px">
