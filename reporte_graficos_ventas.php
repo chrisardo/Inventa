@@ -352,9 +352,32 @@ if (!empty($usuario['imagen'])) {
                                         <select name="anio" id="anio" class="form-select">
                                             <option value="">-- Todos los años --</option>
                                             <?php
-                                            $sql = "SELECT DISTINCT YEAR(fecha_venta) AS anio FROM ticket_ventas where id_user = " . $_SESSION['usId'] . " ORDER BY anio DESC";
-                                            $res = mysqli_query($conexion, $sql);
-                                            while ($row = mysqli_fetch_assoc($res)) {
+                                            $sql = "
+                                                        SELECT anio FROM (
+                                                            SELECT YEAR(fecha_registro) AS anio
+                                                            FROM producto
+                                                            WHERE Eliminado = 0 AND id_user = ?
+
+                                                            UNION
+
+                                                            SELECT YEAR(fecha_registro) AS anio
+                                                            FROM clientes
+                                                            WHERE Eliminado = 0 AND id_user = ?
+
+                                                            UNION
+
+                                                            SELECT YEAR(fecha_venta) AS anio
+                                                            FROM ticket_ventas
+                                                            WHERE id_user = ?
+                                                        ) AS anios
+                                                        ORDER BY anio DESC
+                                                    ";
+
+                                            $stmt = $conexion->prepare($sql);
+                                            $stmt->bind_param("iii", $_SESSION['usId'], $_SESSION['usId'], $_SESSION['usId']);
+                                            $stmt->execute();
+                                            $res = $stmt->get_result();
+                                            while ($row = $res->fetch_assoc()) {
                                                 echo "<option value='{$row['anio']}'>{$row['anio']}</option>";
                                             }
                                             ?>
