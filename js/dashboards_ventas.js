@@ -1,3 +1,4 @@
+/*Toda esta parte es de js/dashboards_ventas.js*/
 let chartCompraMes,
   chartCantidadMes,
   chartTopProductos,
@@ -75,7 +76,7 @@ async function cargarGraficosYTablas() {
   const form = document.getElementById("formFiltros");
   const params = new URLSearchParams(new FormData(form));
   const res = await fetch(
-    "./controladores/procesar_graficos_ventas.php?" + params.toString()
+    "./controladores/procesar_graficos_ventas.php?" + params.toString(),
   );
   const data = await res.json();
 
@@ -143,7 +144,7 @@ async function cargarGraficosYTablas() {
         },
       },
       plugins: [ChartDataLabels],
-    }
+    },
   );
 
   /* ================= CANTIDAD POR MES ================= */
@@ -177,14 +178,14 @@ async function cargarGraficosYTablas() {
         },
       },
       plugins: [ChartDataLabels],
-    }
+    },
   );
 
   /* ================= TOP PRODUCTOS ================= */
   const cfgProd = obtenerTop1Config(
     data.topCant,
     "rgba(255,159,64,0.75)",
-    "rgba(255,193,7,0.95)"
+    "rgba(255,193,7,0.95)",
   );
 
   chartTopProductos = actualizarChart(
@@ -194,7 +195,7 @@ async function cargarGraficosYTablas() {
       type: "bar",
       data: {
         labels: data.topProductos.map((l, i) =>
-          data.topCant[i] === cfgProd.max ? `🏆 ${l}` : l
+          data.topCant[i] === cfgProd.max ? `🏆 ${l}` : l,
         ),
         datasets: [
           {
@@ -236,14 +237,14 @@ async function cargarGraficosYTablas() {
         animation: animacionTop1(cfgProd.max),
       },
       plugins: [ChartDataLabels],
-    }
+    },
   );
 
   /* ================= TOP CATEGORÍAS ================= */
   const cfgCat = obtenerTop1Config(
     data.topCatCant,
     "rgba(75,192,192,0.75)",
-    "rgba(40,167,69,0.95)"
+    "rgba(40,167,69,0.95)",
   );
 
   chartTopCategorias = actualizarChart(
@@ -253,7 +254,7 @@ async function cargarGraficosYTablas() {
       type: "bar",
       data: {
         labels: data.topCategorias.map((l, i) =>
-          data.topCatCant[i] === cfgCat.max ? `🥇 ${l}` : l
+          data.topCatCant[i] === cfgCat.max ? `🥇 ${l}` : l,
         ),
         datasets: [
           {
@@ -292,14 +293,14 @@ async function cargarGraficosYTablas() {
         animation: animacionTop1(cfgCat.max),
       },
       plugins: [ChartDataLabels],
-    }
+    },
   );
 
   /* ================= TOP CLIENTES ================= */
   const cfgCli = obtenerTop1Config(
     data.topCliTot,
     "rgba(153,102,255,0.75)",
-    "rgba(111,66,193,0.95)"
+    "rgba(111,66,193,0.95)",
   );
 
   chartTopClientes = actualizarChart(
@@ -309,7 +310,7 @@ async function cargarGraficosYTablas() {
       type: "bar",
       data: {
         labels: data.topClientes.map((l, i) =>
-          data.topCliTot[i] === cfgCli.max ? `👑 ${l}` : l
+          data.topCliTot[i] === cfgCli.max ? `👑 ${l}` : l,
         ),
         datasets: [
           {
@@ -348,7 +349,7 @@ async function cargarGraficosYTablas() {
         animation: animacionTop1(cfgCli.max),
       },
       plugins: [ChartDataLabels],
-    }
+    },
   );
 
   /* ================= TABLAS ================= */
@@ -376,7 +377,7 @@ async function cargarGraficosYTablas() {
             <td class="text-center">${r.cantidad}</td>
             <td class="text-end">${formatoNumero(r.costo_total)}</td>
             <td class="text-end fw-semibold">${formatoNumero(
-              r.venta_total
+              r.venta_total,
             )}</td>
             <td class="text-end ${
               r.rentabilidad < 0 ? "text-danger" : "text-success"
@@ -410,6 +411,20 @@ async function cargarGraficosYTablas() {
   document.getElementById("kpiTopCliente").innerText = data.topClientes[0]
     ? `👑 ${data.topClientes[0]}`
     : "—";
+  /* ================= GANANCIA O PÉRDIDA ================= */
+  const diff = data.diferenciaGanancia;
+  const kpiGanancia = document.getElementById("kpiGanancia_o_perdida");
+
+  if (diff > 0) {
+    kpiGanancia.innerHTML = `⬆️ +S/ ${formatoNumero(diff)}`;
+    kpiGanancia.className = "fw-bold text-success";
+  } else if (diff < 0) {
+    kpiGanancia.innerHTML = `⬇️ -S/ ${formatoNumero(Math.abs(diff))}`;
+    kpiGanancia.className = "fw-bold text-danger";
+  } else {
+    kpiGanancia.innerHTML = `➖ S/ 0.00`;
+    kpiGanancia.className = "fw-bold text-secondary";
+  }
 }
 
 cargarGraficosYTablas();
@@ -533,7 +548,7 @@ document.getElementById("btnExportPPT").addEventListener("click", async () => {
     selector,
     titulo,
     ancho = 9,
-    alto = 5
+    alto = 5,
   ) {
     const elemento = document.querySelector(selector);
     if (!elemento) return;
@@ -577,19 +592,19 @@ document.getElementById("btnExportPPT").addEventListener("click", async () => {
     "#tablaProductos",
     "Resumen de Productos",
     9,
-    4
+    4,
   );
   await agregarSlideDesdeElemento(
     "#tablaClientes",
     "Resumen de Clientes",
     9,
-    4
+    4,
   );
   await agregarSlideDesdeElemento(
     "#tablaCategorias",
     "Resumen de Categorías",
     9,
-    4
+    4,
   );
 
   /* ================= EXPORTAR ================= */
