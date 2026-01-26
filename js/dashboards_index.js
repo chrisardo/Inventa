@@ -1,3 +1,4 @@
+//Toda esta parte es de js/dashboards_index.js
 let charts = {};
 Chart.register(ChartDataLabels);
 
@@ -230,9 +231,42 @@ function crearTopClientes(data) {
     },
   });
 }
+function cargarKPI() {
+  const anio = document.getElementById("anio").value;
 
+  fetch(`controladores/procesar_kpi_index.php?anio=${anio}`)
+    .then((res) => res.json())
+    .then((data) => {
+      actualizarKPI("kpi-total-ventas", data.totalVentas, true);
+      actualizarKPI("kpi-ganancia", data.ganancia, true);
+      actualizarKPI("kpi-clientes", data.totalClientes, false);
+      actualizarKPI("kpi-productos", data.totalProductos, false);
+    });
+}
+
+function actualizarKPI(id, valor, decimal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  el.dataset.value = valor;
+  el.textContent = decimal
+    ? Number(valor).toLocaleString("es-PE", { minimumFractionDigits: 2 })
+    : Number(valor).toLocaleString("es-PE");
+
+  // Re-disparar animación
+  el.classList.remove("kpi-number");
+  void el.offsetWidth;
+  el.classList.add("kpi-number");
+}
 /* ===================== EVENTOS ===================== */
-document.getElementById("anio").addEventListener("change", cargarGraficos);
-
+// document.getElementById("anio").addEventListener("change", cargarGraficos);
+/*document.getElementById("anio").addEventListener("change", function () {
+  document.getElementById("formFiltros").submit();
+});*/
+document.getElementById("anio").addEventListener("change", () => {
+  cargarKPI();
+  cargarGraficos();
+});
 /* ===================== INIT ===================== */
+cargarKPI();
 cargarGraficos();
