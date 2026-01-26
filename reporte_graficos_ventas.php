@@ -144,11 +144,6 @@ if (!empty($usuario['imagen'])) {
                                 <i class="fas fa-tags me-2"></i> Rubro
                             </a>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="departamento.php">
-                                <i class="fas fa-building me-2"></i> Departamento
-                            </a>
-                        </li>
                     </ul>
                 </li>
 
@@ -211,37 +206,63 @@ if (!empty($usuario['imagen'])) {
                         </li>
                     </ul>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link text-white d-flex justify-content-between align-items-center"
                         data-bs-toggle="collapse"
-                        href="#menuPolitica"
+                        href="#menuOpciones"
                         role="button"
                         aria-expanded="false">
                         <span>
-                            <i class="fas fa-user-shield me-2"></i> Política y términos
+                            <i class="fas fa-gear"></i> Más opciones
                         </span>
                         <i class="fas fa-chevron-down small"></i>
                     </a>
 
-                    <ul class="collapse list-unstyled ps-4" id="menuPolitica">
-                        <li>
-                            <a class="nav-link text-secondary" href="politica_privacidad.php">
-                                <i class="fas fa-user-shield me-2"></i> Política de Privacidad
+                    <ul class="collapse list-unstyled ps-4" id="menuOpciones">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="metodo_pago.php">
+                                <i class="fas fa-credit-card"></i>
+                                Método de pago
                             </a>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="terminos_condiciones.php">
-                                <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="departamento.php">
+                                <i class="fas fa-building me-2"></i> Departamento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuPolitica"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-user-shield me-2"></i> Política y términos
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuPolitica">
+                                <li>
+                                    <a class="nav-link text-secondary" href="politica_privacidad.php">
+                                        <i class="fas fa-user-shield me-2"></i> Política de Privacidad
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="terminos_condiciones.php">
+                                        <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="acerca_info.php">
+                                <i class="fas fa-info-circle"></i>
+                                Acerca de
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="acerca_info.php">
-                        <i class="fas fa-info-circle"></i>
-                        Acerca de
-                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" href="controladores/desconectar.php">
@@ -398,9 +419,9 @@ if (!empty($usuario['imagen'])) {
                             </div>
                         </div>
                     </form>
-                    <div class="row mb-2 g-4 py-2" id="kpiContainer">
+                    <div class="row mb-2 g-3 py-2" id="kpiContainer">
                         <p class="fs-4 lh-base mb-0 fw-bold">KPI (Indicador Clave de Desempeño)</p>
-                        <div class="col-6 col-md-3">
+                        <div class="col">
                             <div class="card kpi-card shadow-sm border-success h-100">
                                 <div class="card-body text-center">
                                     <h6 class="text-muted">💰 Venta Total</h6>
@@ -410,8 +431,15 @@ if (!empty($usuario['imagen'])) {
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-6 col-md-3">
+                        <div class="col">
+                            <div class="card kpi-card shadow-sm border-info h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted">Ganancia o pérdida</h6>
+                                    <h6 id="kpiGanancia_o_perdida" class="fw-bold">—</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
                             <div class="card kpi-card shadow-sm border-primary h-100">
                                 <div class="card-body text-center">
                                     <h6 class="text-muted">📦 Productos Vendidos</h6>
@@ -420,7 +448,7 @@ if (!empty($usuario['imagen'])) {
                             </div>
                         </div>
 
-                        <div class="col-6 col-md-3">
+                        <div class="col">
                             <div class="card kpi-card shadow-sm border-warning h-100">
                                 <div class="card-body text-center">
                                     <h6 class="text-muted">🏆 TOP Producto</h6>
@@ -429,7 +457,7 @@ if (!empty($usuario['imagen'])) {
                             </div>
                         </div>
 
-                        <div class="col-6 col-md-3">
+                        <div class="col">
                             <div class="card kpi-card shadow-sm border-info h-100">
                                 <div class="card-body text-center">
                                     <h6 class="text-muted">👑 TOP Cliente</h6>

@@ -145,11 +145,7 @@ $tipoAlerta = "";
                                 <i class="fas fa-tags me-2"></i> Rubro
                             </a>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="departamento.php">
-                                <i class="fas fa-building me-2"></i> Departamento
-                            </a>
-                        </li>
+
                     </ul>
                 </li>
 
@@ -212,37 +208,63 @@ $tipoAlerta = "";
                         </li>
                     </ul>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link text-white d-flex justify-content-between align-items-center"
                         data-bs-toggle="collapse"
-                        href="#menuPolitica"
+                        href="#menuOpciones"
                         role="button"
                         aria-expanded="false">
                         <span>
-                            <i class="fas fa-user-shield me-2"></i> Política y término
+                            <i class="fas fa-gear"></i> Más opciones
                         </span>
                         <i class="fas fa-chevron-down small"></i>
                     </a>
 
-                    <ul class="collapse list-unstyled ps-4" id="menuPolitica">
-                        <li>
-                            <a class="nav-link text-secondary" href="politica_privacidad.php">
-                                <i class="fas fa-user-shield me-2"></i> Política de Privacidad
+                    <ul class="collapse list-unstyled ps-4" id="menuOpciones">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="metodo_pago.php">
+                                <i class="fas fa-credit-card"></i>
+                                Método de pago
                             </a>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="terminos_condiciones.php">
-                                <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="departamento.php">
+                                <i class="fas fa-building me-2"></i> Departamento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuPolitica"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-user-shield me-2"></i> Política y términos
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuPolitica">
+                                <li>
+                                    <a class="nav-link text-secondary" href="politica_privacidad.php">
+                                        <i class="fas fa-user-shield me-2"></i> Política de Privacidad
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="terminos_condiciones.php">
+                                        <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="acerca_info.php">
+                                <i class="fas fa-info-circle"></i>
+                                Acerca de
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="acerca_info.php">
-                        <i class="fas fa-info-circle"></i>
-                        Acerca de
-                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" href="controladores/desconectar.php">
@@ -366,7 +388,7 @@ $tipoAlerta = "";
                                                 <td><?php echo htmlspecialchars($fila['serie_venta']); ?></td>
                                                 <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
                                                 <td><?php echo htmlspecialchars($fila['estado_venta']); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['forma_pago']); ?></td>
+                                                <td><?php echo htmlspecialchars($fila['metodo_pago']); ?></td>
                                                 <td><?php echo "S/. " . number_format($fila['total_venta'], 2); ?></td>
                                                 <td><?php echo htmlspecialchars($fila['fecha_venta']); ?></td>
                                                 <td>

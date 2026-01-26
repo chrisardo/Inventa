@@ -3,7 +3,7 @@ session_start();
 include "controladores/conexion.php"; // Conexión a la BD
 
 if (!isset($_SESSION['usId'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit();
 }
 $perfilErrors  = $_SESSION['perfil_errors']  ?? [];

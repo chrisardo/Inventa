@@ -4,7 +4,9 @@ if (!isset($_SESSION['usId'])) {
     header("Location: login.php");
     exit();
 }
-include "controladores/conexion.php"; // TU CONEXIÓN
+include 'controladores/procesar_metodo_pago.php';
+// ✅ EVITAR ERROR DE VARIABLE INDEFINIDA
+$busqueda = isset($_GET['buscar']) ? $_GET['buscar'] : '';
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
 $stmt = $conexion->prepare($sqlFoto);
 $stmt->bind_param("i", $_SESSION['usId']);
@@ -15,14 +17,6 @@ $fotoPerfil = null;
 if (!empty($usuario['imagen'])) {
     $fotoPerfil = 'data:image/jpeg;base64,' . base64_encode($usuario['imagen']);
 }
-$usId = $_SESSION['usId'];
-
-$sql = "SELECT p.idProducto as idProducto, p.nombre as nombre, p.stock as 	stock, p.precio as precio, c.nombre AS nombre_categoria 
-        FROM producto p 
-        INNER JOIN categorias c ON p.id_categorias = c.id_categorias
-        WHERE p.id_user = $usId";
-
-$resultado = mysqli_query($conexion, $sql);
 ?>
 <!doctype html>
 <html lang="es">
@@ -30,7 +24,7 @@ $resultado = mysqli_query($conexion, $sql);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ventas - Inventa</title>
+    <title>Metoodo de pago - Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
@@ -81,7 +75,13 @@ $resultado = mysqli_query($conexion, $sql);
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link text-secondary" href="categorias.php">
+                            <a class="nav-link text-secondary" href="sucursales.php">
+                                <!--Poner icono de sucursal-->
+                                <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link text-white" href="categorias.php">
                                 <!--Poner icono de categorias-->
                                 <i class="fas fa-th-large"></i> Categorías
                             </a>
@@ -97,7 +97,7 @@ $resultado = mysqli_query($conexion, $sql);
 
 
                 <li class="nav-item">
-                    <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
                         data-bs-toggle="collapse"
                         href="#menuVentas"
                         role="button"
@@ -110,7 +110,7 @@ $resultado = mysqli_query($conexion, $sql);
 
                     <ul class="collapse list-unstyled ps-4" id="menuVentas">
                         <li>
-                            <a class="nav-link text-info" href="ventas.php">
+                            <a class="nav-link text-secondary" href="ventas.php">
                                 <i class="fas fa-cart-plus me-2"></i> Vender
                             </a>
                         </li>
@@ -148,6 +148,11 @@ $resultado = mysqli_query($conexion, $sql);
                         <li>
                             <a class="nav-link text-secondary" href="rubro.php">
                                 <i class="fas fa-tags me-2"></i> Rubro
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link text-secondary" href="departamento.php">
+                                <i class="fas fa-building me-2"></i> Departamento
                             </a>
                         </li>
                     </ul>
@@ -214,7 +219,7 @@ $resultado = mysqli_query($conexion, $sql);
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                    <a class="nav-link text-info d-flex justify-content-between align-items-center"
                         data-bs-toggle="collapse"
                         href="#menuOpciones"
                         role="button"
@@ -227,7 +232,7 @@ $resultado = mysqli_query($conexion, $sql);
 
                     <ul class="collapse list-unstyled ps-4" id="menuOpciones">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="metodo_pago.php">
+                            <a class="nav-link text-info" href="metodo_pago.php">
                                 <i class="fas fa-credit-card"></i>
                                 Método de pago
                             </a>
@@ -280,21 +285,21 @@ $resultado = mysqli_query($conexion, $sql);
                 </li>
             </ul>
         </nav>
-
         <!-- Contenido principal -->
         <div id="content">
-            <!-- Navbar superior FIXED -->
+            <!-- Navbar superior -->
             <nav class="navbar bg-light border-bottom">
                 <div class="container-fluid d-flex align-items-center">
 
                     <!-- Botón sidebar -->
-                    <button id="toggleSidebar" class="btn btn-dark me-3 d-lg-none">
+                    <!-- Botón sidebar -->
+                    <button id="toggleSidebar" class="btn btn-dark me-3  d-lg-none">
                         <i class="fas fa-bars"></i>
                     </button>
 
                     <!-- Título -->
                     <span class="navbar-brand mb-0">
-                        Panel de control
+                        Panel
                     </span>
 
                     <!-- Menú derecho (SIEMPRE visible) -->
@@ -309,7 +314,7 @@ $resultado = mysqli_query($conexion, $sql);
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center gap-2 p-0" href="perfil.php">
                                 <?php if ($fotoPerfil): ?>
-                                    <img src="<?= $fotoPerfil ?>" class="rounded-circle" width="34" height="34">
+                                    <img src="<?= $fotoPerfil ?>" class="rounded-circle" width="32" height="32">
                                 <?php else: ?>
                                     <i class="fas fa-user-circle fa-2x"></i>
                                 <?php endif; ?>
@@ -324,66 +329,121 @@ $resultado = mysqli_query($conexion, $sql);
                 </div>
             </nav>
 
-
             <!-- Contenido -->
             <div class="container-fluid p-4">
 
                 <div class="card">
                     <div class="card-body">
-                        <!--boton para abrir modal de lista de los productos-->
-                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalProductos">
-                            <i class="fas fa-box"></i> Agregar Producto
-                        </button>
+                        <!--Al darle click al boton de editar debe cargar el rubro en el formulario, para eso verificar si existe el id en la url-->
+                        <?php
+                        if (isset($_GET['id'])) {
+                            $id_metodo_pago = intval($_GET['id']);
+                            $resultadoEditar = $conexion->query("SELECT * FROM metodo_pago WHERE id_metodo_pago  = $id_metodo_pago");
+                            if ($filaEditar = $resultadoEditar->fetch_assoc()) {
+                                $nombreMetodoPago = $filaEditar['nombre'];
+                            } else {
+                                echo "<div class='alert alert-danger'>Metodo de pago no encontrado.</div>";
+                                $nombreMetodoPago = "";
+                            }
+                        } else {
+                            $nombreMetodoPago = "";
+                        }
+                        ?>
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><?php echo isset($_GET['id']) ? 'Editar' : 'Registrar'; ?></h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Ingresa el metodo de pago: </label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($nombreMetodoPago); ?>" required>
+                                    </div>
+                                    <?php if (isset($_GET['id'])): ?>
+                                        <input type="hidden" name="id_metodo_pago" value="<?php echo intval($_GET['id']); ?>">
+                                        <button type="submit" name="accion" value="editar" class="btn btn-primary">Guardar Cambios</button>
+                                        <!--Boton para cancelar la edicion y volver al formulario de registro-->
+                                        <a href="metodo_pago.php" class="btn btn-secondary">Cancelar</a>
+                                    <?php else: ?>
+                                        <button type="submit" name="accion" value="registrar" class="btn btn-success">Registrar</button>
+                                    <?php endif; ?>
+                                </form>
+                            </div>
+                        </div>
 
+                        <?php if (!empty($mensaje)): ?>
+                            <div class="alert alert-<?= $tipoAlerta ?> alert-dismissible fade show" role="alert">
+                                <?= $mensaje ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <!-- Contenido -->
-                <div class="container-fluid p-4">
+                <div class="container-fluid p-2">
                     <!-- Tabla -->
-                    <div class="row mt-4">
+                    <div class="row mt-2">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0"><i class="fas fa-cart-plus"></i> Carrito de venta</h5>
+                                    <h5 class="card-title mb-0">Metodos de pagos registrados: <?php echo $totalMetodoPago; ?></h5>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover table-sm w-100">
+                                <div class="card-body">
+                                    <table class="table table-striped table-hover">
                                         <thead>
-                                            <tr class="table-success">
-                                                <th>Acción</th>
-                                                <th>Imagen</th>
+                                            <tr>
                                                 <th>Nombre</th>
-                                                <th>cantidad</th>
-                                                <th>Precio</th>
-                                                <th>SubTotal</th>
-
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="tablaCarrito"></tbody>
+                                        <tbody>
+                                            <?php while ($fila = $resultado->fetch_assoc()): ?>
+                                                <tr>
+
+                                                    <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
+                                                    <td>
+                                                        <!--Boton para editar-->
+                                                        <a href="metodo_pago.php?id=<?php echo $fila['id_metodo_pago']; ?>" class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-pen-to-square"></i>
+                                                        </a>
+                                                        <!-- Botón para eliminar -->
+                                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="setEliminarId(<?php echo $fila['id_metodo_pago']; ?>)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+
+
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile; ?>
+                                        </tbody>
                                     </table>
-                                    <div id="alertaStock" class="alert alert-danger d-none mt-3">
-                                        ⚠ Hay productos con stock insuficiente. Corrige la cantidad para continuar.
+                                    <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
+                                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                                        <div class="fw-bold text-success">
+                                            Página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?>
+                                        </div>
+
+                                        <!-- Botones de paginación -->
+                                        <div>
+                                            <?php if ($pagina > 1): ?>
+                                                <a class="btn btn-outline-success btn-sm me-2"
+                                                    href="?pagina=<?php echo $pagina - 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                                    ⬅ Anterior
+                                                </a>
+                                            <?php else: ?>
+                                                <button class="btn btn-outline-success btn-sm me-2" disabled>⬅ Anterior</button>
+                                            <?php endif; ?>
+
+                                            <?php if ($pagina < $totalPaginas): ?>
+                                                <a class="btn btn-outline-success btn-sm"
+                                                    href="?pagina=<?php echo $pagina + 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                                    Siguiente ➡
+                                                </a>
+                                            <?php else: ?>
+                                                <button class="btn btn-outline-success btn-sm" disabled>Siguiente ➡</button>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-
-                                    <!-- ✅ TOTAL DE LA VENTA -->
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <h4>Total: S/. <span id="totalVenta">0.00</span></h4>
-                                    </div>
-
-                                    <!-- ✅ BOTÓN VENDER -->
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button id="btnVender" class="btn btn-success" disabled>
-                                            Registrar Venta
-                                        </button>
-                                    </div>
-
-                                    <div
-                                        id="mensajeCarritoVacio"
-                                        class="alert alert-warning d-none text-end mt-3">
-                                        🛒 Agrega productos al carrito para continuar con la venta
-                                    </div>
-
-
                                 </div>
                             </div>
                         </div>
@@ -391,16 +451,35 @@ $resultado = mysqli_query($conexion, $sql);
 
                 </div>
             </div>
+
+            <!-- Modal de confirmación -->
+            <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEliminarLabel">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas eliminar?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="#" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <script src="js/menu_sidebar.js"></script>
-    <?php
-    include 'modal/modal_lista_productos_ventas.php';
-    include 'modal/modal_registrar_venta.php';
-    ?>
-    <script src="./js/modal_lista_productos_ventas.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function setEliminarId(id) {
+                const btn = document.getElementById('btnConfirmarEliminar');
+                btn.href = '?eliminar=' + id;
+            }
+        </script>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/menu_sidebar.js"></script>
 </body>
 
 </html>
