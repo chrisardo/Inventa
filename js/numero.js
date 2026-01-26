@@ -1,47 +1,44 @@
+//Toda esta parte es de js/numero.js
 document.addEventListener("DOMContentLoaded", () => {
-  const counters = document.querySelectorAll(".kpi-number");
+  document.querySelectorAll(".kpi-number").forEach((el) => {
+    const target = parseFloat(el.dataset.value);
+    const isDecimal = el.classList.contains("kpi-decimal");
 
-  counters.forEach((counter) => {
-    const target = +counter.dataset.value;
-    const duration = 1200; // ms
-    const startTime = performance.now();
+    const duration = 1200;
+    const start = performance.now();
 
-    function update(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const value = Math.floor(progress * target);
+    function animate(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      let value = progress * target;
 
-      counter.textContent = value.toLocaleString();
+      if (!isDecimal) value = Math.round(value);
 
-      if (progress < 1) {
-        requestAnimationFrame(update);
+      el.textContent = isDecimal
+        ? value.toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : Math.round(value).toLocaleString("es-PE");
+
+      if (progress < 1) requestAnimationFrame(animate);
+      else aplicarIcono();
+    }
+
+    function aplicarIcono() {
+      if (el.id !== "kpi-ganancia") return;
+
+      const icon = document.getElementById("icono-ganancia");
+      if (!icon) return;
+
+      if (target > 0) {
+        icon.className = "fas fa-arrow-up kpi-up ms-2";
+      } else if (target < 0) {
+        icon.className = "fas fa-arrow-down kpi-down ms-2";
+      } else {
+        icon.className = "";
       }
     }
 
-    requestAnimationFrame(update);
+    requestAnimationFrame(animate);
   });
 });
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      const target = +el.dataset.value;
-      let current = 0;
-      const step = Math.ceil(target / 60);
-
-      const interval = setInterval(() => {
-        current += step;
-        if (current >= target) {
-          el.textContent = target.toLocaleString();
-          clearInterval(interval);
-        } else {
-          el.textContent = current.toLocaleString();
-        }
-      }, 16);
-
-      observer.unobserve(el);
-    }
-  });
-});
-
-document.querySelectorAll(".kpi-number").forEach((el) => observer.observe(el));
