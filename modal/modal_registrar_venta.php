@@ -30,11 +30,13 @@
                         <label class="form-label">Forma de Pago</label>
                         <select class="form-select" id="formaPago">
                             <option value="">-- Seleccione --</option>
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Tarjeta">Tarjeta</option>
-                            <option value="Yape">Yape</option>
-                            <option value="Plin">Plin</option>
-                            <option value="Transferencia">Transferencia</option>
+                            <?php
+                            include "./controladores/conexion.php";
+                            $metodo_pago = mysqli_query($conexion, "SELECT id_metodo_pago, nombre FROM metodo_pago where id_user= " . $_SESSION['usId']);
+                            while ($mp = mysqli_fetch_assoc($metodo_pago)) {
+                                echo "<option value='{$mp['id_metodo_pago']}'>{$mp['nombre']}</option>";
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
