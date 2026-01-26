@@ -437,54 +437,51 @@ document.getElementById("btnExportPDF").addEventListener("click", async () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
-  const fecha = new Date().toLocaleDateString("es-PE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  /* ================= ENCABEZADO ================= */
-  pdf.setFillColor(40, 167, 69);
-  pdf.rect(0, 0, 210, 22, "F");
-
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(14);
-  pdf.text(EMPRESA_NOMBRE, 14, 14);
-
-  pdf.setFontSize(9);
-  pdf.text(`Reporte de Ventas`, 14, 19);
-  pdf.text(`Fecha: ${fecha}`, 150, 14);
-  pdf.text(`Usuario: ${USUARIO_NOMBRE}`, 150, 19);
-
-  /* ================= CONTENIDO ================= */
   const dashboard = document.querySelector(".container-fluid.p-4");
+
+  // 🔥 CLAVE
+  refrescarCharts();
+  await new Promise((r) => setTimeout(r, 300));
 
   const canvas = await html2canvas(dashboard, {
     scale: 2,
     useCORS: true,
+    backgroundColor: "#ffffff",
+    windowWidth: dashboard.scrollWidth,
+    windowHeight: dashboard.scrollHeight,
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  const imgWidth = 190;
+  const pageWidth = 210;
   const pageHeight = 297;
+  const marginTop = 30;
+  const marginX = 10;
+  const usableHeight = pageHeight - marginTop;
+
+  const imgWidth = pageWidth - marginX * 2;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  let heightLeft = imgHeight;
-  let position = 30;
+  let y = 0;
 
-  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+  while (y < imgHeight) {
+    if (y > 0) pdf.addPage();
 
-  while (heightLeft > 0) {
-    pdf.addPage();
-    position = 10;
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    pdf.addImage(imgData, "PNG", marginX, marginTop - y, imgWidth, imgHeight);
+
+    y += usableHeight;
   }
 
-  pdf.save(`reporte_ventas_${fecha.replaceAll("/", "-")}.pdf`);
+  pdf.save("reporte_ventas.pdf");
 });
+function refrescarCharts() {
+  if (window.Chart) {
+    Chart.helpers.each(Chart.instances, function (chart) {
+      chart.resize();
+      chart.update("none"); // sin animación
+    });
+  }
+}
 
 //Exportar excel
 document.getElementById("btnExportExcel").addEventListener("click", () => {
