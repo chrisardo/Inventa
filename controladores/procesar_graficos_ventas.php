@@ -1,5 +1,5 @@
 <?php
-
+//Toda esta parte es de controladores/procesar_graficos_ventas.php
 use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 
 session_start();
@@ -181,7 +181,65 @@ if ($anio != '') $filtros .= " AND YEAR(t.fecha_venta) = $anio";
 if ($producto != '') $filtros .= " AND dt.idProducto = $producto";
 if ($categoria != '') $filtros .= " AND p.id_categorias = $categoria";
 if ($cliente != '') $filtros .= " AND t.idCliente = $cliente";
+// ================= GANANCIA / PÉRDIDA (HOY VS AYER) =================
+// ================= GANANCIA / PÉRDIDA =================
 
+$totalHoy = 0;
+$totalAyer = 0;
+
+if ($anio !== '') {
+
+    $anioActual   = (int)$anio;
+    $anioAnterior = $anioActual - 1;
+
+    // Total año seleccionado
+    $sqlActual = "
+        SELECT IFNULL(SUM(dt.sub_total),0) AS total
+        FROM ticket_ventas t
+        JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
+        JOIN producto p ON dt.idProducto = p.idProducto
+        WHERE t.id_user = $usId
+        AND YEAR(t.fecha_venta) = $anioActual
+    ";
+
+    // Total año anterior
+    $sqlAnterior = "
+        SELECT IFNULL(SUM(dt.sub_total),0) AS total
+        FROM ticket_ventas t
+        JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
+        JOIN producto p ON dt.idProducto = p.idProducto
+        WHERE t.id_user = $usId
+        AND YEAR(t.fecha_venta) = $anioAnterior
+    ";
+
+    $totalActual   = mysqli_fetch_assoc(mysqli_query($conexion, $sqlActual))['total'] ?? 0;
+    $totalAnterior = mysqli_fetch_assoc(mysqli_query($conexion, $sqlAnterior))['total'] ?? 0;
+
+    $diferenciaGanancia = $totalActual - $totalAnterior;
+} else {
+
+    // SIN FILTRO → HOY VS AYER
+    $sqlHoy = "
+        SELECT IFNULL(SUM(dt.sub_total),0) AS total
+        FROM ticket_ventas t
+        JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
+        WHERE t.id_user = $usId
+        AND DATE(t.fecha_venta) = CURDATE()
+    ";
+
+    $sqlAyer = "
+        SELECT IFNULL(SUM(dt.sub_total),0) AS total
+        FROM ticket_ventas t
+        JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
+        WHERE t.id_user = $usId
+        AND DATE(t.fecha_venta) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ";
+
+    $totalHoy  = mysqli_fetch_assoc(mysqli_query($conexion, $sqlHoy))['total'] ?? 0;
+    $totalAyer = mysqli_fetch_assoc(mysqli_query($conexion, $sqlAyer))['total'] ?? 0;
+
+    $diferenciaGanancia = $totalHoy - $totalAyer;
+}
 echo json_encode([
     'montoMes' => array_values($montoMes),
     'cantMes' => array_values($cantMes),
@@ -193,5 +251,8 @@ echo json_encode([
     'topCliTot' => top6($conexion, $usId, 'cliente', $filtros)['values'],
     'tablaProductos' => tablaResumen($conexion, $usId, 'producto', $filtros),
     'tablaClientes' => tablaResumen($conexion, $usId, 'cliente', $filtros),
-    'tablaCategorias' => tablaResumen($conexion, $usId, 'categoria', $filtros)
+    'tablaCategorias' => tablaResumen($conexion, $usId, 'categoria', $filtros),
+    'gananciaHoy' => round($totalHoy, 2),
+    'gananciaAyer' => round($totalAyer, 2),
+    'diferenciaGanancia' => round($diferenciaGanancia, 2),
 ]);

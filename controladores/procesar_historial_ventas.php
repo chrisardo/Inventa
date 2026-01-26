@@ -33,9 +33,10 @@ if ($busqueda !== '') {
     $busquedaEsc = $conexion->real_escape_string($busqueda);
 
     $sql = "
-        SELECT tv.*, c.nombre
+        SELECT tv.*, c.nombre, m.nombre as metodo_pago
         FROM ticket_ventas tv
         INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         AND (
             tv.serie_venta LIKE '%$busquedaEsc%'
@@ -52,6 +53,7 @@ if ($busqueda !== '') {
         SELECT COUNT(*) AS total
         FROM ticket_ventas tv
         INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         AND (
             tv.serie_venta LIKE '%$busquedaEsc%'
@@ -64,9 +66,10 @@ if ($busqueda !== '') {
 } else {
 
     $resultado = $conexion->query("
-        SELECT tv.*, c.nombre
+        SELECT tv.*, c.nombre,m.nombre as metodo_pago
         FROM ticket_ventas tv 
         INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         ORDER BY tv.id_ticket_ventas DESC
         LIMIT $inicio, $porPagina
@@ -76,6 +79,7 @@ if ($busqueda !== '') {
         SELECT COUNT(*) AS total 
         FROM ticket_ventas tv
         INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
     ");
 }

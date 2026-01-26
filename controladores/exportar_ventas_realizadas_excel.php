@@ -97,8 +97,9 @@ SELECT
     u.nombreEmpresa,
     tv.fecha_venta,
     tv.serie_venta,
-    tv.forma_pago,
+    tv.id_metodo_pago,
     cl.nombre AS cliente,
+    mp.nombre AS metodo_pago,
     cl.dni_o_ruc,
     IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
     dep.nombre AS departamento,
@@ -118,6 +119,7 @@ SELECT
 FROM ticket_ventas tv
 LEFT JOIN detalle_ticket_ventas dt ON dt.id_ticket_ventas = tv.id_ticket_ventas
 LEFT JOIN producto p ON dt.idProducto = p.idProducto
+LEFT JOIN metodo_pago mp ON tv.id_metodo_pago = mp.id_metodo_pago
 LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
 LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
 LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
@@ -144,7 +146,7 @@ while ($fila = $resultado->fetch_assoc()) {
     $sheet->setCellValue("A{$filaExcel}", $fila['nombreEmpresa']);
     $sheet->setCellValue("B{$filaExcel}", $fila['fecha_venta']);
     $sheet->setCellValue("C{$filaExcel}", $fila['serie_venta']);
-    $sheet->setCellValue("D{$filaExcel}", $fila['forma_pago']);
+    $sheet->setCellValue("D{$filaExcel}", $fila['metodo_pago']);
     $sheet->setCellValue("E{$filaExcel}", $fila['cliente']);
     $sheet->setCellValue("F{$filaExcel}", $fila['dni_o_ruc']);
     $sheet->setCellValue("G{$filaExcel}", $fila['sucursal']);

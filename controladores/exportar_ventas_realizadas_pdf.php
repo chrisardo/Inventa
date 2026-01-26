@@ -43,20 +43,20 @@ class PDF extends FPDF
         $this->Ln(3);
 
         $headers = [
-            'Fecha venta',
+            'Fecha',
             'Serie',
-            'Pago',
+            'Forma Pago',
             'Cliente',
-            'Nro. doc',
-            'Tienda', //Sucursal
+            'Nro Doc',
+            'Tienda',
             'Dep',
             'Dist',
             'Prov',
-            'Dir',
+            'Dirección',
             'Rubro',
             'SKU',
             'Producto',
-            'Categoria',
+            'Categoría',
             'Marca',
             'Stock',
             'Precio',
@@ -66,25 +66,8 @@ class PDF extends FPDF
         ];
 
         $widths = [
-            14,
-            12,
-            12,
-            20,
-            18,
-            14,
-            14,
-            14,
-            24,
-            16,
-            14,
-            26,
-            16,
-            16,
-            10,
-            12,
-            10,
-            14,
-            14
+            14, 12, 12, 20, 18, 16, 14, 14, 14, 24,
+            16, 14, 26, 16, 16, 10, 12, 10, 14, 14
         ];
 
         $this->SetFont('Arial', 'B', 7);
@@ -170,15 +153,16 @@ $pdf->AddPage();
 $pdf->SetFont('Arial', '', 6.5);
 
 // ============================
-//      CONSULTA SQL
+//      CONSULTA SQL (CORREGIDA)
 // ============================
 $sql = "
 SELECT 
     tv.fecha_venta,
     tv.serie_venta,
-    tv.forma_pago,
+    tv.id_metodo_pago,
     cl.nombre AS cliente,
     cl.dni_o_ruc,
+    IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
     dep.nombre AS departamento,
     cl.distrito,
     cl.provincia,
@@ -188,18 +172,18 @@ SELECT
     p.nombre AS producto,
     ca.nombre AS categoria,
     IFNULL(m.nombre, 'SIN MARCA') AS marca,
-    IFNULL(s.nombre, 'SIN TIENDA') AS sucursal,
+    IFNULL(mp.nombre, 'N/A') AS metodo_pago,
     p.stock,
     p.precio,
-    p.costo_compra,
     dt.cantidad_pedido_producto,
     dt.sub_total,
     tv.total_venta
 FROM ticket_ventas tv
 LEFT JOIN detalle_ticket_ventas dt ON dt.id_ticket_ventas = tv.id_ticket_ventas
-LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
-LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
 LEFT JOIN producto p ON dt.idProducto = p.idProducto
+LEFT JOIN sucursal s ON s.id_sucursal = p.id_sucursal
+LEFT JOIN metodo_pago mp ON mp.id_metodo_pago = tv.id_metodo_pago
+LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
 LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
 LEFT JOIN rubros r ON cl.id_rubro = r.id_rubro
 LEFT JOIN departamento dep ON cl.id_departamento = dep.id_departamento
@@ -217,25 +201,8 @@ if (!$resultado) {
 //      CUERPO DEL PDF
 // ============================
 $widths = [
-    14,
-    12,
-    12,
-    20,
-    18,
-    14,
-    14,
-    14,
-    24,
-    16,
-    14,
-    26,
-    16,
-    16,
-    10,
-    12,
-    10,
-    14,
-    14
+    14, 12, 12, 20, 18, 16, 14, 14, 14, 24,
+    16, 14, 26, 16, 16, 10, 12, 10, 14, 14
 ];
 
 while ($fila = $resultado->fetch_assoc()) {
@@ -243,9 +210,10 @@ while ($fila = $resultado->fetch_assoc()) {
     $data = [
         $fila['fecha_venta'],
         $fila['serie_venta'],
-        $fila['forma_pago'],
+        $fila['metodo_pago'],
         $fila['cliente'],
         $fila['dni_o_ruc'],
+        $fila['sucursal'],
         $fila['departamento'],
         $fila['distrito'],
         $fila['provincia'],

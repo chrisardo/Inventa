@@ -21,7 +21,7 @@ $serie = rand(100000000, 999999999);
 
 // ✅ 1) INSERTAR TICKET DE VENTA (CORREGIDO)
 $sqlTicket = "INSERT INTO ticket_ventas
-(id_user, idCliente, pago_cliente, total_venta, forma_pago, estado_venta, fecha_venta, hora_venta, serie_venta, vuelto_venta)
+(id_user, idCliente, pago_cliente, total_venta, id_metodo_pago, estado_venta, fecha_venta, hora_venta, serie_venta, vuelto_venta)
 VALUES
 ('$usId', '$idCliente', '$pago', '$total', '$formaPago', '$estado', '$fecha', '$hora', '$serie', '$vuelto')";
 

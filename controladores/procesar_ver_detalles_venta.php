@@ -21,7 +21,8 @@ $sqlVenta = "
 SELECT 
     tv.serie_venta,
     cl.nombre AS cliente,
-    tv.forma_pago,
+    m.nombre AS metodo_pago,
+    tv.id_metodo_pago,
     tv.total_venta,
     tv.pago_cliente,
     tv.vuelto_venta,
@@ -30,6 +31,7 @@ SELECT
     tv.hora_venta
 FROM ticket_ventas tv
 LEFT JOIN clientes cl ON tv.idCliente = cl.idCliente
+LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
 WHERE tv.id_ticket_ventas = $id_ticket
 LIMIT 1
 ";
