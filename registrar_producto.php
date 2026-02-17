@@ -297,7 +297,73 @@ if (!empty($usuario['imagen'])) {
             <!-- Contenido -->
             <div class="container-fluid p-3">
                 <!-- Título -->
-                <h2 class="mb-3">Registrar producto</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h2 class="mb-0">Registrar producto</h2>
+
+                    <div class="btn-group flex-wrap gap-2">
+
+                        <a href="lista_productos.php" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-box me-1"></i>
+                            Ver lista de productos
+                        </a>
+
+                        <!-- Exportar -->
+                        <div class="btn-group">
+                            <button
+                                class="btn btn-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                               
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+                                    <a class="dropdown-item" href="sucursales.php">
+                                        <i class="fas fa-store me-2 text-info"></i>
+                                        Registrar sucursal
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="categorias.php">
+                                        <i class="fas fa-th-large me-2 text-success"></i>
+                                        Registrar categoría
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="marca.php">
+                                        <i class="fas fa-industry me-2 text-warning"></i>
+                                        Registrar marca
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="registrar_proveedor.php">
+                                        <i class="fas fa-truck me-2 text-primary"></i>
+                                        Registrar proveedor
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
                 <div class="card">
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
@@ -415,6 +481,7 @@ if (!empty($usuario['imagen'])) {
                                         ?>
                                         <select class="form-select" id="categoria" name="categoria" required>
                                             <option value="" disabled selected>Selecciona</option>
+                                            <option value="">Sin categoria</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {
@@ -439,6 +506,7 @@ if (!empty($usuario['imagen'])) {
                                         ?>
                                         <select class="form-select" id="marca" name="marca" required>
                                             <option value="" disabled selected>Selecciona</option>
+                                            <option value="">Sin Marca</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {
@@ -495,6 +563,7 @@ if (!empty($usuario['imagen'])) {
                                         ?>
                                         <select class="form-select" id="sucursal" name="sucursal" required>
                                             <option value="" disabled selected>Selecciona</option>
+                                            <option value="">Sin sucursal</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {

@@ -299,58 +299,80 @@ if (!empty($usuario['imagen'])) {
 
             <!-- Contenido -->
             <div id="content" class="container-fluid p-3">
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
+                <!-- Barra superior: Registrar (izquierda) | Buscar + Exportar (derecha) -->
+                <div class="card p-3 mb-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+
+                        <!-- LADO IZQUIERDO -->
+                        <div>
+                            <a href="registrar_producto.php" class="btn btn-success">
+                                <i class="fas fa-circle-plus me-1"></i>
+                                Registrar producto
+                            </a>
+                        </div>
+
+                        <!-- LADO DERECHO -->
+                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                            <!-- Buscador -->
                             <form id="formBuscar" class="d-flex" method="GET" action="lista_productos.php">
                                 <input
                                     id="inputBuscar"
                                     class="form-control me-2"
                                     type="search"
                                     name="buscar"
-                                    placeholder="Buscar producto por codigo, nombre o fecha"
+                                    placeholder="Buscar producto por código, nombre o fecha"
                                     value="<?= isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
                                 <button class="btn btn-outline-success" type="submit">
-                                    Buscar
+                                    <i class="fas fa-search"></i>
                                 </button>
                             </form>
-                        </div>
-                    </div>
 
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
+                            <!-- Exportar -->
                             <div class="btn-group">
                                 <button
                                     class="btn btn-secondary dropdown-toggle"
                                     type="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                    data-bs-toggle="dropdown">
                                     <i class="bi bi-file-earmark-arrow-down"></i>
-                                    Exportar datos
+                                    Exportar
                                 </button>
+
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="controladores/exportar_productos_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar PDF
-                                        </a>
+                                        <?php if ($totalProducto > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_productos_pdf.php" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger"></i> Exportar PDF
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay productos para exportar
+                                            </button>
+                                        <?php endif; ?>
                                     </li>
+
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+
                                     <li>
-                                        <a class="dropdown-item" href="controladores/exportar_productos_excel.php" target="_blank">
-                                            <i class="fas fa-file-excel"></i> Exportar Excel
-                                        </a>
+                                        <?php if ($totalProducto > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_productos_excel.php" target="_blank">
+                                                <i class="fas fa-file-excel text-success"></i> Exportar Excel
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay productos para exportar
+                                            </button>
+                                        <?php endif; ?>
                                     </li>
                                 </ul>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
-
 
                 <!-- Tabla -->
                 <div class="row mt-2">
@@ -403,10 +425,10 @@ if (!empty($usuario['imagen'])) {
                                                         data-precio="<?php echo htmlspecialchars($fila['precio']); ?>"
                                                         data-costo="<?php echo htmlspecialchars($fila['costo_compra']); ?>"
                                                         data-stock="<?php echo htmlspecialchars($fila['stock']); ?>"
-                                                        data-categoria="<?php echo htmlspecialchars($fila['id_categorias']); ?>"
-                                                        data-provedor="<?php echo htmlspecialchars($fila['id_provedor']); ?>"
-                                                        data-marca="<?php echo htmlspecialchars($fila['id_marca']); ?>"
-                                                        data-sucursal="<?php echo htmlspecialchars($fila['id_sucursal']); ?>"
+                                                        data-categoria="<?php echo htmlspecialchars($fila['id_categorias'] ?? ''); ?>"
+                                                        data-provedor="<?php echo htmlspecialchars($fila['id_provedor'] ?? ''); ?>"
+                                                        data-marca="<?php echo htmlspecialchars($fila['id_marca'] ?? ''); ?>"
+                                                        data-sucursal="<?php echo htmlspecialchars($fila['id_sucursal'] ?? ''); ?>"
                                                         data-descripcion="<?php echo htmlspecialchars($fila['descripcion']); ?>">
                                                         <i class="fas fa-pen-to-square"></i>
                                                     </button>

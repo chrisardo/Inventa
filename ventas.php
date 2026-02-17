@@ -327,16 +327,33 @@ $resultado = mysqli_query($conexion, $sql);
 
             <!-- Contenido -->
             <div class="container-fluid p-4">
-
                 <div class="card">
-                    <div class="card-body">
-                        <!--boton para abrir modal de lista de los productos-->
-                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalProductos">
-                            <i class="fas fa-box"></i> Agregar Producto
+                    <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+
+                        <!-- IZQUIERDA -->
+                        <button class="btn btn-sm btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalProductos">
+                            <i class="fas fa-box me-1"></i>
+                            Añadir Producto al carrito
                         </button>
+
+                        <!-- DERECHA (AGRUPADOS) -->
+                        <div class="d-flex gap-2">
+                            <a href="metodo_pago.php" class="btn btn-sm btn-primary">
+                                <i class="fas fa-credit-card me-1"></i>
+                                Agregar método de pago
+                            </a>
+
+                            <!--<a href="registrar_producto.php" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-circle-plus me-1"></i>
+                                Registrar nuevo producto
+                            </a>-->
+                        </div>
 
                     </div>
                 </div>
+
                 <!-- Contenido -->
                 <div class="container-fluid p-4">
                     <!-- Tabla -->

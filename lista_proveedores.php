@@ -293,46 +293,81 @@ if (!empty($usuario['imagen'])) {
 
             <!-- Contenido -->
             <div class="container-fluid p-4">
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
+                <!-- Barra superior: Registrar (izquierda) | Buscar + Exportar (derecha) -->
+                <div class="card p-3 mb-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+
+                        <!-- LADO IZQUIERDO -->
+                        <div>
+                            <a href="registrar_proveedor.php" class="btn btn-success">
+                                <i class="fas fa-circle-plus me-1"></i>
+                                Registrar proveedor
+                            </a>
+                        </div>
+
+                        <!-- LADO DERECHO -->
+                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                            <!-- Buscador -->
                             <form id="formBuscar" class="d-flex" method="GET" action="lista_proveedores.php">
                                 <input
                                     id="inputBuscar"
                                     class="form-control me-2"
                                     type="search"
                                     name="buscar"
-                                    placeholder="Buscar proveedor por nombre, documento, celular"
-                                    value="<?php echo isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
-                                <button class="btn btn-outline-success" type="submit">Buscar</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
-                            <div class="btn-group">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                                    <i class="bi bi-file-earmark-arrow-down"></i>Exportar proveedores
+                                    placeholder="Buscar proveedor por nombre, RUC o celular"
+                                    value="<?= isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="fas fa-search"></i>
                                 </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="controladores/exportar_proveedores_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar como PDF
-                                        </a></li>
+                            </form>
+
+                            <!-- Exportar -->
+                            <div class="btn-group">
+                                <button
+                                    class="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                    Exportar
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <?php if ($totalProveedores > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_proveedores_pdf.php" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger"></i> Exportar PDF
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay proveedores para exportar
+                                            </button>
+                                        <?php endif; ?>
+                                    </li>
+
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <a href="controladores/exportar_proveedores_excel.php" class="dropdown-item" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Exportar como Excel
-                                    </a>
+
+                                    <li>
+                                        <?php if ($totalProveedores > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_proveedores_excel.php" target="_blank">
+                                                <i class="fas fa-file-excel text-success"></i> Exportar Excel
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay proveedores para exportar
+                                            </button>
+                                        <?php endif; ?>
+                                    </li>
                                 </ul>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
+
                 <!-- Tabla -->
                 <div class="row mt-4">
                     <div class="col-12">
@@ -373,6 +408,20 @@ if (!empty($usuario['imagen'])) {
                                                     <a href="https://wa.me/<?php echo htmlspecialchars($fila['celular']); ?>?text=Hola%20<?php echo urlencode($fila['nombre']); ?>,%20nos%20comunicamos." class="btn btn-sm btn-success" target="_blank">
                                                         <i class="fab fa-whatsapp icono-input-whatsapp"></i>
                                                     </a>
+                                                    <?php if (!empty($fila['email'])):
+                                                        $nombreEmpresa = $usuario['nombreEmpresa'];
+
+                                                        $asunto = "Mensaje de $nombreEmpresa";
+                                                        $cuerpo = "Hola {$fila['nombre']}, nos comunicamos de {$nombreEmpresa}.";
+                                                    ?>
+                                                        <a
+                                                            href="mailto:<?php echo htmlspecialchars($fila['email']); ?>?subject=<?php echo urlencode($asunto); ?>&body=<?php echo urlencode($cuerpo); ?>"
+                                                            class="btn btn-sm btn-primary"
+                                                            title="Enviar correo">
+                                                            <i class="fas fa-envelope"></i>
+                                                        </a>
+                                                    <?php endif; ?>
+
                                                     <!--Boton para editar-->
                                                     <button
                                                         class="btn btn-sm btn-warning"
@@ -383,7 +432,7 @@ if (!empty($usuario['imagen'])) {
                                                         data-dni="<?php echo htmlspecialchars($fila['ruc']); ?>"
                                                         data-direccion="<?php echo htmlspecialchars($fila['direccion']); ?>"
                                                         data-celular="<?php echo htmlspecialchars($fila['celular']); ?>"
-                                                        data-departamento="<?php echo htmlspecialchars($fila['id_departamento']); ?>"
+                                                        data-departamento="<?php echo htmlspecialchars($fila['id_departamento'] ?? ''); ?>"
                                                         data-provincia="<?php echo htmlspecialchars($fila['provincia']); ?>"
                                                         data-distrito="<?php echo htmlspecialchars($fila['distrito']); ?>"
                                                         data-email="<?php echo htmlspecialchars($fila['email']); ?>">

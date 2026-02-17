@@ -291,7 +291,43 @@ if (!empty($usuario['imagen'])) {
             <!-- Contenido -->
             <div class="container-fluid p-4">
                 <!-- Título -->
-                <h2 class="mb-4">Registrar proveedor</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+                    <h2 class="mb-0">Registrar proveedor</h2>
+
+                    <div class="btn-group flex-wrap gap-2">
+
+                        <!-- Ver lista -->
+                        <a href="lista_proveedores.php" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-truck me-1"></i>
+                            Ver lista de proveedores
+                        </a>
+
+                        <!-- Más opciones -->
+                        <div class="btn-group">
+                            <button
+                                class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+                                    <a class="dropdown-item" href="departamento.php">
+                                        <i class="fas fa-building me-2 text-info"></i>
+                                        Registrar departamento
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
+
                 <div class="card">
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
@@ -380,7 +416,7 @@ if (!empty($usuario['imagen'])) {
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white"><i class="fas fa-mobile-alt"></i>
                                         </span>
-                                        <input type="number" min="0" class="form-control" id="celular" name="celular" placeholder="Ejemplo: 987654321" required>
+                                        <input type="number" min="0" class="form-control" id="celular" name="celular" placeholder="Ejemplo: 987654321">
                                     </div>
                                 </div>
                                 <!--Email-->
@@ -404,7 +440,8 @@ if (!empty($usuario['imagen'])) {
                                         $resultado = $conexion->query($sqlDepartammento);
                                         ?>
                                         <select class="form-select" id="departamento" name="departamento" required>
-                                            <option value="0" disabled selected>Seleccione el Departamento</option>
+                                            <option value="" disabled selected>Seleccione el Departamento</option>
+                                            <option value="">Sin región o departamento</option>
                                             <?php
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {

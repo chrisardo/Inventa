@@ -14,6 +14,11 @@ include 'controladores/procesar_index.php';
     <title>Index — Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
+    <meta name="description" content="Sistema de inventario y ventas">
+    <meta name="keywords" content="inventa, sistema de inventario y ventas, ejemplo">
+    <meta name="author" content="codevpro technology">
+
+    <meta name="robots" content="index, follow">
     <!-- Font Awesome para iconos -->
     <link
         rel="stylesheet"
