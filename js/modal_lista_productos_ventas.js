@@ -180,8 +180,8 @@ function validarClienteFormaPago() {
   const formaPago = document.getElementById("formaPago").value;
   const mensaje = document.getElementById("mensajePago");
 
-  if (!idCliente || !formaPago) {
-    mensaje.innerText = "⚠️ Debe seleccionar un cliente y una forma de pago";
+  if (!idCliente || !formaPago ||idCliente === "" ) { //!idCliente || !formaPago
+    mensaje.innerText = "⚠️ Debe seleccionar un cliente yuna forma de pago";
     mensaje.classList.remove("d-none");
     return false;
   }

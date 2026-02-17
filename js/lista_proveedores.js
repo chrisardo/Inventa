@@ -29,7 +29,13 @@ document
     document.getElementById("edit-celular").value = celular;
     document.getElementById("edit-email").value = email;
     document.getElementById("edit-direccion").value = direccion;
-    document.getElementById("edit-departamento").value = departamento;
+    // Si el departamento no existe, es decir, es null o 0, entonces se deja la opcion de sin departamento por defecto el select. De lo contrario, se asigna el valor.
+    const selectDepartamento = document.getElementById("edit-departamento");
+    if (!departamento || departamento === 0 || departamento === "null" || departamento === "0") {
+      selectDepartamento.value = "";
+    } else {
+      selectDepartamento.value = departamento;
+    }
     document.getElementById("edit-provincia").value = provincia;
     document.getElementById("edit-distrito").value = distrito;
   });
@@ -72,10 +78,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (nombre === "") errores.push("El nombre es obligatorio.");
     if (dni === "") errores.push("El documento es obligatorio.");
-    if (celular === "") errores.push("El celular es obligatorio.");
-    if (departamento === "" || departamento === "0")
+    //if (celular === "") errores.push("El celular es obligatorio.");
+    /*if (departamento === "" || departamento === "0")
       errores.push("Debe seleccionar un departamento.");
-
+    */
     // VALIDAR IMAGEN
     if (imagen.files.length > 0) {
       const file = imagen.files[0];

@@ -167,7 +167,7 @@ function crearProductosMes(data) {
       labels: data.map((d) => nombresMeses[d.mes - 1]),
       datasets: [
         {
-          label: "Productos registrados",
+          label: "Unidades ingresadas",
           data: data.map((d) => d.total),
         },
       ],
@@ -175,7 +175,16 @@ function crearProductosMes(data) {
     plugins: [ChartDataLabels],
     options: {
       plugins: {
-        datalabels: dataLabelInteligente,
+        datalabels: {
+          font: { weight: "bold", size: 12 },
+          //formatter: (v) => Number(v).toLocaleString("es-PE"),
+          anchor: "end",
+          align: "top",
+          offset: 6,
+        },
+      },
+      scales: {
+        y: { beginAtZero: true },
       },
     },
   });
@@ -199,7 +208,13 @@ function crearClientesMes(data) {
     plugins: [ChartDataLabels],
     options: {
       plugins: {
-        datalabels: dataLabelInteligente,
+        datalabels: {
+          font: { weight: "bold", size: 12 },
+          formatter: (v) => Number(v).toLocaleString("es-PE"),
+          anchor: "end",
+          align: "top",
+          offset: 6,
+        },
       },
     },
   });

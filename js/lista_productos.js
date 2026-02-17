@@ -19,9 +19,12 @@ document
     document.getElementById("edit-descripcion").value =
       button.dataset.descripcion;
 
-    document.getElementById("edit-categoria").value = button.dataset.categoria;
-    document.getElementById("edit-sucursal").value = button.dataset.sucursal;
-    document.getElementById("edit-provedor").value = button.dataset.provedor;
+    document.getElementById("edit-categoria").value =
+      button.dataset.categoria || "";
+    document.getElementById("edit-sucursal").value =
+      button.dataset.sucursal || "";
+    document.getElementById("edit-provedor").value =
+      button.dataset.provedor || "";
 
     // ✅ ESTO ES LO IMPORTANTE
     document.getElementById("edit-marca").value = button.dataset.marca;
@@ -76,9 +79,9 @@ document.addEventListener("DOMContentLoaded", function () {
       errores.push("El stock debe ser un número entero mayor o igual a 0.");
 
     //if (proveedor === "") errores.push("Debe seleccionar un proveedor.");
-    if (categoria === "") errores.push("Debe seleccionar una categoría.");
-    if (marca === "") errores.push("Debe seleccionar una marca.");
-    if (sucursal === "") errores.push("Debe seleccionar una sucursal.");
+    //if (categoria === "") errores.push("Debe seleccionar una categoría.");
+    //if (marca === "") errores.push("Debe seleccionar una marca.");
+    //if (sucursal === "") errores.push("Debe seleccionar una sucursal.");
     // VALIDAR IMAGEN (si se selecciona)
     if (imagen.files.length > 0) {
       const file = imagen.files[0];

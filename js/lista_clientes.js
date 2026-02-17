@@ -30,8 +30,24 @@ document
     document.getElementById("edit-celular").value = celular;
     document.getElementById("edit-email").value = email;
     document.getElementById("edit-direccion").value = direccion;
-    document.getElementById("edit-rubro").value = rubro;
+    // Si el rubro no existe, es decir, es null o 0, entonces se deja la opcion de sin rubro por defecto el select. De lo contrario, se asigna el valor.
+    const selectRubro = document.getElementById("edit-rubro");
+
+    if (!rubro || rubro === 0 || rubro === "null" || rubro === "0") {
+      selectRubro.value = "";
+    } else {
+      selectRubro.value = rubro;
+    }
+
     document.getElementById("edit-departamento").value = departamento;
+    const selectDepartamento = document.getElementById("edit-departamento");
+
+    if (!departamento || departamento === 0 || departamento === "null" || departamento === "0") {
+      selectDepartamento.value = "";
+    } else {
+      selectDepartamento.value = departamento;
+    }
+
     document.getElementById("edit-provincia").value = provincia;
     document.getElementById("edit-distrito").value = distrito;
   });
