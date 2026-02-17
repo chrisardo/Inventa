@@ -20,17 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
 
     if (
         empty(trim($_POST['nombre'] ?? '')) ||
-        empty(trim($_POST['dni_o_ruc'] ?? '')) ||
-        empty(trim($_POST['celular'] ?? ''))
+        empty(trim($_POST['dni_o_ruc'] ?? '')) 
     ) {
-        $mensaje = "Nombre, documento y celular son obligatorios.";
+        $mensaje = "Nombre y documento son obligatorios.";
         return;
     }
 
-    if (empty($_POST['departamento']) || intval($_POST['departamento']) === 0) {
+    /*if (empty($_POST['departamento']) || intval($_POST['departamento']) === 0) {
         $mensaje = "Debe seleccionar un departamento.";
         return;
-    }
+    }*/
 
     /* ================= DATOS ================= */
 

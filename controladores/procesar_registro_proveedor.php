@@ -7,29 +7,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // ===== VALIDACIONES BÁSICAS =====
     if (
         empty($_POST['nombre']) ||
-        empty($_POST['ruc']) ||
-        empty($_POST['celular'])
+        empty($_POST['ruc'])
     ) {
-        $mensaje = "❌ Nombre, RUC y celular son obligatorios.";
+        $mensaje = "❌ Nombre y RUC son obligatorios.";
         $tipoAlerta = "danger";
         return;
     }
     // 🔴 VALIDAR DEPARTAMENTO
-    if (
+    /*if (
         !isset($_POST['departamento']) ||
         intval($_POST['departamento']) === 0
     ) {
         $mensaje = "❌ Debe seleccionar un departamento.";
         $tipoAlerta = "danger";
         return;
-    }
+    }*/
 
     // ===== DATOS =====
     $usId         = $_SESSION['usId'];
     $nombre       = trim($_POST['nombre']);
     $ruc          = trim($_POST['ruc']);
     $direccion    = trim($_POST['direccion'] ?? '');
-    $celular      = trim($_POST['celular']);
+    $celular      = intval($_POST['celular'] ?? '');
     $departamento = intval($_POST['departamento'] ?? 0);
     $provincia    = trim($_POST['provincia'] ?? '');
     $distrito     = trim($_POST['distrito'] ?? '');

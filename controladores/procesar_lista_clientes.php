@@ -17,10 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
     // Validaciones obligatorias
     $nombre  = trim($_POST['nombre']);
     $dni     = trim($_POST['dni_o_ruc']);
-    $celular = trim($_POST['celular']);
 
-    if (empty($nombre) || empty($dni) || empty($celular)) {
-        $mensaje = "Los campos Nombre, DNI/RUC y Celular son obligatorios.";
+    if (empty($nombre) || empty($dni)) {
+        $mensaje = "Los campos Nombre y DNI/RUC Celular son obligatorios.";
         $tipoAlerta = "danger";
         exit();
     }
@@ -28,9 +27,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
     // ====== Construcción dinámica de los campos a actualizar ======
     $campos = [];
 
-    // Imagen
+    /* ============================
+       ===== VALIDAR IMAGEN ======
+    ============================ */
+
     if (!empty($_FILES['imagen']['tmp_name']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-        $campos['imagen'] = file_get_contents($_FILES['imagen']['tmp_name']);
+
+        $maxSize = 1887436; // 1.8MB en bytes
+        $fileSize = $_FILES['imagen']['size'];
+        $fileTmp  = $_FILES['imagen']['tmp_name'];
+
+        // Validar tamaño
+        if ($fileSize > $maxSize) {
+            echo "<script>alert('La imagen no debe superar los 1.8 MB'); window.history.back();</script>";
+            exit();
+        }
+
+        // Validar tipo MIME real
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $fileTmp);
+        finfo_close($finfo);
+
+        $tiposPermitidos = ['image/jpeg', 'image/png'];
+
+        if (!in_array($mimeType, $tiposPermitidos)) {
+            echo "<script>alert('Solo se permiten imágenes JPG o PNG'); window.history.back();</script>";
+            exit();
+        }
+
+        $campos['imagen'] = file_get_contents($fileTmp);
     }
 
     // Campos opcionales
@@ -45,18 +70,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
     ];
 
     foreach ($opciones as $campo => $valor) {
-        if (!empty($valor)) {
-            $campos[$campo] = $valor;
-        }
+        $campos[$campo] = $valor; // se actualiza incluso si está vacío
     }
 
     // Campos numéricos
-    if (!empty($_POST['rubro']) && intval($_POST['rubro']) > 0) {
+    /*if (!empty($_POST['rubro']) && intval($_POST['rubro']) > 0) {
         $campos['id_rubro'] = intval($_POST['rubro']);
     }
 
     if (!empty($_POST['departamento']) && intval($_POST['departamento']) > 0) {
         $campos['id_departamento'] = intval($_POST['departamento']);
+    }*/
+    // ====== RUBRO ======
+    if (isset($_POST['rubro'])) {
+        $rubro = intval($_POST['rubro']);
+        $campos['id_rubro'] = ($rubro > 0) ? $rubro : NULL;
+    }
+
+    // ====== DEPARTAMENTO ======
+    if (isset($_POST['departamento'])) {
+        $departamento = intval($_POST['departamento']);
+        $campos['id_departamento'] = ($departamento > 0) ? $departamento : NULL;
     }
 
     // Si no hay campos a actualizar
@@ -68,14 +102,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
 
     // ====== Construcción del SQL dinámico ======
     $setSQL = [];
+
     foreach ($campos as $campo => $valor) {
-        $valorEsc = $conexion->real_escape_string($valor);
-        $setSQL[] = "$campo = '$valorEsc'";
+
+        if (is_null($valor)) {
+            $setSQL[] = "$campo = NULL";
+        } else {
+            $valorEsc = $conexion->real_escape_string($valor);
+            $setSQL[] = "$campo = '$valorEsc'";
+        }
     }
 
     $setSQL = implode(', ', $setSQL);
 
-    $sql = "UPDATE clientes SET $setSQL WHERE idCliente = $id";
+    $sql = "UPDATE clientes 
+            SET $setSQL 
+            WHERE idCliente = $id 
+            AND id_user = $usId";
 
     // ====== Ejecutar SQL ======
     if ($conexion->query($sql)) {

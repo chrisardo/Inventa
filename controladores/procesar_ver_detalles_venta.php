@@ -20,7 +20,7 @@ $id_ticket = intval($_GET['itv']);
 $sqlVenta = "
 SELECT 
     tv.serie_venta,
-    cl.nombre AS cliente,
+    COALESCE(cl.nombre, 'Clientes varios') AS cliente,
     m.nombre AS metodo_pago,
     tv.id_metodo_pago,
     tv.total_venta,

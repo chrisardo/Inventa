@@ -36,7 +36,7 @@ $totalClientes = $conexion->query($sqlClientes)->fetch_assoc()['total'];
 /* ===================== TOTAL PRODUCTOS ===================== */
 if ($anio) {
     $sqlProductos = "
-        SELECT COUNT(*) AS total
+        SELECT IFNULL(SUM(p.stock),0) AS total
         FROM producto
         WHERE Eliminado = 0
         AND id_user = $idUser
@@ -44,7 +44,7 @@ if ($anio) {
     ";
 } else {
     $sqlProductos = "
-        SELECT COUNT(*) AS total
+        SELECT IFNULL(SUM(p.stock),0) AS total
         FROM producto
         WHERE Eliminado = 0
         AND id_user = $idUser

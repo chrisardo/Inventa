@@ -53,7 +53,7 @@ $totalClientes = $resultado2->fetch_assoc()['total'];
 // Consulta para contar productos
 if ($anio) {
     $sqlProductos = "
-        SELECT COUNT(DISTINCT p.idProducto) AS total
+        SELECT IFNULL(SUM(p.stock),0) AS total
         FROM producto p
         WHERE p.Eliminado = 0
         AND p.id_user = {$_SESSION['usId']}
@@ -61,7 +61,7 @@ if ($anio) {
     ";
 } else {
     $sqlProductos = "
-        SELECT COUNT(*) AS total
+        SELECT IFNULL(SUM(stock),0) AS total
         FROM producto
         WHERE Eliminado = 0
         AND id_user = {$_SESSION['usId']}

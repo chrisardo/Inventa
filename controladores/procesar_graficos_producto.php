@@ -11,9 +11,9 @@ $categoria = $_GET['categoria'] ?? '';
 $response = [];
 
 /* 1️⃣ PRODUCTOS REGISTRADOS POR MES */
-$sql = "SELECT MONTH(fecha_registro) mes, COUNT(*) total
+$sql = "SELECT MONTH(fecha_registro) mes, IFNULL(SUM(stock),0) AS total
         FROM producto
-        WHERE id_user = ?
+        WHERE  Eliminado = 0 AND id_user = ?
         AND (? = '' OR YEAR(fecha_registro) = ?)
         AND (? = '' OR id_categorias = ?)
         GROUP BY mes
@@ -24,9 +24,9 @@ $stmt->execute();
 $response['productos_mes'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 /* 2️⃣ PRODUCTOS REGISTRADOS POR DÍA */
-$sql = "SELECT DATE(fecha_registro) dia, COUNT(*) total
+$sql = "SELECT DATE(fecha_registro) dia, IFNULL(SUM(stock),0) AS total
         FROM producto
-        WHERE id_user = ?
+        WHERE  Eliminado = 0 AND id_user = ?
         AND (? = '' OR YEAR(fecha_registro) = ?)
         AND (? = '' OR id_categorias = ?)
         GROUP BY dia
@@ -116,10 +116,10 @@ $stmt->bind_param(
 $stmt->execute();
 $response['top_categorias'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 /* 5️⃣ PRODUCTOS POR CATEGORÍA */
-$sql = "SELECT COALESCE(c.nombre, 'Sin categoría') categoria, COUNT(p.idProducto) total
+$sql = "SELECT COALESCE(c.nombre, 'Sin categoría') categoria, IFNULL(SUM(stock),0) AS total
         FROM producto p
         LEFT JOIN categorias c ON c.id_categorias = p.id_categorias
-        WHERE p.id_user = ?
+        WHERE p.Eliminado = 0 AND p.id_user = ?
         AND (? = '' OR p.idProducto = ?)
         AND (? = '' OR YEAR(p.fecha_registro) = ?)
         AND (? = '' OR p.id_categorias = ?)

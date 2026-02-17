@@ -12,13 +12,18 @@ $rubro   = $_GET['rubro'] ?? '';
 $response = [];
 
 /* 1️⃣ PRODUCTOS REGISTRADOS POR MES */
-$sql = "SELECT MONTH(fecha_registro) mes, COUNT(*) total
+/* 1️⃣ UNIDADES DE PRODUCTOS INGRESADAS AL INVENTARIO POR MES */
+$sql = "SELECT 
+            MONTH(fecha_registro) mes, 
+            IFNULL(SUM(stock),0) total
         FROM producto
-        WHERE id_user = ?
+        WHERE Eliminado = 0
+        AND id_user = ?
         AND (? = '' OR YEAR(fecha_registro) = ?)
         AND (? = '' OR id_categorias = ?)
         GROUP BY mes
         ORDER BY mes";
+
 $stmt = $conexion->prepare($sql);
 $stmt->bind_param("issss", $usId, $anio, $anio, $categoria, $categoria);
 $stmt->execute();

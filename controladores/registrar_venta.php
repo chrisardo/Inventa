@@ -7,7 +7,11 @@ $usId = $_SESSION['usId'];
 $total = floatval($_POST['total']);
 $pago = floatval($_POST['pago']);
 $vuelto = floatval($_POST['vuelto']);
-$idCliente = $_POST['idCliente'];
+//$idCliente = $_POST['idCliente'];
+$idCliente = isset($_POST['idCliente']) && $_POST['idCliente'] !== ''
+    ? intval($_POST['idCliente'])
+    : 0;
+
 $formaPago = $_POST['formaPago'];
 $estado = "Vendido";
 

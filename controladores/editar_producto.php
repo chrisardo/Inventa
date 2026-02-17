@@ -25,10 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
         'codigo'     => 'SKU',
         'precio'     => 'Precio',
         'costo'      => 'Costo de compra',
-        'stock'      => 'Stock',
-        'categoria'  => 'Categoría',
-        'sucursal'  => 'Sucursal',
-        'marca'      => 'Marca'
+        'stock'      => 'Stock'
     ];
 
     foreach ($camposObligatorios as $campo => $label) {
@@ -61,10 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'edita
     $costo        = floatval($_POST['costo']);
     $stock        = intval($_POST['stock']);
     $descripcion  = trim($_POST['descripcion'] ?? '');
-    $idSucursal  = intval($_POST['sucursal']);
+    $idSucursal  = !empty($_POST['sucursal']) ? intval($_POST['sucursal']) : null;
     $idProveedor = !empty($_POST['provedor']) ? intval($_POST['provedor']) : null;
-    $idCategoria  = intval($_POST['categoria']);
-    $idMarca      = intval($_POST['marca']);
+    $idCategoria  = !empty($_POST['categoria']) ? intval($_POST['categoria']) : null;
+    $idMarca      = !empty($_POST['marca']) ? intval($_POST['marca']) : null;
 
     /* ================= IMAGEN ================= */
 

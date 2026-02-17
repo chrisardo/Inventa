@@ -49,7 +49,7 @@ if ($busqueda !== '') {
     $resultado = $conexion->query($sql);
 
     $sqlTotal = "
-        SELECT COUNT(*) AS total
+        SELECT IFNULL(SUM(stock),0) AS total
         FROM producto
         WHERE id_user = $usId and Eliminado = 0
         AND (
@@ -77,7 +77,7 @@ if ($busqueda !== '') {
     ");
 
     $resultado2 = $conexion->query("
-        SELECT COUNT(*) AS total 
+        SELECT IFNULL(SUM(stock),0) AS total
         FROM producto
         WHERE id_user = $usId and Eliminado = 0
     ");

@@ -16,9 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (
         empty(trim($_POST['codigo'])) ||
         empty(trim($_POST['nombre'])) ||
-        empty($_POST['categoria']) ||
-        empty($_POST['marca']) ||
-        empty($_POST['sucursal']) ||
         empty($_POST['precio_venta']) ||
         empty($_POST['precio_compra']) ||
         empty($_POST['stock'])
@@ -39,9 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $precio_compra = floatval(str_replace(',', '.', $_POST['precio_compra']));
     $stock  = intval($_POST['stock']);
 
-    $categoria = (int) $_POST['categoria'];
-    $marca     = (int) $_POST['marca'];
-    $sucursal     = (int) $_POST['sucursal'];
+    //$categoria = (int) $_POST['categoria'];
+    $categoria = !empty($_POST['categoria']) ? (int) $_POST['categoria'] : null;
+    $marca     =  !empty($_POST['marca']) ? (int) $_POST['marca'] : null;
+    $sucursal     =  !empty($_POST['sucursal']) ? (int) $_POST['sucursal'] : null;
     $proveedor = !empty($_POST['proveedor']) ? (int) $_POST['proveedor'] : null;
     $id_user   = (int) $_SESSION['usId'];
 
@@ -88,22 +86,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
         return $existe;
     }
-
-    if (!validarRelacion($conexion, 'categorias', 'id_categorias', $categoria, $id_user)) {
-        $mensaje = "❌ Categoría inválida.";
-        $tipoAlerta = "danger";
-        return;
+    if ($categoria !== null) {
+        if (!validarRelacion($conexion, 'categorias', 'id_categorias', $categoria, $id_user)) {
+            $mensaje = "❌ Categoría inválida.";
+            $tipoAlerta = "danger";
+            return;
+        }
     }
-
-    if (!validarRelacion($conexion, 'marcas', 'id_marca', $marca, $id_user)) {
-        $mensaje = "❌ Marca inválida.";
-        $tipoAlerta = "danger";
-        return;
+    if ($marca !== null) {
+        if (!validarRelacion($conexion, 'marcas', 'id_marca', $marca, $id_user)) {
+            $mensaje = "❌ Marca inválida.";
+            $tipoAlerta = "danger";
+            return;
+        }
     }
-    if (!validarRelacion($conexion, 'sucursal', 'id_sucursal', $sucursal, $id_user)) {
-        $mensaje = "❌ Sucursal inválida.";
-        $tipoAlerta = "danger";
-        return;
+    if ($sucursal !== null) {
+        if (!validarRelacion($conexion, 'sucursal', 'id_sucursal', $sucursal, $id_user)) {
+            $mensaje = "❌ Sucursal inválida.";
+            $tipoAlerta = "danger";
+            return;
+        }
     }
 
 

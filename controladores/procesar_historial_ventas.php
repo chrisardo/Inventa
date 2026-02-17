@@ -33,15 +33,17 @@ if ($busqueda !== '') {
     $busquedaEsc = $conexion->real_escape_string($busqueda);
 
     $sql = "
-        SELECT tv.*, c.nombre, m.nombre as metodo_pago
+        SELECT tv.*, COALESCE(c.nombre, 'Clientes varios') AS nombre, m.nombre as metodo_pago
         FROM ticket_ventas tv
-        INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN clientes c ON tv.idCliente = c.idCliente
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         AND (
             tv.serie_venta LIKE '%$busquedaEsc%'
             OR c.nombre LIKE '%$busquedaEsc%'
             OR tv.fecha_venta LIKE '%$busquedaEsc%'
+            OR m.nombre LIKE '%$busquedaEsc%'
+            OR (tv.idCliente = 0 AND 'Clientes varios' LIKE '%$busquedaEsc%')
         )
         ORDER BY tv.id_ticket_ventas DESC
         LIMIT $inicio, $porPagina
@@ -52,13 +54,16 @@ if ($busqueda !== '') {
     $sqlTotal = "
         SELECT COUNT(*) AS total
         FROM ticket_ventas tv
-        INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT  JOIN clientes c ON tv.idCliente = c.idCliente
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         AND (
             tv.serie_venta LIKE '%$busquedaEsc%'
             OR c.nombre LIKE '%$busquedaEsc%'
             OR tv.fecha_venta LIKE '%$busquedaEsc%'
+            OR m.nombre LIKE '%$busquedaEsc%'
+            OR (tv.idCliente = 0 AND 'Clientes varios' LIKE '%$busquedaEsc%')
+
         )
     ";
 
@@ -66,9 +71,9 @@ if ($busqueda !== '') {
 } else {
 
     $resultado = $conexion->query("
-        SELECT tv.*, c.nombre,m.nombre as metodo_pago
+        SELECT tv.*, COALESCE(c.nombre, 'Clientes varios') AS nombre ,m.nombre as metodo_pago
         FROM ticket_ventas tv 
-        INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN clientes c ON tv.idCliente = c.idCliente
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         ORDER BY tv.id_ticket_ventas DESC
