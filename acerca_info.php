@@ -305,6 +305,10 @@ if (!empty($usuario['imagen'])) {
                     <p class="text-muted mb-0">
                         Sistema de inventario y ventas
                     </p>
+                    <small class="badge bg-primary mt-2">
+                        Versión 1.0
+                    </small>
+
                 </div>
                 <div class="container py-4">
                     <!-- Acerca del sistema -->
@@ -333,18 +337,6 @@ if (!empty($usuario['imagen'])) {
                             <li class="mb-2">
                                 <i class="fas fa-phone me-2"></i>
                                 +51 943 239 039
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-briefcase"></i>
-                                <a href="https://sites.google.com/view/portafolio-christian-rojas/index" class="text-decoration-none text-dark" target="_blank">
-                                    Portafolio web: https://sites.google.com/view/portafolio-christian-rojas/index
-                                </a>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fab fa-github"></i>
-                                <a href="https://github.com/chrisardo/" class="text-decoration-none text-dark" target="_blank">
-                                    https://github.com/chrisardo/
-                                </a>
                             </li>
                             <li>
                                 <i class="fas fa-location-dot me-2"></i>
@@ -386,6 +378,7 @@ if (!empty($usuario['imagen'])) {
                         <small class="text-muted d-block">
                             © <?= date('Y') ?> Todos los derechos reservados
                         </small>
+
                     </div>
                 </div>
             </div>
