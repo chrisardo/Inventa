@@ -108,6 +108,7 @@
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
                                     <select name="rubro" id="edit-rubro" class="form-select">
+                                        <option value="">Sin rubro</option>
                                         <?php
                                         // Consulta para obtener los rubros del usuario logueado
                                         $resultadoRubros = $conexion->query("SELECT id_rubro, nombre, id_user FROM rubros where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
@@ -127,6 +128,7 @@
                                 <div class="input-group">
                                     <!--poner un select mostrando el departamento seleccionado y luego mostrar los departamentos de la base de datos-->
                                     <select name="departamento" id="edit-departamento" class="form-select">
+                                        <option value="">Sin departamento</option>
                                         <?php
                                         $resultadoDepartamentos = $conexion->query("SELECT id_departamento, nombre, id_user FROM departamento WHERE Eliminado = 0 AND id_user = " . intval($_SESSION['usId']) . "");
                                         while ($departamento = $resultadoDepartamentos->fetch_assoc()) {

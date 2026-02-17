@@ -8,11 +8,27 @@
                 <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="col py-4">
-                    <div class="card">
-                        <input id="inputBuscar" class="form-control" type="search" placeholder="Buscar producto por nombre o código">
+                <div class="py-4">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                            <!-- BUSCADOR -->
+                            <input id="inputBuscar"
+                                class="form-control w-50"
+                                type="search"
+                                placeholder="Buscar producto por nombre o código">
+
+                            <!-- BOTÓN REGISTRAR NUEVO PRODUCTO -->
+                            <a href="registrar_producto.php"
+                                class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-1"></i>
+                                Registrar nuevo producto
+                            </a>
+
+                        </div>
                     </div>
                 </div>
+
                 <table class="table table-striped table-hover text-center table-sm w-100">
                     <thead class="table-success">
                         <tr>

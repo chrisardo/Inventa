@@ -144,7 +144,6 @@
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
                                     <select name="provedor" id="edit-provedor" class="form-select">
-                                        <option value="" disabled selected>Selecciona Proveedor</option>
                                         <option value="">Sin proveedor</option>
                                         <?php
                                         $resultadoProv = $conexion->query("SELECT id_provedor, nombre, id_user FROM provedores where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
@@ -166,8 +165,8 @@
                                     <span class="input-group-text bg-success text-white"> <i class="fas fa-th-large"></i></span>
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
-                                    <select name="categoria" id="edit-categoria" class="form-select" required>
-                                        <option value="">Seleccione categoría</option>
+                                    <select name="categoria" id="edit-categoria" class="form-select">
+                                        <option value="">Sin categoria</option>
                                         <?php
                                         $resultadoCatego = $conexion->query("SELECT id_categorias, nombre, id_user FROM categorias where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
                                         while ($cate = $resultadoCatego->fetch_assoc()) {
@@ -182,11 +181,10 @@
                             <div class="col">
                                 <label class="form-label">Marca</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-industry me-2"></i></span>
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
-                                    <select name="marca" id="edit-marca" class="form-select" required>
-                                        <option value="">Seleccione marca</option>
+                                    <select name="marca" id="edit-marca" class="form-select" >
+                                        <option value="">Sin marca</option>
                                         <?php
                                         $resultadoMarca = $conexion->query("SELECT id_marca, nombre, id_user FROM marcas where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
                                         while ($marca = $resultadoMarca->fetch_assoc()) {
@@ -201,11 +199,11 @@
                             <div class="col">
                                 <label class="form-label">Sucursal</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-industry me-2"></i></span>
+                                    <span class="input-group-text bg-success text-white"> <i class="fas fa-store me-2F"></i></span>
                                     <!--<input type="text" name="rubro" class="form-control" id="edit-rubro">-->
                                     <!--poner un select mostrando el rubro seleccionado y luego mostrar los rubros de la base de datos-->
-                                    <select name="sucursal" id="edit-sucursal" class="form-select" required>
-                                        <option value="">Seleccione sucursal</option>
+                                    <select name="sucursal" id="edit-sucursal" class="form-select">
+                                        <option value="">Sin sucursal</option>
                                         <?php
                                         $resultadoSucursal = $conexion->query("SELECT id_sucursal, nombre, id_user FROM sucursal where Eliminado = 0 AND id_user=" . intval($_SESSION['usId']) . " ");
                                         while ($sucursal = $resultadoSucursal->fetch_assoc()) {
@@ -220,10 +218,11 @@
                         </div>
                         <!--descripcion-->
                         <div class="mb-3">
-                            <label class="form-label">Descripcion</label>
+                            <label class="form-label">Detalles del producto</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-success text-white"><i class="bi bi-geo"></i></span>
-                                <input type="text" id="edit-descripcion" name="descripcion" class="form-control">
+                                <!--<input type="text" id="edit-descripcion" name="descripcion" class="form-control">-->
+                                <textarea class="form-control" id="edit-descripcion" name="descripcion" rows="2" placeholder="Breve descripción del producto"></textarea>
+
                             </div>
                         </div>
                     </div>

@@ -14,8 +14,9 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cliente</label>
-                        <select class="form-select" id="idCliente">
-                            <option value="">-- Seleccione --</option>
+                        <select class="form-select" id="idCliente" required>
+                            <option value="" disabled selected>--Seleccione--</option>
+                            <option value="0">Clientes varios</option>
                             <?php
                             include "./controladores/conexion.php";
                             $clientes = mysqli_query($conexion, "SELECT idCliente, nombre FROM clientes where id_user= " . $_SESSION['usId']);
@@ -28,7 +29,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Forma de Pago</label>
-                        <select class="form-select" id="formaPago">
+                        <select class="form-select" id="formaPago" required>
                             <option value="">-- Seleccione --</option>
                             <?php
                             include "./controladores/conexion.php";
@@ -48,7 +49,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Pago del Cliente (S/.)</label>
-                    <input type="number" class="form-control" id="pago" oninput="calcularVuelto()" autocomplete="off">
+                    <input type="number" class="form-control" id="pago" oninput="calcularVuelto()" autocomplete="off" required>
                 </div>
 
                 <div class="mb-4 text-center">

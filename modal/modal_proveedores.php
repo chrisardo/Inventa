@@ -112,7 +112,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-success text-white"><i class="fas fa-mobile-alt"></i>
                                     </span>
-                                    <input type="text" name="celular" id="edit-celular" class="form-control" required>
+                                    <input type="text" name="celular" id="edit-celular" class="form-control">
 
                                 </div>
                             </div>
@@ -129,10 +129,11 @@
                             <div class="col">
                                 <label class="form-label">Departamento</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-info text-white"><i class="bi bi-building"></i></span>
+                                    <!--<span class="input-group-text bg-info text-white"><i class="bi bi-building"></i></span>-->
                                     <!--<input type="text" name="departamento" id="edit-departamento" class="form-control">-->
                                     <!--poner un select mostrando el departamento seleccionado y luego mostrar los departamentos de la base de datos-->
-                                    <select name="departamento" id="edit-departamento" class="form-select" required>
+                                    <select name="departamento" id="edit-departamento" class="form-select" >
+                                        <option value="">Sin departamento</option>
                                         <?php
                                         $resultadoDepartamentos = $conexion->query("SELECT id_departamento, nombre, id_user FROM departamento WHERE id_user = " . intval($_SESSION['usId']) . " and Eliminado = 0");
                                         while ($departamento = $resultadoDepartamentos->fetch_assoc()) {
@@ -146,20 +147,19 @@
                             <div class="col">
                                 <label class="form-label">Provincia</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-success text-white"><i class="bi bi-geo-alt"></i></span>
-                                    <input type="text" id="edit-provincia" name="provincia" class="form-control" required>
+                                    <input type="text" id="edit-provincia" name="provincia" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Distrito</label>
+                                <div class="input-group">
+                                    <input type="text" id="edit-distrito" name="distrito" class="form-control" >
                                 </div>
                             </div>
                         </div>
                         <!--distrito-->
                         <div class="row g-2 mb-3">
-                            <div class="col">
-                                <label class="form-label">Distrito</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-info text-white"><i class="bi bi-geo-alt-fill"></i></span>
-                                    <input type="text" id="edit-distrito" name="distrito" class="form-control" required>
-                                </div>
-                            </div>
+
                             <div class="col">
                                 <!--direccion-->
                                 <label class="form-label">Dirección</label>
