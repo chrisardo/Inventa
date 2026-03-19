@@ -102,3 +102,33 @@ body {
 .kpi-down {
   color: #dc3545; /* rojo bootstrap */
 }
+.navbar {
+  overflow: visible !important;
+}
+
+.dropdown-menu {
+  position: absolute !important;
+  top: 60% !important;
+  right: 20px !important; /* ← mueve hacia la izquierda */
+}
+.menu-user {
+  background-color: #ffffff !important;
+  padding: 0;
+}
+
+/* Header verde */
+.menu-user .dropdown-header {
+  background-color: #198754;
+  color: #fff;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* Items blancos */
+.menu-user .dropdown-item {
+  background-color: #ffffff !important;
+}
+
+/* Hover elegante */
+.menu-user .dropdown-item:hover {
+  background-color: #f8f9fa !important;
+}
