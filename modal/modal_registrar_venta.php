@@ -11,6 +11,15 @@
 
             <!-- Body -->
             <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tipo de Comprobante</label>
+                    <select class="form-select" id="tipoComprobante" required>
+                        <option value="">-- Seleccione --</option>
+                        <option value="Boleta">Boleta</option>
+                        <option value="Factura">Factura</option>
+                        <option value="Sin comprobante">Sin comprobante</option>
+                    </select>
+                </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cliente</label>
@@ -19,7 +28,7 @@
                             <option value="0">Clientes varios</option>
                             <?php
                             include "./controladores/conexion.php";
-                            $clientes = mysqli_query($conexion, "SELECT idCliente, nombre FROM clientes where id_user= " . $_SESSION['usId']);
+                            $clientes = mysqli_query($conexion, "SELECT idCliente, nombre, 	dni_o_ruc FROM clientes where id_user= " . $_SESSION['usId']);
                             while ($c = mysqli_fetch_assoc($clientes)) {
                                 echo "<option value='{$c['idCliente']}'>{$c['nombre']}</option>";
                             }
@@ -56,7 +65,12 @@
                     <label class="form-label fw-bold">Vuelto del cliente</label>
                     <h1 class="text-primary">S/. <span id="vuelto">0.00</span></h1>
                 </div>
-
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="chkIGV" checked>
+                    <label class="form-check-label">
+                        Aplicar IGV (18%)
+                    </label>
+                </div>
                 <div id="mensajePago" class="alert alert-danger mt-2 d-none"></div>
             </div>
 
