@@ -7,35 +7,42 @@ $usId = $_SESSION['usId'];
 $buscar = $_POST['buscar'] ?? '';
 $pagina = $_POST['pagina'] ?? 1;
 
-$limite = 5;
+$limite = 7;
 $desde = ($pagina - 1) * $limite;
 
 /* TOTAL DE REGISTROS */
-$sqlTotal = "SELECT COUNT(*) AS total 
+$sqlTotal = "SELECT IFNULL(SUM(p.stock),0) AS total 
              FROM producto p
-             INNER JOIN marcas c ON p.id_marca= c.id_marca
+             LEFT JOIN marcas c ON p.id_marca= c.id_marca
              WHERE p.id_user = '$usId' AND p.Eliminado = 0
              AND (
                 p.nombre LIKE '%$buscar%' 
                 OR p.codigo LIKE '%$buscar%'
                 OR c.nombre LIKE '%$buscar%'
                 OR p.nombre LIKE '%$buscar%'
+                OR p.stock LIKE '%$buscar%'
+                OR ('$buscar' = 'sin stock' AND p.stock = 0)
+                OR ('$buscar' = 'sin marca' AND p.id_marca IS NULL)
              )";
 
 $resTotal = mysqli_query($conexion, $sqlTotal);
 $total = mysqli_fetch_assoc($resTotal)['total'];
 
 /* CONSULTA PAGINADA */
-$sql = "SELECT p.*, c.nombre AS nombre_categoria
+$sql = "SELECT p.*, COALESCE(c.nombre, 'Sin marca') AS nombre_categoria
         FROM producto p
-        INNER JOIN marcas c ON p.id_marca = c.id_marca
+        LEFT JOIN marcas c ON p.id_marca = c.id_marca
         WHERE p.id_user = '$usId' AND p.Eliminado = 0
         AND (
             p.nombre LIKE '%$buscar%' 
             OR p.codigo LIKE '%$buscar%'
             OR c.nombre LIKE '%$buscar%'
-            OR p.nombre LIKE '%$buscar%'
+            OR p.stock LIKE '%$buscar%'
+            OR ('$buscar' = 'sin stock' AND p.stock = 0)
         )
+        ORDER BY 
+            CASE WHEN p.stock = 0 THEN 1 ELSE 0 END,
+            p.nombre ASC
         LIMIT $desde, $limite";
 
 $resultado = mysqli_query($conexion, $sql);

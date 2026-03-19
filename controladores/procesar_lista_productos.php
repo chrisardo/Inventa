@@ -16,7 +16,7 @@ if (isset($_GET['eliminar'])) {
 
 
 // ==== PAGINACIÓN ====
-$porPagina = 5; // cantidad de productos por página
+$porPagina = 7; // cantidad de productos por página
 $pagina = isset($_GET['pagina']) && is_numeric($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
 $inicio = ($pagina - 1) * $porPagina;
 // ==== CONSULTAS PARA MOSTRAR EN LA TABLA ====

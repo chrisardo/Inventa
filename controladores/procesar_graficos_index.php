@@ -36,7 +36,7 @@ $sql = "SELECT MONTH(tv.fecha_venta) mes, SUM(dtv.sub_total) total
         FROM ticket_ventas tv
         INNER JOIN detalle_ticket_ventas dtv ON dtv.id_ticket_ventas = tv.id_ticket_ventas
         INNER JOIN producto p ON p.idProducto = dtv.idProducto
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR dtv.idProducto = ?)
         AND (? = '' OR p.id_categorias = ?)
@@ -62,7 +62,7 @@ $sql = "SELECT
         FROM ticket_ventas tv
         INNER JOIN detalle_ticket_ventas dtv 
             ON dtv.id_ticket_ventas = tv.id_ticket_ventas
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         GROUP BY dia
         ORDER BY dia";
@@ -79,7 +79,7 @@ $sql = "SELECT p.nombre, SUM(dtv.sub_total) total
         FROM ticket_ventas tv
         INNER JOIN detalle_ticket_ventas dtv ON dtv.id_ticket_ventas = tv.id_ticket_ventas
         INNER JOIN producto p ON p.idProducto = dtv.idProducto
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR dtv.idProducto = ?)
         AND (? = '' OR p.id_categorias = ?)
@@ -99,6 +99,49 @@ $stmt->bind_param(
 );
 $stmt->execute();
 $response['top_productos'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+/* =========================================================
+MONTO TOTAL VENDIDO POR SEMANA
+========================================================= */
+if (empty($anio)) {
+        $anio = date("Y");
+}
+$sql = "SELECT 
+            FLOOR(DATEDIFF(tv.fecha_venta, CONCAT(?, '-01-01')) / 7) + 1 AS semana,
+            SUM(dtv.sub_total) AS total
+        FROM ticket_ventas tv
+        INNER JOIN detalle_ticket_ventas dtv 
+            ON dtv.id_ticket_ventas = tv.id_ticket_ventas
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
+        AND YEAR(tv.fecha_venta) = ?
+        GROUP BY semana
+        ORDER BY semana ASC";
+
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("sii", $anio, $usId, $anio);
+$stmt->execute();
+
+$response['compras_semana'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+/* =========================================================
+5️⃣ TOP 6 VENDEDORES QUE MÁS VENDEN
+========================================================= */
+$sql = "SELECT 
+            e.nombre,
+            e.apellido,
+            SUM(tv.total_venta) AS total
+        FROM ticket_ventas tv
+        INNER JOIN empleados e 
+            ON e.id_empleado = tv.id_empleado
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
+        AND (? = '' OR YEAR(tv.fecha_venta) = ?)
+        GROUP BY e.id_empleado, e.nombre, e.apellido
+        ORDER BY total DESC
+        LIMIT 6";
+
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("iss", $usId, $anio, $anio);
+$stmt->execute();
+
+$response['top_vendedores'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 /* =========================================================
 1️⃣ CLIENTES REGISTRADOS POR MES
@@ -131,7 +174,7 @@ $response['clientes_mes'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $sql = "SELECT c.nombre, SUM(tv.total_venta) AS total
         FROM ticket_ventas tv
         INNER JOIN clientes c ON c.idCliente = tv.idCliente
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR tv.idCliente = ?)
         AND (? = '' OR c.id_rubro = ?)

@@ -41,7 +41,7 @@ $sql = "SELECT MONTH(tv.fecha_venta) mes, SUM(dtv.sub_total) total
         FROM ticket_ventas tv
         INNER JOIN detalle_ticket_ventas dtv ON dtv.id_ticket_ventas = tv.id_ticket_ventas
         INNER JOIN producto p ON p.idProducto = dtv.idProducto
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR dtv.idProducto = ?)
         AND (? = '' OR p.id_categorias = ?)
@@ -66,7 +66,7 @@ $sql = "SELECT p.nombre, SUM(dtv.sub_total) total
         FROM ticket_ventas tv
         INNER JOIN detalle_ticket_ventas dtv ON dtv.id_ticket_ventas = tv.id_ticket_ventas
         INNER JOIN producto p ON p.idProducto = dtv.idProducto
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR dtv.idProducto = ?)
         AND (? = '' OR p.id_categorias = ?)
@@ -97,7 +97,7 @@ $sql = "SELECT
             ON p.idProducto = dtv.idProducto
         LEFT JOIN categorias c 
             ON c.id_categorias = p.id_categorias
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR p.id_categorias = ?)
         GROUP BY c.id_categorias, c.nombre

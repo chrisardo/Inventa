@@ -61,13 +61,12 @@ class PDF extends FPDF
             'Stock',
             'Precio',
             'Cant',
-            'SubTotal',
-            'Total'
+            'SubTotal'
         ];
 
         $widths = [
             14, 12, 12, 20, 18, 16, 14, 14, 14, 24,
-            16, 14, 26, 16, 16, 10, 12, 10, 14, 14
+            16, 14, 26, 16, 16, 10, 12, 10, 14
         ];
 
         $this->SetFont('Arial', 'B', 7);
@@ -158,7 +157,7 @@ $pdf->SetFont('Arial', '', 6.5);
 $sql = "
 SELECT 
     tv.fecha_venta,
-    tv.serie_venta,
+    tv.serie,
     tv.id_metodo_pago,
     cl.nombre AS cliente,
     cl.dni_o_ruc,
@@ -176,8 +175,7 @@ SELECT
     p.stock,
     p.precio,
     dt.cantidad_pedido_producto,
-    dt.sub_total,
-    tv.total_venta
+    dt.sub_total
 FROM ticket_ventas tv
 LEFT JOIN detalle_ticket_ventas dt ON dt.id_ticket_ventas = tv.id_ticket_ventas
 LEFT JOIN producto p ON dt.idProducto = p.idProducto
@@ -188,7 +186,7 @@ LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
 LEFT JOIN rubros r ON cl.id_rubro = r.id_rubro
 LEFT JOIN departamento dep ON cl.id_departamento = dep.id_departamento
 LEFT JOIN marcas m ON m.id_marca = p.id_marca
-WHERE tv.id_user = $usId
+WHERE tv.estado_venta = 'Vendido' and tv.id_user = $usId
 ORDER BY tv.id_ticket_ventas DESC
 ";
 
@@ -202,7 +200,7 @@ if (!$resultado) {
 // ============================
 $widths = [
     14, 12, 12, 20, 18, 16, 14, 14, 14, 24,
-    16, 14, 26, 16, 16, 10, 12, 10, 14, 14
+    16, 14, 26, 16, 16, 10, 12, 10, 14
 ];
 
 while ($fila = $resultado->fetch_assoc()) {
@@ -226,8 +224,7 @@ while ($fila = $resultado->fetch_assoc()) {
         $fila['stock'],
         number_format($fila['precio'], 2),
         $fila['cantidad_pedido_producto'],
-        number_format($fila['sub_total'], 2),
-        number_format($fila['total_venta'], 2)
+        number_format($fila['sub_total'], 2)
     ];
 
     $pdf->Row($data, $widths);

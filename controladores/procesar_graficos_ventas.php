@@ -19,18 +19,21 @@ $producto = isset($_GET['producto']) ? $_GET['producto'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
 $cliente = isset($_GET['cliente']) ? $_GET['cliente'] : '';
 
-$where = " WHERE t.id_user = $usId ";
-if ($anio != '') $where .= " AND YEAR(t.fecha_venta) = $anio ";
-if ($producto != '') $where .= " AND dt.idProducto = $producto ";
-if ($categoria != '') $where .= " AND p.id_categorias = $categoria ";
-if ($cliente != '') $where .= " AND t.idCliente = $cliente ";
+$where = " WHERE t.estado_venta = 'Vendido' and t.id_user = $usId ";
+if ($anio != '') $where .= " AND t.estado_venta = 'Vendido' and AND YEAR(t.fecha_venta) = $anio ";
+if ($producto != '') $where .= " AND t.estado_venta = 'Vendido' and dt.idProducto = $producto ";
+if ($categoria != '') $where .= " AND t.estado_venta = 'Vendido' and p.id_categorias = $categoria ";
+if ($cliente != '') $where .= " AND t.estado_venta = 'Vendido' and t.idCliente = $cliente ";
 
 // Inicializar array de 12 meses
 function inicializarMeses()
 {
     return array_fill(1, 12, 0);
 }
-
+function inicializarDias()
+{
+    return array_fill(1, 31, 0);
+}
 // --- Monto total vendido por mes ---
 $sqlMontoMes = "SELECT MONTH(t.fecha_venta) as mes, SUM(dt.sub_total) as total_venta ,SUM(dt.cantidad_pedido_producto * dt.sub_total) as total
 FROM ticket_ventas t
@@ -44,6 +47,27 @@ $montoMes = inicializarMeses();
 if ($resMonto) {
     while ($row = mysqli_fetch_assoc($resMonto)) {
         $montoMes[(int)$row['mes']] = (float)$row['total_venta'];
+    }
+}
+// --- Monto total vendido por día ---
+$sqlMontoDia = "
+SELECT DAY(t.fecha_venta) as dia,
+       SUM(dt.sub_total) as total
+FROM ticket_ventas t
+JOIN detalle_ticket_ventas dt 
+    ON t.id_ticket_ventas = dt.id_ticket_ventas
+JOIN producto p 
+    ON dt.idProducto = p.idProducto
+$where
+GROUP BY dia
+";
+
+$resDia = mysqli_query($conexion, $sqlMontoDia);
+$montoDia = inicializarDias();
+
+if ($resDia) {
+    while ($row = mysqli_fetch_assoc($resDia)) {
+        $montoDia[(int)$row['dia']] = (float)$row['total'];
     }
 }
 
@@ -72,7 +96,7 @@ function top6($conexion, $usId, $tipo, $filtros = '')
                     FROM detalle_ticket_ventas dt
                     JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                     JOIN producto p ON dt.idProducto = p.idProducto
-                    WHERE t.id_user = $usId $filtros
+                    WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                     GROUP BY dt.idProducto
                     ORDER BY total DESC
                     LIMIT 6";
@@ -84,7 +108,7 @@ function top6($conexion, $usId, $tipo, $filtros = '')
                     JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                     JOIN producto p ON dt.idProducto = p.idProducto
                     JOIN categorias c ON p.id_categorias = c.id_categorias
-                    WHERE t.id_user = $usId $filtros
+                    WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                     GROUP BY c.id_categorias
                     ORDER BY total DESC
                     LIMIT 6";
@@ -95,7 +119,7 @@ function top6($conexion, $usId, $tipo, $filtros = '')
                     FROM detalle_ticket_ventas dt
                     JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                     JOIN clientes cl ON t.idCliente = cl.idCliente
-                    WHERE t.id_user = $usId $filtros
+                    WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                     GROUP BY cl.idCliente
                     ORDER BY total DESC
                     LIMIT 6";
@@ -125,33 +149,33 @@ function tablaResumen($conexion, $usId, $tipo, $filtros = '')
     if ($tipo == 'producto') {
         $sql = "SELECT p.nombre, SUM(dt.cantidad_pedido_producto) as cantidad,
                 SUM(dt.sub_total) as venta_total,
-                SUM(dt.cantidad_pedido_producto * dt.sub_total) as costo_total
+                p.costo_compra as costo_total
                 FROM detalle_ticket_ventas dt
                 JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                 JOIN producto p ON dt.idProducto = p.idProducto
-                WHERE t.id_user = $usId $filtros
+                WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                 GROUP BY dt.idProducto
                 ORDER BY venta_total DESC LIMIT 10";
     } elseif ($tipo == 'cliente') {
         $sql = "SELECT cl.nombre, SUM(dt.cantidad_pedido_producto) as cantidad,
                 SUM(dt.sub_total) as venta_total,
-                SUM(dt.cantidad_pedido_producto * dt.sub_total) as costo_total
+                p.costo_compra as costo_total
                 FROM detalle_ticket_ventas dt
                 JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                 JOIN clientes cl ON t.idCliente = cl.idCliente
                 JOIN producto p ON dt.idProducto = p.idProducto
-                WHERE t.id_user = $usId $filtros
+                WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                 GROUP BY cl.idCliente
                 ORDER BY venta_total DESC LIMIT 10";
     } else { // categoria
         $sql = "SELECT c.nombre, SUM(dt.cantidad_pedido_producto) as cantidad,
                 SUM(dt.sub_total) as venta_total,
-                SUM(dt.cantidad_pedido_producto * dt.sub_total) as costo_total
+                p.costo_compra as costo_total
                 FROM detalle_ticket_ventas dt
                 JOIN ticket_ventas t ON dt.id_ticket_ventas = t.id_ticket_ventas
                 JOIN producto p ON dt.idProducto = p.idProducto
                 JOIN categorias c ON p.id_categorias = c.id_categorias
-                WHERE t.id_user = $usId $filtros
+                WHERE t.estado_venta = 'Vendido' and t.id_user = $usId $filtros
                 GROUP BY c.id_categorias
                 ORDER BY venta_total DESC LIMIT 10";
     }
@@ -198,7 +222,7 @@ if ($anio !== '') {
         FROM ticket_ventas t
         JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
         JOIN producto p ON dt.idProducto = p.idProducto
-        WHERE t.id_user = $usId
+        WHERE t.estado_venta = 'Vendido' and t.id_user = $usId
         AND YEAR(t.fecha_venta) = $anioActual
     ";
 
@@ -208,7 +232,7 @@ if ($anio !== '') {
         FROM ticket_ventas t
         JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
         JOIN producto p ON dt.idProducto = p.idProducto
-        WHERE t.id_user = $usId
+        WHERE t.estado_venta = 'Vendido' and t.id_user = $usId
         AND YEAR(t.fecha_venta) = $anioAnterior
     ";
 
@@ -223,7 +247,7 @@ if ($anio !== '') {
         SELECT IFNULL(SUM(dt.sub_total),0) AS total
         FROM ticket_ventas t
         JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
-        WHERE t.id_user = $usId
+        WHERE t.estado_venta = 'Vendido' and t.id_user = $usId
         AND DATE(t.fecha_venta) = CURDATE()
     ";
 
@@ -231,7 +255,7 @@ if ($anio !== '') {
         SELECT IFNULL(SUM(dt.sub_total),0) AS total
         FROM ticket_ventas t
         JOIN detalle_ticket_ventas dt ON t.id_ticket_ventas = dt.id_ticket_ventas
-        WHERE t.id_user = $usId
+        WHERE t.estado_venta = 'Vendido' and t.id_user = $usId
         AND DATE(t.fecha_venta) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
     ";
 
@@ -242,6 +266,7 @@ if ($anio !== '') {
 }
 echo json_encode([
     'montoMes' => array_values($montoMes),
+    'montoDia' => array_values($montoDia),
     'cantMes' => array_values($cantMes),
     'topProductos' => top6($conexion, $usId, 'producto', $filtros)['labels'],
     'topCant' => top6($conexion, $usId, 'producto', $filtros)['values'],

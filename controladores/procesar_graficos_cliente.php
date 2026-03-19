@@ -66,7 +66,7 @@ $sql = "SELECT
             SUM(tv.total_venta) AS total
         FROM ticket_ventas tv
         INNER JOIN clientes c ON c.idCliente = tv.idCliente
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR tv.idCliente = ?)
         AND (? = '' OR c.id_rubro = ?)
@@ -95,7 +95,7 @@ $sql = "SELECT
             SUM(tv.total_venta) AS total
         FROM ticket_ventas tv
         INNER JOIN clientes c ON c.idCliente = tv.idCliente
-        WHERE tv.id_user = ?
+        WHERE tv.estado_venta = 'Vendido' and tv.id_user = ?
         AND (? = '' OR YEAR(tv.fecha_venta) = ?)
         AND (? = '' OR tv.idCliente = ?)
         AND (? = '' OR c.id_rubro = ?)

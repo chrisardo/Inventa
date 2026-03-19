@@ -38,7 +38,7 @@ $data = $res->fetch_assoc();
 $fechaCreacion = strtotime($data['fecha_creacion']);
 $ahora = time();
 
-if (($ahora - $fechaCreacion) > 600) {
+if (($ahora - $fechaCreacion) < 600) {
 
     $stmt = $conexion->prepare(
         "DELETE FROM codigo_verificacion WHERE id_user = ?"
@@ -59,7 +59,7 @@ if ($codigo !== $data['codigo']) {
 /* ===============================
    CORRECTO
 ================================ */
-header("Location: ../nueva_contrasena.php?usId=$usId&token=$token");
+header("Location: ../nueva_contrasena.php?usId=$usId&token=$token&tipo=$tipoCuenta");
 exit;
 
 /* ===============================

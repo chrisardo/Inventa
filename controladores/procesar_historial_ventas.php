@@ -33,21 +33,27 @@ if ($busqueda !== '') {
     $busquedaEsc = $conexion->real_escape_string($busqueda);
 
     $sql = "
-        SELECT tv.*, COALESCE(c.nombre, 'Clientes varios') AS nombre, m.nombre as metodo_pago
+        SELECT 
+            tv.*,
+            COALESCE(c.nombre, 'Clientes varios') AS nombre,
+            m.nombre AS metodo_pago,
+            COALESCE(CONCAT(e.nombre, ' ', e.apellido), 'Administrador') AS vendedor
         FROM ticket_ventas tv
         LEFT JOIN clientes c ON tv.idCliente = c.idCliente
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        LEFT JOIN empleados e ON tv.id_empleado = e.id_empleado
         WHERE tv.id_user = $usId
         AND (
-            tv.serie_venta LIKE '%$busquedaEsc%'
+            tv.numero LIKE '%$busquedaEsc%'
             OR c.nombre LIKE '%$busquedaEsc%'
             OR tv.fecha_venta LIKE '%$busquedaEsc%'
             OR m.nombre LIKE '%$busquedaEsc%'
+            OR CONCAT(e.nombre, ' ', e.apellido) LIKE '%$busquedaEsc%'
             OR (tv.idCliente = 0 AND 'Clientes varios' LIKE '%$busquedaEsc%')
         )
         ORDER BY tv.id_ticket_ventas DESC
         LIMIT $inicio, $porPagina
-    ";
+         ";
 
     $resultado = $conexion->query($sql);
 
@@ -58,7 +64,7 @@ if ($busqueda !== '') {
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
         WHERE tv.id_user = $usId
         AND (
-            tv.serie_venta LIKE '%$busquedaEsc%'
+            tv.numero LIKE '%$busquedaEsc%'
             OR c.nombre LIKE '%$busquedaEsc%'
             OR tv.fecha_venta LIKE '%$busquedaEsc%'
             OR m.nombre LIKE '%$busquedaEsc%'
@@ -71,10 +77,15 @@ if ($busqueda !== '') {
 } else {
 
     $resultado = $conexion->query("
-        SELECT tv.*, COALESCE(c.nombre, 'Clientes varios') AS nombre ,m.nombre as metodo_pago
-        FROM ticket_ventas tv 
+        SELECT 
+            tv.*,
+            COALESCE(c.nombre, 'Clientes varios') AS nombre,
+            m.nombre AS metodo_pago,
+            COALESCE(CONCAT(e.nombre, ' ', e.apellido), 'Administrador') AS vendedor
+        FROM ticket_ventas tv
         LEFT JOIN clientes c ON tv.idCliente = c.idCliente
         LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        LEFT JOIN empleados e ON tv.id_empleado = e.id_empleado
         WHERE tv.id_user = $usId
         ORDER BY tv.id_ticket_ventas DESC
         LIMIT $inicio, $porPagina

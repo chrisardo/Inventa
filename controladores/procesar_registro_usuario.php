@@ -38,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     /* =========================
        CONTRASEÑA SEGURA
     ========================== */
-    if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&._-])[A-Za-z\d@$!%*#?&._-]{8,}$/', $_POST['contrasena'])) {
-        $mensaje = "⚠️ La contraseña debe tener mínimo 8 caracteres, letras, números y un carácter especial.";
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-]).+$/', $_POST['contrasena'])) {
+        $mensaje = "⚠️ La contraseña debe incluir al menos 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial.";
         $tipoAlerta = "warning";
         return;
     }

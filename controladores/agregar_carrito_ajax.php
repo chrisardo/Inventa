@@ -23,8 +23,8 @@ if (mysqli_num_rows($verificar) > 0) {
     ))['precio'];
 
     mysqli_query($conexion, "INSERT INTO carrito_venta 
-        (id_user, idProducto, precioTotal, cantidad, fecha_registro) 
-        VALUES ('$usId','$idProducto','$precio',1,NOW())");
+        (id_user, idProducto, precioTotal, cantidad, fecha_registro, id_empleado) 
+        VALUES ('$usId','$idProducto','$precio',1,NOW(), '0')");
 }
 
 echo json_encode(["status" => "ok"]);

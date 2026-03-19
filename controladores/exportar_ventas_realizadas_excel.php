@@ -49,6 +49,7 @@ $encabezados = [
     "Provincia",
     "Dirección",
     "Rubro",
+    "Vendedor",
     "SKU",
     "Producto",
     "Categoría",
@@ -56,8 +57,7 @@ $encabezados = [
     "Stock",
     "Precio",
     "Cantidad",
-    "SubTotal",
-    "Total Venta"
+    "SubTotal"
 ];
 
 $filaHeader = 3;
@@ -95,9 +95,14 @@ $sheet->getRowDimension($filaHeader)->setRowHeight(20);
 $sql = "
 SELECT 
     u.nombreEmpresa,
+    CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre,
+    CASE 
+        WHEN e.id_empleado IS NOT NULL 
+        THEN CONCAT(e.nombre, ' ', e.apellido)
+        ELSE u.nombreEmpresa
+    END AS vendedor,
     tv.fecha_venta,
-    tv.serie_venta,
-    tv.id_metodo_pago,
+    tv.numero,
     cl.nombre AS cliente,
     mp.nombre AS metodo_pago,
     cl.dni_o_ruc,
@@ -126,8 +131,9 @@ LEFT JOIN categorias ca ON p.id_categorias = ca.id_categorias
 LEFT JOIN rubros r ON cl.id_rubro = r.id_rubro
 LEFT JOIN departamento dep ON cl.id_departamento = dep.id_departamento
 LEFT JOIN usuario_acceso u ON tv.id_user = u.id_user
+LEFT JOIN empleados e ON tv.id_empleado = e.id_empleado
 LEFT JOIN marcas m ON m.id_marca = p.id_marca
-WHERE tv.id_user = $usId
+WHERE tv.estado_venta = 'Vendido' and tv.id_user = $usId
 ORDER BY tv.id_ticket_ventas DESC
 ";
 
@@ -155,15 +161,15 @@ while ($fila = $resultado->fetch_assoc()) {
     $sheet->setCellValue("J{$filaExcel}", $fila['provincia']);
     $sheet->setCellValue("K{$filaExcel}", $fila['direccion']);
     $sheet->setCellValue("L{$filaExcel}", $fila['rubro']);
-    $sheet->setCellValue("M{$filaExcel}", $fila['codigo']);
-    $sheet->setCellValue("N{$filaExcel}", $fila['producto']);
-    $sheet->setCellValue("O{$filaExcel}", $fila['categoria']);
-    $sheet->setCellValue("P{$filaExcel}", $fila['marca']);
-    $sheet->setCellValue("Q{$filaExcel}", $fila['stock']);
-    $sheet->setCellValue("R{$filaExcel}", $fila['precio']);
-    $sheet->setCellValue("S{$filaExcel}", $fila['cantidad_pedido_producto']);
-    $sheet->setCellValue("T{$filaExcel}", $fila['sub_total']);
-    $sheet->setCellValue("U{$filaExcel}", $fila['total_venta']);
+    $sheet->setCellValue("M{$filaExcel}", $fila['vendedor']); // 👈 AQUI ESTA LO NUEVO
+    $sheet->setCellValue("N{$filaExcel}", $fila['codigo']);
+    $sheet->setCellValue("O{$filaExcel}", $fila['producto']);
+    $sheet->setCellValue("P{$filaExcel}", $fila['categoria']);
+    $sheet->setCellValue("Q{$filaExcel}", $fila['marca']);
+    $sheet->setCellValue("R{$filaExcel}", $fila['stock']);
+    $sheet->setCellValue("S{$filaExcel}", $fila['precio']);
+    $sheet->setCellValue("T{$filaExcel}", $fila['cantidad_pedido_producto']);
+    $sheet->setCellValue("U{$filaExcel}", $fila['sub_total']);
 
     // Zebra
     if ($filaExcel % 2 == 0) {

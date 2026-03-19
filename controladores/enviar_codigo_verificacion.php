@@ -3,6 +3,7 @@ include "conexion.php";
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Twilio\Rest\Client;
+
 /* ===============================
    ZONA HORARIA
 ================================ */
@@ -12,13 +13,48 @@ date_default_timezone_set('America/Lima');
 /* ===============================
    VALIDACIÓN INICIAL
 ================================ */
-if (!isset($_POST['usId'], $_POST['method'])) {
+if (!isset($_POST['usId'], $_POST['method'], $_POST['tipo'])) {
     header("Location: ../recuperar_cuenta.php");
     exit;
 }
 
-$usId = (int) $_POST['usId'];
-$method  = $_POST['method'];
+$usId   = (int) $_POST['usId'];
+$method = $_POST['method']; // email o sms
+$tipo   = $_POST['tipo'];   // admin o empleado
+
+$usuario = null;
+
+/* ==========================================
+   BUSCAR USUARIO SEGÚN TIPO
+========================================== */
+if ($tipo === "admin") {
+
+    $sql = "SELECT id_user, nombreEmpresa AS nombre, email, celular
+            FROM usuario_acceso
+            WHERE id_user = ?
+            LIMIT 1";
+
+} elseif ($tipo === "empleado") {
+
+    $sql = "SELECT id_empleado, nombre, email, celular
+            FROM empleados
+            WHERE id_empleado = ?
+            LIMIT 1";
+
+} else {
+    die("Tipo inválido.");
+}
+
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $usId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows !== 1) {
+    die("Usuario no encontrado.");
+}
+
+$usuario = $result->fetch_assoc();
 
 /* ===============================
    GENERAR CÓDIGO Y TOKEN
@@ -27,7 +63,7 @@ $codigo = random_int(100000, 999999);
 $token  = bin2hex(random_bytes(32));
 
 /* ===============================
-   VERIFICAR / GUARDAR CÓDIGO
+   INSERTAR / ACTUALIZAR CÓDIGO
 ================================ */
 $sqlCheck = "SELECT id_codigo_verificacion, intentos_envio
              FROM codigo_verificacion
@@ -44,34 +80,27 @@ if ($res->num_rows > 0) {
     $intentos = $row['intentos_envio'] + 1;
 
     $sql = "UPDATE codigo_verificacion
-            SET codigo = ?, token = ?, intentos_envio = ?, fecha_creacion = NOW()
+            SET codigo = ?, token = ?, intentos_envio = ?, 
+                fecha_creacion = NOW(), tipo = ?
             WHERE id_user = ?";
 
     $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("ssii", $codigo, $token, $intentos, $usId);
+    $stmt->bind_param("ssisi", $codigo, $token, $intentos, $tipo, $usId);
+
 } else {
 
     $sql = "INSERT INTO codigo_verificacion
-            (id_user, codigo, token, intentos_envio, fecha_creacion)
-            VALUES (?, ?, ?, 1, NOW())";
+            (id_user, codigo, token, intentos_envio, fecha_creacion, tipo)
+            VALUES (?, ?, ?, 1, NOW(), ?)";
 
     $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("iss", $usId, $codigo, $token);
+    $stmt->bind_param("iiss", $usId, $codigo, $token, $tipo);
 }
 
 $stmt->execute();
 
 /* ===============================
-   OBTENER EMAIL
-================================ */
-$sqlUser = "SELECT email FROM usuario_acceso WHERE id_user = ?";
-$stmtUser = $conexion->prepare($sqlUser);
-$stmtUser->bind_param("i", $usId);
-$stmtUser->execute();
-$u = $stmtUser->get_result()->fetch_assoc();
-
-/* ===============================
-   ENVÍO EMAIL (PHPMailer)
+   ENVÍO POR EMAIL (PHPMailer)
 ================================ */
 if ($method === 'email') {
 
@@ -88,60 +117,59 @@ if ($method === 'email') {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'chrisardorolo02@gmail.com';
-        $mail->Password   = 'ekjxzrlvqqfqnics';
+        $mail->Username   = 'chrisardorolo02@gmail.com'; // ⚠️ cambia esto
+        $mail->Password   = 'ekjxzrlvqqfqnics';           // ⚠️ usa App Password
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('chrisardorolo02@gmail.com', 'Sistema Inventa');
-        $mail->addAddress($u['email']);
+        $mail->setFrom(
+            'chrisardorolo02@gmail.com',
+            $usuario['nombre']
+        );
+
+        $mail->addAddress($usuario['email']);
 
         $mail->isHTML(true);
         $mail->Subject = 'Código de verificación';
+
         $mail->Body = "
-            <h2>Restablecimiento de contraseña</h2>
-            <p>Tu código de seguridad es:</p>
-            <h1>$codigo</h1>
+            <h2>{$usuario['nombre']}</h2>
+            <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
+            <p><strong>Código de verificación:</strong></p>
+            <h1 style='color:#198754;'>$codigo</h1>
             <p>Este código expira en 10 minutos.</p>
         ";
 
         $mail->send();
     } catch (Exception $e) {
-        die("Error al enviar correo.");
+        die("Error al enviar correo: " . $mail->ErrorInfo);
     }
 }
 
-
+/* ===============================
+   ENVÍO POR SMS (TWILIO)
+================================ */
 if ($method === 'sms') {
-    // 📞 Obtener celular
-    $stmtUser = $conexion->prepare(
-        "SELECT celular FROM usuario_acceso WHERE id_user = ?"
-    );
-    $stmtUser->bind_param("i", $idUser);
-    $stmtUser->execute();
-    $celular = $stmtUser->get_result()->fetch_assoc()['celular'];
 
-    // 🔐 CREDENCIALES LIVE
-    $sid   = 'AC60d5c3ddb3b15e8c033716abfa0864da';
-    $token = '8155fe30e48a437386ccc52db96b7539';
-    $from  = '+14155552671';
+    $sid   = 'TU_SID_TWILIO';
+    $auth  = 'TU_TOKEN_TWILIO';
+    $from  = 'TU_NUMERO_TWILIO';
 
     try {
-        // Usa el cliente normal - ahora debería funcionar con SSL
-        $twilio = new Client($sid, $token);
+
+        $twilio = new Client($sid, $auth);
 
         $twilio->messages->create(
-            '+51' . $celular,
+            '+51' . preg_replace('/\D/', '', $usuario['celular']),
             [
                 'from' => $from,
-                'body' => "Tu código de verificación Inventa es: $codigo"
+                'body' => "Tu código de verificación es: $codigo"
             ]
         );
     } catch (Exception $e) {
         die("Error Twilio: " . $e->getMessage());
     }
 }
-
 
 /* ===============================
    REDIRECCIÓN
