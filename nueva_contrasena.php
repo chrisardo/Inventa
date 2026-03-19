@@ -41,6 +41,8 @@
 
                             <input type="hidden" name="usId"
                                 value="<?= htmlspecialchars($_GET['usId'] ?? '') ?>">
+                                <input type="hidden" name="tipo"
+                                value="<?= htmlspecialchars($_GET['tipo'] ?? '') ?>">
                             <input type="hidden" name="token"
                                 value="<?= htmlspecialchars($_GET['token'] ?? '') ?>">
 
@@ -65,8 +67,23 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Seguridad de contraseña -->
+                            <div class="mt-0">
+                                <!--<div class="progress mb-1" style="height: 3px;">
+                                <div id="strengthBar" class="progress-bar" style="width: 0%"></div>
+                            </div>-->
+                                <small id="strengthText" class="fw-bold small" style="font-size: 0.75rem;"></small>
 
-                            <button class="btn btn-primary w-100">
+                                <ul class="mt-0 mb-0 list-unstyled" style="font-size: 0.72rem; line-height:1.1;">
+                                    <li id="ruleUpper" class="text-danger">❌ 1 letra mayúscula</li>
+                                    <li id="ruleLower" class="text-danger">❌ 1 letra minúscula</li>
+                                    <li id="ruleNumber" class="text-danger">❌ Por lo menos 1 úmero</li>
+                                    <li id="ruleSpecial" class="text-danger">❌ 1 carácter especial (@$!%*?&.#_-)</li>
+                                    <li id="ruleMatch" class="text-danger">❌ Las contraseñas coinciden</li>
+                                </ul>
+                            </div>
+
+                            <button id="btnRegistrar" class="btn btn-primary w-100 py-1 mt-1" disabled>
                                 Guardar contraseña
                             </button>
 
@@ -93,6 +110,79 @@
             passwordInput.setAttribute('type', type);
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
+        //const strengthBar = document.getElementById("strengthBar");
+        const strengthText = document.getElementById("strengthText");
+        const btnRegistrar = document.getElementById("btnRegistrar");
+
+        const rules = {
+            upper: document.getElementById("ruleUpper"),
+            lower: document.getElementById("ruleLower"),
+            number: document.getElementById("ruleNumber"),
+            special: document.getElementById("ruleSpecial"),
+            match: document.getElementById("ruleMatch"),
+        };
+
+        passwordInput.addEventListener("input", validatePasswords);
+        passwordInput2.addEventListener("input", validatePasswords);
+
+        function validatePasswords() {
+            const value = passwordInput.value;
+            const value2 = passwordInput2.value;
+
+            const hasUpper = /[A-Z]/.test(value);
+            const hasLower = /[a-z]/.test(value);
+            const hasNumber = /\d/.test(value);
+            const hasSpecial = /[@$!%*?&.#_-]/.test(value);
+            const match = value !== "" && value === value2;
+
+            updateRule(rules.upper, hasUpper);
+            updateRule(rules.lower, hasLower);
+            updateRule(rules.number, hasNumber);
+            updateRule(rules.special, hasSpecial);
+            updateRule(rules.match, match);
+
+            const strength = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+            updateStrength(strength);
+
+            // Activar botón solo si todo está correcto
+            if (hasUpper && hasLower && hasNumber && hasSpecial && match) {
+                btnRegistrar.disabled = false;
+            } else {
+                btnRegistrar.disabled = true;
+            }
+        }
+
+        function updateRule(element, condition) {
+            if (condition) {
+                element.classList.remove("text-danger");
+                element.classList.add("text-success");
+                element.innerHTML = element.innerHTML.replace("❌", "✅");
+            } else {
+                element.classList.remove("text-success");
+                element.classList.add("text-danger");
+                element.innerHTML = element.innerHTML.replace("✅", "❌");
+            }
+        }
+
+        function updateStrength(level) {
+
+            if (level === 0) {
+                strengthText.textContent = "";
+                strengthText.className = "fw-bold";
+                return;
+            }
+
+            if (level <= 1) {
+                strengthText.textContent = "Seguridad: Débil";
+                strengthText.className = "text-danger fw-bold";
+            } else if (level <= 3) {
+                strengthText.textContent = "Seguridad: Media";
+                strengthText.className = "text-warning fw-bold";
+            } else {
+                strengthText.textContent = "Seguridad: Fuerte";
+                strengthText.className = "text-success fw-bold";
+            }
+        }
     </script>
 </body>
 

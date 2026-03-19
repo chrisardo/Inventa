@@ -39,219 +39,280 @@ if (!empty($usuario['imagen'])) {
 <body>
     <div class="d-flex vh-100 overflow-hidden">
         <!-- Sidebar -->
-        <nav id="sidebar" class="bg-dark text-white p-3 " style="width:250px;">
-            <!--poner logo de la empresa-->
-            <img src="img/icono_dashboard.png" alt="Logo" class="img-fluid rounded mb-4" height="50">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex align-items-center" href="index.php">
-                        <i class="fas fa-home me-2"></i>
-                        <span class="item-text">Inicio</span>
-                    </a>
+        <nav id="sidebar" class="bg-dark text-white p-3 ">
 
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-info d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuInventario"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-box me-2"></i> Inventario
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
+            <div class="text-center text-info mb-2">
+                <!--poner logo de la empresa-->
+                <img src="img/icono_dashboard.png" alt="Logo" class=" rounded mb-2" width="180" height="45">
+                <hr class="mx-auto my-1" style="width: 100%; border-top: 4px solid #fdfefe;">
+                <p class="fs-6 lh-base mb-2 fw-bold align-items-center"><?php echo utf8_decode($usuario['nombreEmpresa']); ?></p>
+                <hr class="mx-auto my-1 fw-bold " style="width: 100%; border-top: 4px solid #f9fafa;">
+            </div>
+            <!-- CONTENEDOR SCROLLEABLE -->
+            <div class="sidebar-menu">
+                <ul class="nav flex-column">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex align-items-center" href="index.php">
+                                <i class="fas fa-home me-2"></i>
+                                <span class="item-text">Inicio</span>
+                            </a>
 
-                    <ul class="collapse list-unstyled ps-4" id="menuInventario">
-                        <li>
-                            <a class="nav-link text-secondary" href="lista_productos.php">
-                                <i class="fas fa-box"></i> Ver inventario
-                            </a>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="registrar_producto.php">
-                                <i class="fas fa-circle-plus me-2"></i> Registrar producto
+                        <li class="nav-item">
+                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuInventario"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-box me-2"></i> Inventario
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
                             </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuInventario">
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_productos.php">
+                                        <i class="fas fa-box"></i> Ver inventario
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_producto.php">
+                                        <i class="fas fa-circle-plus me-2"></i> Registrar producto
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="sucursales.php">
+                                        <!--Poner icono de sucursal-->
+                                        <i class="fas fa-store me-2"></i>Sucursal/Tienda
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="categorias.php">
+                                        <!--Poner icono de categorias-->
+                                        <i class="fas fa-th-large"></i> Categorías
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-info" href="marca.php">
+                                        <!--Poner icono de marca-->
+                                        <i class="fas fa-industry me-2"></i> Marca
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="categorias.php">
-                                <!--Poner icono de categorias-->
-                                <i class="fas fa-th-large"></i> Categorías
+
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuVentas"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-cash-register me-2"></i> Ventas
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
                             </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuVentas">
+                                <li>
+                                    <a class="nav-link text-secondary" href="ventas.php">
+                                        <i class="fas fa-cart-plus me-2"></i> Vender
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="ver_ventas.php">
+                                        <i class="fas fa-receipt me-2"></i> Ver ventas
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li>
-                            <a class="nav-link text-info" href="marca.php">
-                                <!--Poner icono de marca-->
-                                <i class="fas fa-industry me-2"></i> Marca
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuClientes"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-users me-2"></i> Clientes
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
                             </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuClientes">
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_cliente.php">
+                                        <i class="fas fa-circle-plus me-2"></i> Registrar cliente
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_clientes.php">
+                                        <i class="fas fa-users me-2"></i> Lista de clientes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="rubro.php">
+                                        <i class="fas fa-tags me-2"></i> Rubro
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuEmpleados"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-user-tie me-2"></i> Empleados
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuEmpleados">
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_empleado.php">
+                                        <i class="fas fa-user-plus me-2"></i> Registrar empleado
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_empleados.php">
+                                        <i class="fas fa-address-card me-2"></i> Lista de empleados
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuProveedores"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-truck me-2"></i> Proveedores
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuProveedores">
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_proveedor.php">
+                                        <i class="fas fa-circle-plus me-2"></i> Registrar proveedor
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_proveedores.php">
+                                        <i class="fas fa-list me-2"></i> Lista de proveedores
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuReportes"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-chart-line me-2"></i> Reportes
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuReportes">
+                                <li>
+                                    <a class="nav-link text-secondary" href="reporte_graficos_clientes.php">
+                                        <i class="fas fa-users me-2"></i>
+                                        Estadísticas de clientes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="reporte_graficos_productos.php">
+                                        <i class="fas fa-box-open me-2"></i>
+                                        Estadísticas de productos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="reporte_graficos_ventas.php">
+                                        <i class="fas fa-chart-column me-2"></i>
+                                        Estadísticas de ventas
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuOpciones"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-gear"></i> Más opciones
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
+
+                            <ul class="collapse list-unstyled ps-4" id="menuOpciones">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="metodo_pago.php">
+                                        <i class="fas fa-credit-card"></i>
+                                        Método de pago
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="departamento.php">
+                                        <i class="fas fa-building me-2"></i> Departamento
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                        data-bs-toggle="collapse"
+                                        href="#menuPolitica"
+                                        role="button"
+                                        aria-expanded="false">
+                                        <span>
+                                            <i class="fas fa-user-shield me-2"></i> Política y términos
+                                        </span>
+                                        <i class="fas fa-chevron-down small"></i>
+                                    </a>
+
+                                    <ul class="collapse list-unstyled ps-4" id="menuPolitica">
+                                        <li>
+                                            <a class="nav-link text-secondary" href="politica_privacidad.php">
+                                                <i class="fas fa-user-shield me-2"></i> Política de Privacidad
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="nav-link text-secondary" href="terminos_condiciones.php">
+                                                <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="acerca_info.php">
+                                        <i class="fas fa-info-circle"></i>
+                                        Acerca de
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
-                </li>
+                </ul>
+            </div>
 
-
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuVentas"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-cash-register me-2"></i> Ventas
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
-
-                    <ul class="collapse list-unstyled ps-4" id="menuVentas">
-                        <li>
-                            <a class="nav-link text-secondary" href="ventas.php">
-                                <i class="fas fa-cart-plus me-2"></i> Vender
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="ver_ventas.php">
-                                <i class="fas fa-receipt me-2"></i> Ver ventas
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuClientes"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-users me-2"></i> Clientes
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
-
-                    <ul class="collapse list-unstyled ps-4" id="menuClientes">
-                        <li>
-                            <a class="nav-link text-secondary" href="registrar_cliente.php">
-                                <i class="fas fa-circle-plus me-2"></i> Registrar cliente
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="lista_clientes.php">
-                                <i class="fas fa-users me-2"></i> Lista de clientes
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="rubro.php">
-                                <i class="fas fa-tags me-2"></i> Rubro
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="departamento.php">
-                                <i class="fas fa-building me-2"></i> Departamento
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuProveedores"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-truck me-2"></i> Proveedores
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
-
-                    <ul class="collapse list-unstyled ps-4" id="menuProveedores">
-                        <li>
-                            <a class="nav-link text-secondary" href="registrar_proveedor.php">
-                                <i class="fas fa-circle-plus me-2"></i> Registrar proveedor
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="lista_proveedores.php">
-                                <i class="fas fa-list me-2"></i> Lista de proveedores
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuReportes"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-chart-line me-2"></i> Reportes
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
-
-                    <ul class="collapse list-unstyled ps-4" id="menuReportes">
-                        <li>
-                            <a class="nav-link text-secondary" href="reporte_graficos_clientes.php">
-                                <i class="fas fa-users me-2"></i>
-                                Gráficas estadísticas de clientes
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="reporte_graficos_productos.php">
-                                <i class="fas fa-box-open me-2"></i>
-                                Gráficas estadísticas de productos
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="reporte_graficos_ventas.php">
-                                <i class="fas fa-chart-column me-2"></i>
-                                Gráficas estadísticas de ventas
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        href="#menuPolitica"
-                        role="button"
-                        aria-expanded="false">
-                        <span>
-                            <i class="fas fa-user-shield me-2"></i> Política y término
-                        </span>
-                        <i class="fas fa-chevron-down small"></i>
-                    </a>
-
-                    <ul class="collapse list-unstyled ps-4" id="menuPolitica">
-                        <li>
-                            <a class="nav-link text-secondary" href="politica_privacidad.php">
-                                <i class="fas fa-user-shield me-2"></i> Política de Privacidad
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-secondary" href="terminos_condiciones.php">
-                                <i class="fas fa-file-contract me-2"></i> Términos y Condiciones
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="controladores/desconectar.php">
-                        <!--Poner icono de cerrar sesion-->
-                        <i class="fas fa-sign-out-alt"></i>
-                        Cerrar sesión
-                    </a>
-                </li>
-            </ul>
         </nav>
         <!-- Contenido principal -->
         <div id="content">
-            <!-- Navbar superior -->
+            <!-- Navbar superior FIXED -->
             <nav class="navbar bg-light border-bottom">
                 <div class="container-fluid d-flex align-items-center">
-
-                    <!-- Botón sidebar -->
                     <!-- Botón sidebar -->
                     <button id="toggleSidebar" class="btn btn-dark me-3  d-lg-none">
                         <i class="fas fa-bars"></i>
@@ -259,7 +320,7 @@ if (!empty($usuario['imagen'])) {
 
                     <!-- Título -->
                     <span class="navbar-brand mb-0">
-                        Panel
+                        Panel de control
                     </span>
 
                     <!-- Menú derecho (SIEMPRE visible) -->
@@ -270,22 +331,50 @@ if (!empty($usuario['imagen'])) {
                                 🔔
                             </a>
                         </li>
+                        <li class="nav-item dropdown position-static border-success">
+                            <a class="nav-link d-flex align-items-center p-0"
+                                href="#"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
 
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-2 p-0" href="perfil.php">
                                 <?php if ($fotoPerfil): ?>
-                                    <img src="<?= $fotoPerfil ?>" class="rounded-circle" width="32" height="32">
+                                    <img src="<?= $fotoPerfil ?>"
+                                        class="rounded-circle border"
+                                        width="36"
+                                        height="36"
+                                        style="object-fit:cover;">
                                 <?php else: ?>
-                                    <i class="fas fa-user-circle fa-2x"></i>
+                                    <i class="fas fa-user-circle fa-2x text-secondary"></i>
                                 <?php endif; ?>
-                                <span class="d-none d-md-inline">
 
-                                </span>
                             </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 menu-user"
+                                style="margin-top: 20px;">
+
+                                <li class="dropdown-header fw-semibold small text-white py-2 rounded-top">
+                                    <?= utf8_decode($usuario['nombreEmpresa']); ?>
+                                </li>
+
+                                <li class="bg-white">
+                                    <a class="dropdown-item" href="perfil.php">
+                                        <i class="fas fa-user me-2 text-success"></i>
+                                        Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                        href="controladores/desconectar.php">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        Cerrar sesión
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-
                     </ul>
-
                 </div>
             </nav>
 

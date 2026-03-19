@@ -158,7 +158,31 @@ if (!empty($usuario['imagen'])) {
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuEmpleados"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-user-tie me-2"></i> Empleados
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
 
+                            <ul class="collapse list-unstyled ps-4" id="menuEmpleados">
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_empleado.php">
+                                        <i class="fas fa-user-plus me-2"></i> Registrar empleado
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_empleados.php">
+                                        <i class="fas fa-address-card me-2"></i> Lista de empleados
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-white d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
@@ -201,19 +225,25 @@ if (!empty($usuario['imagen'])) {
                                 <li>
                                     <a class="nav-link text-secondary" href="reporte_graficos_clientes.php">
                                         <i class="fas fa-users me-2"></i>
-                                        Gráficas estadísticas de clientes
+                                        Estadísticas de clientes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="reporte_graficos_empleados.php">
+                                        <i class="fas fa-users me-2"></i>
+                                        Estadísticas de empleados
                                     </a>
                                 </li>
                                 <li>
                                     <a class="nav-link text-info" href="reporte_graficos_productos.php">
                                         <i class="fas fa-box-open me-2"></i>
-                                        Gráficas estadísticas de productos
+                                        Estadísticas de productos
                                     </a>
                                 </li>
                                 <li>
                                     <a class="nav-link text-secondary" href="reporte_graficos_ventas.php">
                                         <i class="fas fa-chart-column me-2"></i>
-                                        Gráficas estadísticas de ventas
+                                        Estadísticas de ventas
                                     </a>
                                 </li>
                             </ul>
@@ -277,13 +307,6 @@ if (!empty($usuario['imagen'])) {
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="controladores/desconectar.php">
-                                <!--Poner icono de cerrar sesion-->
-                                <i class="fas fa-sign-out-alt"></i>
-                                Cerrar sesión
-                            </a>
-                        </li>
                     </ul>
                 </ul>
             </div>
@@ -312,22 +335,50 @@ if (!empty($usuario['imagen'])) {
                                 🔔
                             </a>
                         </li>
+                        <li class="nav-item dropdown position-static border-success">
+                            <a class="nav-link d-flex align-items-center p-0"
+                                href="#"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
 
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-2 p-0" href="perfil.php">
                                 <?php if ($fotoPerfil): ?>
-                                    <img src="<?= $fotoPerfil ?>" class="rounded-circle border-success" width="34" height="34">
+                                    <img src="<?= $fotoPerfil ?>"
+                                        class="rounded-circle border"
+                                        width="36"
+                                        height="36"
+                                        style="object-fit:cover;">
                                 <?php else: ?>
-                                    <i class="fas fa-user-circle fa-2x"></i>
+                                    <i class="fas fa-user-circle fa-2x text-secondary"></i>
                                 <?php endif; ?>
-                                <span class="d-none d-md-inline">
 
-                                </span>
                             </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 menu-user"
+                                style="margin-top: 20px;">
+
+                                <li class="dropdown-header fw-semibold small text-white py-2 rounded-top">
+                                    <?= utf8_decode($usuario['nombreEmpresa']); ?>
+                                </li>
+
+                                <li class="bg-white">
+                                    <a class="dropdown-item" href="perfil.php">
+                                        <i class="fas fa-user me-2 text-success"></i>
+                                        Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                        href="controladores/desconectar.php">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        Cerrar sesión
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-
                     </ul>
-
                 </div>
             </nav>
             <!-- Contenido -->

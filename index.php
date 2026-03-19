@@ -153,7 +153,31 @@ include 'controladores/procesar_index.php';
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse"
+                                href="#menuEmpleados"
+                                role="button"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="fas fa-user-tie me-2"></i> Empleados
+                                </span>
+                                <i class="fas fa-chevron-down small"></i>
+                            </a>
 
+                            <ul class="collapse list-unstyled ps-4" id="menuEmpleados">
+                                <li>
+                                    <a class="nav-link text-secondary" href="registrar_empleado.php">
+                                        <i class="fas fa-user-plus me-2"></i> Registrar empleado
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="lista_empleados.php">
+                                        <i class="fas fa-address-card me-2"></i> Lista de empleados
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-white d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
@@ -196,19 +220,25 @@ include 'controladores/procesar_index.php';
                                 <li>
                                     <a class="nav-link text-secondary" href="reporte_graficos_clientes.php">
                                         <i class="fas fa-users me-2"></i>
-                                        Gráficas estadísticas de clientes
+                                        Estadísticas de clientes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-secondary" href="reporte_graficos_empleados.php">
+                                        <i class="fas fa-users me-2"></i>
+                                        Estadísticas de empleados
                                     </a>
                                 </li>
                                 <li>
                                     <a class="nav-link text-secondary" href="reporte_graficos_productos.php">
                                         <i class="fas fa-box-open me-2"></i>
-                                        Gráficas estadísticas de productos
+                                        Estadísticas de productos
                                     </a>
                                 </li>
                                 <li>
                                     <a class="nav-link text-secondary" href="reporte_graficos_ventas.php">
                                         <i class="fas fa-chart-column me-2"></i>
-                                        Gráficas estadísticas de ventas
+                                        Estadísticas de ventas
                                     </a>
                                 </li>
                             </ul>
@@ -272,13 +302,6 @@ include 'controladores/procesar_index.php';
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="controladores/desconectar.php">
-                                <!--Poner icono de cerrar sesion-->
-                                <i class="fas fa-sign-out-alt"></i>
-                                Cerrar sesión
-                            </a>
-                        </li>
                     </ul>
                 </ul>
             </div>
@@ -307,22 +330,50 @@ include 'controladores/procesar_index.php';
                                 🔔
                             </a>
                         </li>
+                        <li class="nav-item dropdown position-static border-success">
+                            <a class="nav-link d-flex align-items-center p-0"
+                                href="#"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
 
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center gap-2 p-0" href="perfil.php">
                                 <?php if ($fotoPerfil): ?>
-                                    <img src="<?= $fotoPerfil ?>" class="rounded-circle border-success" width="34" height="34">
+                                    <img src="<?= $fotoPerfil ?>"
+                                        class="rounded-circle border"
+                                        width="36"
+                                        height="36"
+                                        style="object-fit:cover;">
                                 <?php else: ?>
-                                    <i class="fas fa-user-circle fa-2x"></i>
+                                    <i class="fas fa-user-circle fa-2x text-secondary"></i>
                                 <?php endif; ?>
-                                <span class="d-none d-md-inline">
 
-                                </span>
                             </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 menu-user"
+                                style="margin-top: 20px;">
+
+                                <li class="dropdown-header fw-semibold small text-white py-2 rounded-top">
+                                    <?= utf8_decode($usuario['nombreEmpresa']); ?>
+                                </li>
+
+                                <li class="bg-white">
+                                    <a class="dropdown-item" href="perfil.php">
+                                        <i class="fas fa-user me-2 text-success"></i>
+                                        Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                        href="controladores/desconectar.php">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        Cerrar sesión
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-
                     </ul>
-
                 </div>
             </nav>
 
@@ -330,7 +381,7 @@ include 'controladores/procesar_index.php';
             <!-- Contenido -->
             <div class="container-fluid p-3">
                 <form method="POST" id="formFiltros">
-                    <div class="row g-3">
+                    <div class="row g-2">
                         <div class="col-md-6 ">
                             <div class="input-group mb-3 border-success">
                                 <span class="input-group-text bg-success text-white">Filtrar por año: </span>
@@ -375,31 +426,41 @@ include 'controladores/procesar_index.php';
                         </div>
                     </div>
                 </form>
-                <div class="row mb-2 g-3 py-2">
+                <div class="row mb-1 g-2 py-1">
                     <p class="fs-4 lh-base mb-1 fw-bold">KPI (Indicador Clave de Desempeño)</p>
-                    <div class="col">
+                    <div class="col-md-4 mb-3">
                         <div class="card kpi-card border-success mb-3 h-100" style="max-width: 18rem;">
                             <div class="card-header text-black fw-bold bg-info text-center">Monto total</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    S/. <span id="kpi-total-ventas" class="kpi-number kpi-decimal" data-value="<?php echo $totalVentas; ?>">0.00</span>
+                                    S/. <span id="kpi-total-ventas" class="kpi-number kpi-decimal">0.00</span>
                                 </p>
 
                             </div>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-md-4 mb-3">
+                        <div class="card kpi-card border-success mb-3 h-100" style="max-width: 18rem;">
+                            <div class="card-header text-black fw-bold bg-info text-center">Total ventas del día</div>
+                            <div class="card-body">
+                                <p class="card-text fs-4 lh-base  text-center">
+                                    S/. <span id="kpi-total-ventas-dia" class="kpi-number kpi-decimal">0.00</span>
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <div class="card kpi-card border-success h-100 mb-3">
-                            <div class="card-header text-white text-center
-                                    <?php echo ($gananciaPerdida >= 0) ? 'bg-success' : 'bg-danger'; ?>">
+                            <div id="card-ganancia-header"
+                                class="card-header text-white text-center bg-success">
                                 Ganancia o pérdida
                             </div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base text-center">
                                     S/.
                                     <span id="kpi-ganancia"
-                                        class="kpi-number kpi-decimal"
-                                        data-value="<?php echo $gananciaPerdida; ?>">
+                                        class="kpi-number kpi-decimal">
                                         0.00
                                     </span>
                                     <i id="icono-ganancia" class="ms-2"></i>
@@ -407,22 +468,32 @@ include 'controladores/procesar_index.php';
                             </div>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-md-4 mb-3">
                         <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
                             <div class="card-header text-white bg-success text-center">Total Clientes</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    <span id="kpi-clientes" class="kpi-number kpi-int" data-value="<?php echo $totalClientes; ?>">0</span>
+                                    <span id="kpi-clientes" class="kpi-number kpi-int">0</span>
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-md-4 mb-3">
                         <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
                             <div class="card-header text-white bg-success text-center">Total Productos</div>
                             <div class="card-body">
                                 <p class="card-text fs-4 lh-base  text-center">
-                                    <span id="kpi-productos" class="kpi-number kpi-int" data-value="<?php echo $totalProductos; ?>">0</span>
+                                    <span id="kpi-productos" class="kpi-number kpi-int">0</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card kpi-card border-success h-100 mb-3" style="max-width: 18rem;">
+                            <div class="card-header text-white bg-success text-center">Total Empleados</div>
+                            <div class="card-body">
+                                <p class="card-text fs-4 lh-base  text-center">
+                                    <span id="kpi-empleados" class="kpi-number kpi-int">0</span>
                                 </p>
                             </div>
                         </div>
@@ -435,13 +506,20 @@ include 'controladores/procesar_index.php';
                     <!-- Título -->
                     <p class="fs-4 lh-base mb-3 fw-bold">📊Gráficos estadisticos</p>
                     <div class="row row-cols-1 row-cols-md-0">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <div class="card mb-3" style="max-width: 540px">
                                 <div class="card-header bg-success text-white text-center">Monto total vendido por Mes</div>
                                 <div class="grafico-container"><canvas id="compraMes"></canvas></div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
+                            <div class="card mb-3" style="max-width: 540px">
+                                <div class="card-header bg-success text-white text-center">Monto total vendido por semana</div>
+
+                                <div class="grafico-container"><canvas id="compraSemana"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
                             <div class="card mb-3" style="max-width: 540px">
                                 <div class="card-header bg-success text-white text-center">Monto total vendido por día</div>
 
@@ -450,18 +528,25 @@ include 'controladores/procesar_index.php';
                         </div>
                     </div>
                     <div class="row row-cols-1 row-cols-md-0">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <div class="card mb-3" style="max-width: 540px">
                                 <div class="card-header bg-success text-white text-center">Los 6 productos que mas se venden</div>
 
                                 <div class="grafico-container"><canvas id="topProductos"></canvas></div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <div class="card mb-3" style="max-width: 540px">
                                 <div class="card-header bg-success text-white text-center">Los 6 clientes que mas compran</div>
 
                                 <div class="grafico-container"><canvas id="topClientes"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card mb-3" style="max-width: 540px">
+                                <div class="card-header bg-success text-white text-center">Los 6 vendedores que mas venden</div>
+
+                                <div class="grafico-container"><canvas id="topVendedores"></canvas></div>
                             </div>
                         </div>
 

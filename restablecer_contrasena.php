@@ -101,7 +101,7 @@ include 'controladores/procesar_restablecer_contrasena.php';
                                         <i class="bi bi-person-circle text-secondary"
                                             style="font-size:80px;"></i>
                                     <?php endif; ?>
-                                    <p class="mb-0 fw-bold"> <?= htmlspecialchars($u['nombreEmpresa']); ?></p>
+                                    <p class="mb-0 fw-bold"> <?= htmlspecialchars($u['nombre']); ?></p>
                                     <small class="text-muted">Usuario de Inventa</small>
                                 </div>
                             </div>
@@ -113,6 +113,8 @@ include 'controladores/procesar_restablecer_contrasena.php';
                             <a href="recuperar_cuenta.php" class="btn btn-outline-secondary">Regresar</a>
                             <form action="controladores/enviar_codigo_verificacion.php" method="POST">
                                 <input type="hidden" name="usId" value="<?= $usId ?>">
+                                <input type="hidden" name="tipo"
+                                    value="<?= htmlspecialchars($tipoCuenta) ?>">
                                 <input type="hidden" name="method" id="methodSelected" value="email">
 
                                 <button type="submit" class="btn btn-primary">

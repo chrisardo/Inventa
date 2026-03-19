@@ -4,8 +4,8 @@ if (!isset($_SESSION['usId'])) {
     header("Location: login.php");
     exit();
 }
-
-require 'controladores/procesar_historial_ventas.php';
+include 'controladores/conexion.php';
+include 'controladores/procesar_registro_empleado.php';
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
 $stmt = $conexion->prepare($sqlFoto);
 $stmt->bind_param("i", $_SESSION['usId']);
@@ -16,8 +16,6 @@ $fotoPerfil = null;
 if (!empty($usuario['imagen'])) {
     $fotoPerfil = 'data:image/jpeg;base64,' . base64_encode($usuario['imagen']);
 }
-$mensaje = "";
-$tipoAlerta = "";
 ?>
 <!doctype html>
 <html lang="es">
@@ -25,7 +23,7 @@ $tipoAlerta = "";
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalles de venta - Inventa</title>
+    <title>Registro empleado - Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
@@ -36,6 +34,7 @@ $tipoAlerta = "";
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -107,7 +106,7 @@ $tipoAlerta = "";
 
 
                         <li class="nav-item">
-                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuVentas"
                                 role="button"
@@ -125,7 +124,7 @@ $tipoAlerta = "";
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="nav-link text-info" href="ver_ventas.php">
+                                    <a class="nav-link text-secondary" href="ver_ventas.php">
                                         <i class="fas fa-receipt me-2"></i> Ver ventas
                                     </a>
                                 </li>
@@ -163,7 +162,7 @@ $tipoAlerta = "";
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuEmpleados"
                                 role="button"
@@ -382,139 +381,330 @@ $tipoAlerta = "";
 
             <!-- Contenido -->
             <div class="container-fluid p-4">
+                <!-- Título -->
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
 
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
-                            <form id="formBuscar" class="d-flex" method="GET" action="ver_ventas.php">
-                                <input
-                                    id="inputBuscar"
-                                    class="form-control me-2"
-                                    type="search"
-                                    name="buscar"
-                                    placeholder="Buscar ticket de ventas por numero de serie, fecha, nombre del cliente "
-                                    value="<?php echo isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
-                                <button class="btn btn-outline-success" type="submit">Buscar</button>
-                            </form>
-                        </div>
-                    </div>
+                    <h2 class="mb-0">Registrar Empleado</h2>
 
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
-                            <div class="btn-group">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                                    <i class="bi bi-file-earmark-arrow-down"></i>Exportar ventas
-                                </button>
-                                <ul class="dropdown-menu border-success">
-                                    <li>
-                                        <a class="dropdown-item" href="controladores/exportar_ventas_realizadas_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar como PDF</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider bg-success">
-                                    </li>
-                                    <a href="controladores/exportar_ventas_realizadas_excel.php" class="dropdown-item" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Exportar como Excel
+                    <div class="btn-group flex-wrap gap-2">
+
+                        <!-- Ver lista -->
+                        <a href="lista_empleados.php" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-truck me-1"></i>
+                            Ver lista de empleados
+                        </a>
+
+                        <!-- Más opciones -->
+                        <div class="btn-group">
+                            <button
+                                class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+                                    <a class="dropdown-item" href="departamento.php">
+                                        <i class="fas fa-building me-2 text-info"></i>
+                                        Registrar departamento
                                     </a>
-                                </ul>
-                            </div>
+                                </li>
+                            </ul>
                         </div>
+
                     </div>
+
                 </div>
-                <!-- Tabla -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Tickets de ventas: <?php echo $totalVentasRealizadas; ?></h5>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover table-sm w-100">
-                                    <thead class="table-success text-center">
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Vendido por</th>
-                                            <th>Estado</th>
-                                            <th>Forma pago</th>
-                                            <th>Monto total</th>
-                                            <th>fecha</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($fila = $resultado->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
-                                                <td>
-                                                    <span class="badge bg-success"><?= htmlspecialchars($fila['vendedor']) ?></span>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($fila['estado_venta']); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['metodo_pago']); ?></td>
-                                                <td><?php echo "S/. " . number_format($fila['total_venta'], 2); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['fecha_venta']); ?></td>
-                                                <td>
-                                                    <!-- Botón para ver detalles del ticket de ventas  -->
-                                                    <a href="ver_detalles_venta.php?itv=<?= $fila['id_ticket_ventas'] ?>"
-                                                        class="btn btn-success btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
 
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            <!-- Imagen -->
+                            <div class="mb-2">
+                                <div class="card border-0 shadow-sm">
+                                    <!-- Input -->
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="bi bi-image"></i>
+                                        </span>
+                                        <input
+                                            type="file"
+                                            name="imagen"
+                                            id="imagen"
+                                            class="form-control"
+                                            accept="image/png, image/jpeg">
+                                    </div>
 
-                                                </td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
+                                    <div class="form-text">
+                                        Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <!-- Vista previa -->
+                                        <div id="previewImagen" class="mt-0 d-none">
+                                            <div class="row align-items-center g-3">
+
+                                                <!-- Imagen -->
+                                                <div class="col-auto">
+                                                    <div class="border rounded p-2 bg-light">
+                                                        <img
+                                                            id="previewImg"
+                                                            class="img-fluid rounded"
+                                                            style="width: 70px; height: 60px; object-fit: cover;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Detalles -->
+                                                <div class="col">
+                                                    <ul class="list-group list-group-flush small">
+                                                        <!--<li class="list-group-item px-0">
+                                                        <i class="bi bi-file-earmark-text text-success me-2"></i>
+                                                        <strong>Nombre:</strong>
+                                                        <span id="imgNombre"></span>
+                                                    </li>-->
+                                                        <li class="list-group-item px-0">
+                                                            <i class="bi bi-aspect-ratio text-info me-2"></i>
+                                                            <strong>Tipo:</strong>
+                                                            <span id="imgTipo"></span>
+                                                        </li>
+                                                        <li class="list-group-item px-0">
+                                                            <i class="bi bi-hdd text-warning me-2"></i>
+                                                            <strong>Tamaño:</strong>
+                                                            <span id="imgSize"></span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Nombres:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Apellidos:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Apellidos" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Documento:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-person"></i></span>
+                                        <input type="number" min="0" class="form-control" id="dni" name="dni" placeholder="DNI" required>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Celular:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="fas fa-mobile-alt"></i>
+                                        </span>
+                                        <input type="number" min="0" class="form-control" id="celular" name="celular" placeholder="Ejemplo: 987654321">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Direccion -->
+                            <div class="row g-2 mb-3">
+
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Dirección:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Dirección">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- opciones de rubro + opciones de departamento -->
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Departamento:</label>
+                                    <div class="input-group">
+                                        <!--poner un select con opciones de departamento y mostrar los departamentos de la base de datos-->
+                                        <?php
+                                        // Consulta para obtener los rubros del usuario logueado
+                                        $sqlDepartammento = "SELECT id_departamento, nombre, id_user FROM departamento WHERE Eliminado = 0 AND id_user = " . intval($_SESSION['usId']);
+                                        $resultado = $conexion->query($sqlDepartammento);
+                                        ?>
+                                        <select class="form-select" id="departamento" name="departamento" required>
+                                            <option value="" disabled selected>Seleccione el Departamento</option>
+                                            <option value="">Sin región o departamento</option>
+                                            <?php
+                                            if ($resultado->num_rows > 0) {
+                                                while ($fila = $resultado->fetch_assoc()) {
+                                                    echo '<option value="' . $fila['id_departamento'] . '">' . $fila['nombre'] . '</option>';
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Provincia:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="provincia" name="provincia" placeholder="Provincia">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Distrito:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="distrito" name="distrito" placeholder="Distrito">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--email + contraseña -->
+                            <div class="row g-2 mb-3">
+                                <!--Email-->
+                                <div class="col">
+                                    <label for="imagen" class="form-label">Email:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="E-mail">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="contrasena" class="form-label">Contraseña:</label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="bi bi-lock"></i>
+                                        </span>
+
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="contrasena"
+                                            name="contrasena"
+                                            placeholder="Contraseña"
+                                            required>
+
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            👁️
+                                        </button>
+                                    </div>
+
+                                    <!-- Barra de seguridad -->
+                                    <div class="progress mt-2" style="height: 8px;">
+                                        <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                    </div>
+                                    <small id="strengthText" class="fw-bold"></small>
+
+                                    <!-- Checklist dinámico -->
+                                    <ul class="small mt-2 mb-0 list-unstyled">
+                                        <li id="ruleUpper" class="text-danger">❌ 1 letra mayúscula</li>
+                                        <li id="ruleLower" class="text-danger">❌ 1 letra minúscula</li>
+                                        <li id="ruleNumber" class="text-danger">❌ 1 número</li>
+                                        <li id="ruleSpecial" class="text-danger">❌ 1 carácter especial (@$!%*?&.#_-)</li>
+                                    </ul>
+                                </div>
+                                <!--Poner indicaciones que la contraseña debe ssr mayor a 8 caracteres y debe contener por lo menos: 1 letra mayuscula, numeros, 1 letra minuscula y 1 caracter especial-->
+                            </div>
+                            <!--Boton registrar-->
+                            <button type="submit" id="btnRegistrar" class="btn btn-primary">Registrar</button>
+                        </form>
+                    </div>
+
+                    <?php if (!empty($mensaje)): ?>
+                        <div class="alert alert-<?= $tipoAlerta ?> alert-dismissible fade show" role="alert">
+                            <?= $mensaje ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                         </div>
-                    </div>
+                    <?php
+                    endif;
+                    $conexion->close();
+                    ?>
                 </div>
-                <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-
-                    <div class="fw-bold text-success">
-                        Página <?= $pagina ?> de <?= $totalPaginas ?>
-                        | Total registros: <?= $totalVentasRealizadas ?>
-                    </div>
-
-                    <div>
-                        <!-- BOTÓN ANTERIOR -->
-                        <?php if ($pagina > 1): ?>
-                            <a class="btn btn-outline-success btn-sm me-2"
-                                href="?pagina=<?= $pagina - 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                ⬅ Anterior
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm me-2" disabled>
-                                ⬅ Anterior
-                            </button>
-                        <?php endif; ?>
-
-                        <!-- BOTÓN SIGUIENTE -->
-                        <?php if ($pagina < $totalPaginas): ?>
-                            <a class="btn btn-outline-success btn-sm"
-                                href="?pagina=<?= $pagina + 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                Siguiente ➡
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                Siguiente ➡
-                            </button>
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-
             </div>
         </div>
-    </div>
-    <script src="js/menu_sidebar.js"></script>
-    <script src="js/lista_ticket_ventas.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('contrasena');
+
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.textContent = type === 'password' ? '👁️' : '🙈';
+            });
+            //const strengthBar = document.getElementById("strengthBar");
+            const strengthBar = document.getElementById("strengthBar");
+            const strengthText = document.getElementById("strengthText");
+
+            const rules = {
+                upper: document.getElementById("ruleUpper"),
+                lower: document.getElementById("ruleLower"),
+                number: document.getElementById("ruleNumber"),
+                special: document.getElementById("ruleSpecial"),
+            };
+
+            passwordInput.addEventListener("input", function() {
+                const value = passwordInput.value;
+                let strength = 0;
+
+                const hasUpper = /[A-Z]/.test(value);
+                const hasLower = /[a-z]/.test(value);
+                const hasNumber = /\d/.test(value);
+                const hasSpecial = /[@$!%*?&.#_-]/.test(value);
+
+                updateRule(rules.upper, hasUpper);
+                updateRule(rules.lower, hasLower);
+                updateRule(rules.number, hasNumber);
+                updateRule(rules.special, hasSpecial);
+
+                strength = [hasUpper, hasLower, hasNumber, hasSpecial]
+                    .filter(Boolean).length;
+
+                updateStrength(strength);
+            });
+
+            function updateRule(element, condition) {
+                if (condition) {
+                    element.classList.remove("text-danger");
+                    element.classList.add("text-success");
+                    element.innerHTML = element.innerHTML.replace("❌", "✅");
+                } else {
+                    element.classList.remove("text-success");
+                    element.classList.add("text-danger");
+                    element.innerHTML = element.innerHTML.replace("✅", "❌");
+                }
+            }
+
+            function updateStrength(level) {
+                let width = (level / 4) * 100;
+                strengthBar.style.width = width + "%";
+
+                if (level <= 1) {
+                    strengthBar.className = "progress-bar bg-danger";
+                    strengthText.textContent = "Seguridad: Débil";
+                    strengthText.className = "text-danger fw-bold";
+                } else if (level <= 3) {
+                    strengthBar.className = "progress-bar bg-warning";
+                    strengthText.textContent = "Seguridad: Media";
+                    strengthText.className = "text-warning fw-bold";
+                } else {
+                    strengthBar.className = "progress-bar bg-success";
+                    strengthText.textContent = "Seguridad: Fuerte";
+                    strengthText.className = "text-success fw-bold";
+                }
+            }
+        </script>
+        <script src="js/menu_sidebar.js"></script>
+        <script src="js/visualizar_imagen.js"></script>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

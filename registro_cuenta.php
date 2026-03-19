@@ -18,7 +18,7 @@ include 'controladores/procesar_registro_usuario.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
 
-<body style=" background: linear-gradient(135deg, #25cdfcff ,#2ad867ff);">
+<body style=" background: linear-gradient(135deg, #2ad867ff, #25cdfcff);">
     <div class="container login-container d-flex justify-content-center align-items-center">
         <div class="login-card">
             <div class="login-left">
@@ -27,8 +27,8 @@ include 'controladores/procesar_registro_usuario.php';
                 <h2> </h2>
                 <p>Por favor, registre una cuenta.</p>
             </div>
-            <div class="login-right py-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="login-right py-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
                     <h3 class="mb-0">Registrar cuenta</h3>
 
                     <a href="login.php"
@@ -39,8 +39,8 @@ include 'controladores/procesar_registro_usuario.php';
                     </a>
                 </div>
                 <form method="POST" enctype="multipart/form-data">
-                    <!-- Imagen -->
-                    <div class="mb-2">
+              <!-- Imagen -->
+                    <div class="mb-0">
                         <div class="card border-0 shadow-sm">
                             <!-- Input -->
                             <div class="input-group">
@@ -52,24 +52,24 @@ include 'controladores/procesar_registro_usuario.php';
                                     name="imagen"
                                     id="imagen"
                                     class="form-control"
-                                    accept="image/png, image/jpeg">
+                                    accept="image/png, image/jpeg" required>
                             </div>
 
-                            <div class="form-text">
+                            <div class="form-text text-danger" style="font-size: 0.75rem;">
                                 Formatos permitidos: JPG, PNG · Tamaño máximo: 1.8 MB
                             </div>
-                            <div class="card-body p-2">
+                            <div class="card-body p-1">
                                 <!-- Vista previa -->
                                 <div id="previewImagen" class="mt-0 d-none">
                                     <div class="row align-items-center g-3">
 
                                         <!-- Imagen -->
                                         <div class="col-auto">
-                                            <div class="border rounded p-2 bg-light">
+                                            <div class="border rounded p-1 bg-light">
                                                 <img
                                                     id="previewImg"
                                                     class="img-fluid rounded"
-                                                    style="width: 70px; height: 50px; object-fit: cover;">
+                                                    style="width: 60px; height: 45px; object-fit: cover;">
                                             </div>
                                         </div>
 
@@ -100,7 +100,8 @@ include 'controladores/procesar_registro_usuario.php';
                             </div>
                         </div>
                     </div>
-                    <div class="row g-2 mb-3">
+                    <div class="row g-2 mb-2">
+
                         <div class="col">
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white"><i class="bi bi-person"></i></span>
@@ -115,7 +116,7 @@ include 'controladores/procesar_registro_usuario.php';
                         </div>
                     </div>
                     <!--username + celular -->
-                    <div class="row g-2 mb-3">
+                    <div class="row g-2 mb-2">
 
                         <div class="col">
                             <div class="input-group">
@@ -130,7 +131,7 @@ include 'controladores/procesar_registro_usuario.php';
                             </div>
                         </div>
                     </div>
-                    <div class="row g-2 mb-3">
+                    <div class="row g-2 mb-2">
 
                         <div class="col">
                             <div class="input-group">
@@ -147,11 +148,11 @@ include 'controladores/procesar_registro_usuario.php';
                     </div>
 
                     <!-- Password + Confirm -->
-                    <div class="row g-2 mb-3">
+                    <div class="row g-2 mb-2">
                         <div class="col">
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+                                <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Contraseña"  required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     👁️
                                 </button>
@@ -167,10 +168,25 @@ include 'controladores/procesar_registro_usuario.php';
                                 </button>
                             </div>
                         </div>
-                    </div>
+                        <!-- Seguridad de contraseña -->
+                        <div class="mt-0">
+                            <!--<div class="progress mb-1" style="height: 3px;">
+                                <div id="strengthBar" class="progress-bar" style="width: 0%"></div>
+                            </div>-->
+                            <small id="strengthText" class="fw-bold small" style="font-size: 0.75rem;"></small>
 
+                            <ul class="mt-0 mb-0 list-unstyled" style="font-size: 0.72rem; line-height:1.1;">
+                                <li id="ruleUpper" class="text-danger">❌ 1 letra mayúscula</li>
+                                <li id="ruleLower" class="text-danger">❌ 1 letra minúscula</li>
+                                <li id="ruleNumber" class="text-danger">❌ Por lo menos 1 úmero</li>
+                                <li id="ruleSpecial" class="text-danger">❌ 1 carácter especial (@$!%*?&.#_-)</li>
+                                <li id="ruleMatch" class="text-danger">❌ Las contraseñas coinciden</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
                     <!-- Checkbox -->
-                    <div class="form-check text-start mb-2 text-white">
+                    <div class="form-check text-start mb-1 text-white " style="margin-top:-12px; ">
                         <input
                             class="form-check-input"
                             type="checkbox"
@@ -178,12 +194,12 @@ include 'controladores/procesar_registro_usuario.php';
                             name="terminos"
                             required>
 
-                        <label class="form-check-label text-success terminos-text " for="terminos">
+                        <label class="form-check-label text-success" for="terminos">
                             Acepto los
                             <a href="#" data-bs-toggle="modal" data-bs-target="#modalTerminos"
                                 onclick="event.preventDefault();"
                                 class="fw-bold text-decoration-underline text-success">
-                                Términos y Condiciones
+                                Términos
                             </a>
                             y la
                             <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacidad"
@@ -194,7 +210,8 @@ include 'controladores/procesar_registro_usuario.php';
                         </label>
                     </div>
                     <!-- Submit -->
-                    <button class="btn btn-success w-100 py-1  mb-0 fw-bold">Registrarse </button>
+                    <!--<button class="btn btn-success w-100 py-1  mb-0 fw-bold">Registrarse </button>-->
+                    <button id="btnRegistrar" class="btn btn-success w-100 py-1 mt-1 fw-bold" disabled>Registrarse</button>
                     <!-- Mensaje -->
                     <?php if (!empty($mensaje)): ?>
                         <div class="alert alert-<?= $tipoAlerta ?> mt-2 ">
@@ -226,6 +243,79 @@ include 'controladores/procesar_registro_usuario.php';
             passwordInput.setAttribute('type', type);
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
+        //const strengthBar = document.getElementById("strengthBar");
+        const strengthText = document.getElementById("strengthText");
+        const btnRegistrar = document.getElementById("btnRegistrar");
+
+        const rules = {
+            upper: document.getElementById("ruleUpper"),
+            lower: document.getElementById("ruleLower"),
+            number: document.getElementById("ruleNumber"),
+            special: document.getElementById("ruleSpecial"),
+            match: document.getElementById("ruleMatch"),
+        };
+
+        passwordInput.addEventListener("input", validatePasswords);
+        passwordInput2.addEventListener("input", validatePasswords);
+
+        function validatePasswords() {
+            const value = passwordInput.value;
+            const value2 = passwordInput2.value;
+
+            const hasUpper = /[A-Z]/.test(value);
+            const hasLower = /[a-z]/.test(value);
+            const hasNumber = /\d/.test(value);
+            const hasSpecial = /[@$!%*?&.#_-]/.test(value);
+            const match = value !== "" && value === value2;
+
+            updateRule(rules.upper, hasUpper);
+            updateRule(rules.lower, hasLower);
+            updateRule(rules.number, hasNumber);
+            updateRule(rules.special, hasSpecial);
+            updateRule(rules.match, match);
+
+            const strength = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+            updateStrength(strength);
+
+            // Activar botón solo si todo está correcto
+            if (hasUpper && hasLower && hasNumber && hasSpecial && match) {
+                btnRegistrar.disabled = false;
+            } else {
+                btnRegistrar.disabled = true;
+            }
+        }
+
+        function updateRule(element, condition) {
+            if (condition) {
+                element.classList.remove("text-danger");
+                element.classList.add("text-success");
+                element.innerHTML = element.innerHTML.replace("❌", "✅");
+            } else {
+                element.classList.remove("text-success");
+                element.classList.add("text-danger");
+                element.innerHTML = element.innerHTML.replace("✅", "❌");
+            }
+        }
+
+        function updateStrength(level) {
+
+            if (level === 0) {
+                strengthText.textContent = "";
+                strengthText.className = "fw-bold";
+                return;
+            }
+
+            if (level <= 1) {
+                strengthText.textContent = "Seguridad: Débil";
+                strengthText.className = "text-danger fw-bold";
+            } else if (level <= 3) {
+                strengthText.textContent = "Seguridad: Media";
+                strengthText.className = "text-warning fw-bold";
+            } else {
+                strengthText.textContent = "Seguridad: Fuerte";
+                strengthText.className = "text-success fw-bold";
+            }
+        }
     </script>
     <script src="js/visualizar_imagen.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

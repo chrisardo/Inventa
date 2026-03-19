@@ -1,11 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['usId'])) {
-    header("Location: login.php");
-    exit();
-}
-
-require 'controladores/procesar_historial_ventas.php';
+include 'controladores/conexion.php';
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
 $stmt = $conexion->prepare($sqlFoto);
 $stmt->bind_param("i", $_SESSION['usId']);
@@ -16,19 +11,20 @@ $fotoPerfil = null;
 if (!empty($usuario['imagen'])) {
     $fotoPerfil = 'data:image/jpeg;base64,' . base64_encode($usuario['imagen']);
 }
-$mensaje = "";
-$tipoAlerta = "";
+//llamar al procesador de controladores/procesar_graficos_cliente.php
+//include 'controladores/procesar_graficos_cliente.php';
+
 ?>
+
 <!doctype html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalles de venta - Inventa</title>
+    <title>Reporte empleados — Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/menu_sidebar.css">
     <!-- Font Awesome para iconos -->
     <link
@@ -107,7 +103,7 @@ $tipoAlerta = "";
 
 
                         <li class="nav-item">
-                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuVentas"
                                 role="button"
@@ -125,7 +121,7 @@ $tipoAlerta = "";
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="nav-link text-info" href="ver_ventas.php">
+                                    <a class="nav-link text-secondary" href="ver_ventas.php">
                                         <i class="fas fa-receipt me-2"></i> Ver ventas
                                     </a>
                                 </li>
@@ -214,7 +210,7 @@ $tipoAlerta = "";
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuReportes"
                                 role="button"
@@ -230,6 +226,12 @@ $tipoAlerta = "";
                                     <a class="nav-link text-secondary" href="reporte_graficos_clientes.php">
                                         <i class="fas fa-users me-2"></i>
                                         Estadísticas de clientes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-info" href="reporte_graficos_empleados.php">
+                                        <i class="fas fa-users me-2"></i>
+                                        Estadísticas de empleados
                                     </a>
                                 </li>
                                 <li>
@@ -381,138 +383,179 @@ $tipoAlerta = "";
             </nav>
 
             <!-- Contenido -->
-            <div class="container-fluid p-4">
-
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
-                            <form id="formBuscar" class="d-flex" method="GET" action="ver_ventas.php">
-                                <input
-                                    id="inputBuscar"
-                                    class="form-control me-2"
-                                    type="search"
-                                    name="buscar"
-                                    placeholder="Buscar ticket de ventas por numero de serie, fecha, nombre del cliente "
-                                    value="<?php echo isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
-                                <button class="btn btn-outline-success" type="submit">Buscar</button>
-                            </form>
-                        </div>
+            <div class="container-fluid p-4" id="reporteCompleto">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Reporte gráficos de los empleados</h2>
+                    <div class="d-flex justify-content-between mb-3 no-export">
+                        <button id="btnPdf" class="btn btn-danger me-2">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button id="btnPpt" class="btn btn-warning">
+                            <i class="fas fa-file-powerpoint"></i> Exportar PPT
+                        </button>
                     </div>
+                </div>
+                <form method="GET" id="formFiltros">
+                    <div class="row g-3">
+                        <div class="col-4 col-md-3">
+                            <div class="card border-success mb-3">
+                                <div class="card-header text-black fw-bold bg-info text-center">Filtrar año: </div>
+                                <div class="card-body">
+                                    <select name="anio" id="anio" class="form-select">
+                                        <option value="">-- Todos los años --</option>
+                                        <?php
+                                        $sql = "
+                                                        SELECT anio FROM (
+                                                            SELECT YEAR(fecha_registro) AS anio
+                                                            FROM producto
+                                                            WHERE Eliminado = 0 AND id_user = ?
 
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
-                            <div class="btn-group">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                                    <i class="bi bi-file-earmark-arrow-down"></i>Exportar ventas
-                                </button>
-                                <ul class="dropdown-menu border-success">
-                                    <li>
-                                        <a class="dropdown-item" href="controladores/exportar_ventas_realizadas_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar como PDF</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider bg-success">
-                                    </li>
-                                    <a href="controladores/exportar_ventas_realizadas_excel.php" class="dropdown-item" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Exportar como Excel
-                                    </a>
-                                </ul>
+                                                            UNION
+
+                                                            SELECT YEAR(fecha_registro) AS anio
+                                                            FROM clientes
+                                                            WHERE Eliminado = 0 AND id_user = ?
+
+                                                            UNION
+
+                                                            SELECT YEAR(fecha_venta) AS anio
+                                                            FROM ticket_ventas
+                                                            WHERE id_user = ?
+                                                        ) AS anios
+                                                        ORDER BY anio DESC
+                                                    ";
+
+                                        $stmt = $conexion->prepare($sql);
+                                        $stmt->bind_param("iii", $_SESSION['usId'], $_SESSION['usId'], $_SESSION['usId']);
+                                        $stmt->execute();
+                                        $res = $stmt->get_result();
+                                        while ($row = $res->fetch_assoc()) {
+                                            echo "<option value='{$row['anio']}'>{$row['anio']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <div class="card border-success mb-3">
+                                <div class="card-header text-white bg-success text-center">Filtrar empleado:</div>
+                                <div class="card-body">
+                                    <select name="empleado" id="empleado" class="form-select">
+                                        <option value="">-- Todos los empelados --</option>
+                                        <?php
+                                        $sql = "SELECT id_empleado, nombre, apellido FROM empleados where id_user = " . $_SESSION['usId'] . " ORDER BY nombre ASC";
+                                        $res = mysqli_query($conexion, $sql);
+                                        while ($row = mysqli_fetch_assoc($res)) {
+                                            echo "<option value='{$row['id_empleado']}'>{$row['nombre']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <div class="card border-success mb-3">
+                                <div class="card-header text-white bg-success text-center">Filtrar productos:</div>
+                                <div class="card-body">
+                                    <select name="productos" id="productos" class="form-select">
+                                        <option value="">-- Todos los productos --</option>
+                                        <?php
+                                        $sql = "SELECT idProducto, nombre,id_user FROM producto where id_user = " . $_SESSION['usId'] . " ORDER BY nombre ASC";
+                                        $res = mysqli_query($conexion, $sql);
+                                        while ($row = mysqli_fetch_assoc($res)) {
+                                            echo "<option value='{$row['idProducto']}'>{$row['nombre']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+
+                                </div>
                             </div>
                         </div>
                     </div>
+                </form>
+
+                <div id="resumenGlobal" class="row mb-1">
+
                 </div>
-                <!-- Tabla -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Tickets de ventas: <?php echo $totalVentasRealizadas; ?></h5>
+                <!--Dashboards-->
+                <div class="my-0 py-2" id="contenidoReporte">
+                    <div class="row mb-1">
+                        <div class="col ">
+                            <h2 class="text-dark">Gráficos estadísticos</h2>
+                        </div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-0">
+                        <div class="col-sm-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white text-center">Empleados registrados por mes</div>
+                                <div class="grafico-container">
+                                    <canvas id="empleadosMes"></canvas>
+                                </div>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover table-sm w-100">
-                                    <thead class="table-success text-center">
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Vendido por</th>
-                                            <th>Estado</th>
-                                            <th>Forma pago</th>
-                                            <th>Monto total</th>
-                                            <th>fecha</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($fila = $resultado->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
-                                                <td>
-                                                    <span class="badge bg-success"><?= htmlspecialchars($fila['vendedor']) ?></span>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($fila['estado_venta']); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['metodo_pago']); ?></td>
-                                                <td><?php echo "S/. " . number_format($fila['total_venta'], 2); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['fecha_venta']); ?></td>
-                                                <td>
-                                                    <!-- Botón para ver detalles del ticket de ventas  -->
-                                                    <a href="ver_detalles_venta.php?itv=<?= $fila['id_ticket_ventas'] ?>"
-                                                        class="btn btn-success btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white text-center">Los 7 vendedores que mas venden</div>
 
-
-                                                </td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
+                                <div class="grafico-container"><canvas id="topEmpleados"></canvas></div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                    <div class="row row-cols-1 row-cols-md-0">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white text-center">Monto total por Mes</div>
 
-                    <div class="fw-bold text-success">
-                        Página <?= $pagina ?> de <?= $totalPaginas ?>
-                        | Total registros: <?= $totalVentasRealizadas ?>
+                                <div class="grafico-container"><canvas id="compraMes"></canvas></div>
+
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white text-center">Cantidad vendido por Mes</div>
+                                <div class="grafico-container"><canvas id="cantidadMes"></canvas></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <!-- BOTÓN ANTERIOR -->
-                        <?php if ($pagina > 1): ?>
-                            <a class="btn btn-outline-success btn-sm me-2"
-                                href="?pagina=<?= $pagina - 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                ⬅ Anterior
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm me-2" disabled>
-                                ⬅ Anterior
-                            </button>
-                        <?php endif; ?>
-
-                        <!-- BOTÓN SIGUIENTE -->
-                        <?php if ($pagina < $totalPaginas): ?>
-                            <a class="btn btn-outline-success btn-sm"
-                                href="?pagina=<?= $pagina + 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                Siguiente ➡
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                Siguiente ➡
-                            </button>
-                        <?php endif; ?>
+                    <div class="row row-cols-1 row-cols-md-0">
+                        <div class="col-sm-6">
+                            <div class="card mb-3">
+                                <!--Tabla resumen de productos: Producto | cantidad |subTotal | Venta total | Rentabilidad | Utilidad-->
+                                <div class="card-header bg-success text-white text-center">Tabla resumen de productos</div>
+                                <div class="grafico-container tabla-scroll" id="tablaProductos"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card mb-3">
+                                <!--Tabla resumen de empleados: Empleado | cantidad |subTotal | Venta total | Rentabilidad | Utilidad-->
+                                <div class="card-header bg-success text-white text-center">Tabla resumen de empleados</div>
+                                <div class="grafico-container tabla-scroll" id="tablaEmpleados"></div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
-
             </div>
         </div>
     </div>
+    <script>
+        window.EMPRESA_NOMBRE = "<?= utf8_decode($usuario['nombreEmpresa']); ?>";
+        window.USUARIO_NOMBRE = "<?= utf8_decode($usuario['nombreEmpresa']); ?>";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="js/dashboards_empleados.js"></script>
     <script src="js/menu_sidebar.js"></script>
-    <script src="js/lista_ticket_ventas.js"></script>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

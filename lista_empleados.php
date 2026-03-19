@@ -4,8 +4,11 @@ if (!isset($_SESSION['usId'])) {
     header("Location: login.php");
     exit();
 }
-
-require 'controladores/procesar_historial_ventas.php';
+$usId = $_SESSION['usId'];
+require 'controladores/procesar_lista_empleados.php';
+require 'controladores/editar_empleado.php';
+$mensaje = "";
+$tipoAlerta = "";
 $sqlFoto = "SELECT imagen, nombreEmpresa FROM usuario_acceso WHERE id_user = ?";
 $stmt = $conexion->prepare($sqlFoto);
 $stmt->bind_param("i", $_SESSION['usId']);
@@ -16,8 +19,6 @@ $fotoPerfil = null;
 if (!empty($usuario['imagen'])) {
     $fotoPerfil = 'data:image/jpeg;base64,' . base64_encode($usuario['imagen']);
 }
-$mensaje = "";
-$tipoAlerta = "";
 ?>
 <!doctype html>
 <html lang="es">
@@ -25,7 +26,7 @@ $tipoAlerta = "";
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalles de venta - Inventa</title>
+    <title>Empelados - Inventa</title>
     <!--Poner icono de la pagina web-->
     <link rel="icon" href="img/logo_principal.png" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
@@ -107,7 +108,7 @@ $tipoAlerta = "";
 
 
                         <li class="nav-item">
-                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuVentas"
                                 role="button"
@@ -125,7 +126,7 @@ $tipoAlerta = "";
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="nav-link text-info" href="ver_ventas.php">
+                                    <a class="nav-link text-secondary" href="ver_ventas.php">
                                         <i class="fas fa-receipt me-2"></i> Ver ventas
                                     </a>
                                 </li>
@@ -163,7 +164,7 @@ $tipoAlerta = "";
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                            <a class="nav-link text-info d-flex justify-content-between align-items-center"
                                 data-bs-toggle="collapse"
                                 href="#menuEmpleados"
                                 role="button"
@@ -181,7 +182,7 @@ $tipoAlerta = "";
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="nav-link text-secondary" href="lista_empleados.php">
+                                    <a class="nav-link text-info" href="lista_empleados.php">
                                         <i class="fas fa-address-card me-2"></i> Lista de empleados
                                     </a>
                                 </li>
@@ -206,7 +207,7 @@ $tipoAlerta = "";
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="nav-link text-secondary" href="lista_proveedores.php">
+                                    <a class="nav-link text-white" href="lista_proveedores.php">
                                         <i class="fas fa-list me-2"></i> Lista de proveedores
                                     </a>
                                 </li>
@@ -382,87 +383,153 @@ $tipoAlerta = "";
 
             <!-- Contenido -->
             <div class="container-fluid p-4">
+                <!-- Barra superior: Registrar (izquierda) | Buscar + Exportar (derecha) -->
+                <div class="card p-3 mb-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
 
-                <!-- Barra de búsqueda y botón de exportar -->
-                <div class="row g-2 align-items-center">
-                    <!-- Buscador -->
-                    <div class="col-12 col-md">
-                        <div class="card p-2">
-                            <form id="formBuscar" class="d-flex" method="GET" action="ver_ventas.php">
+                        <!-- LADO IZQUIERDO -->
+                        <div>
+                            <a href="registrar_empleado.php" class="btn btn-success">
+                                <i class="fas fa-circle-plus me-1"></i>
+                                Registrar empelado
+                            </a>
+                        </div>
+
+                        <!-- LADO DERECHO -->
+                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                            <!-- Buscador -->
+                            <form id="formBuscar" class="d-flex" method="GET" action="lista_empleados.php">
                                 <input
                                     id="inputBuscar"
                                     class="form-control me-2"
                                     type="search"
                                     name="buscar"
-                                    placeholder="Buscar ticket de ventas por numero de serie, fecha, nombre del cliente "
-                                    value="<?php echo isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
-                                <button class="btn btn-outline-success" type="submit">Buscar</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Dropdown Exportar -->
-                    <div class="col-12 col-md-auto text-md-end">
-                        <div class="card p-2">
-                            <div class="btn-group">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                                    <i class="bi bi-file-earmark-arrow-down"></i>Exportar ventas
+                                    placeholder="Buscar empelado por nombre, DNI o celular"
+                                    value="<?= isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="fas fa-search"></i>
                                 </button>
-                                <ul class="dropdown-menu border-success">
+                            </form>
+
+                            <!-- Exportar -->
+                            <div class="btn-group">
+                                <button
+                                    class="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                    Exportar
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="controladores/exportar_ventas_realizadas_pdf.php" target="_blank">
-                                            <i class="fas fa-file-pdf"></i> Exportar como PDF</a>
+                                        <?php if ($totalEmpleados > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_empleados_pdf.php" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger"></i> Exportar PDF
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay empelados para exportar
+                                            </button>
+                                        <?php endif; ?>
                                     </li>
+
                                     <li>
-                                        <hr class="dropdown-divider bg-success">
+                                        <hr class="dropdown-divider">
                                     </li>
-                                    <a href="controladores/exportar_ventas_realizadas_excel.php" class="dropdown-item" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Exportar como Excel
-                                    </a>
+
+                                    <li>
+                                        <?php if ($totalEmpleados > 0): ?>
+                                            <a class="dropdown-item" href="controladores/exportar_empleados_excel.php" target="_blank">
+                                                <i class="fas fa-file-excel text-success"></i> Exportar Excel
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="dropdown-item text-danger" disabled>
+                                                No hay empelados para exportar
+                                            </button>
+                                        <?php endif; ?>
+                                    </li>
                                 </ul>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
+
                 <!-- Tabla -->
                 <div class="row mt-4">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Tickets de ventas: <?php echo $totalVentasRealizadas; ?></h5>
+                                <h5 class="card-title mb-0">Lista de empleados: <?php echo $totalEmpleados; ?></h5>
                             </div>
-                            <div class="table-responsive">
+                            <div class="card-body">
                                 <table class="table table-striped table-hover table-sm w-100">
-                                    <thead class="table-success text-center">
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Vendido por</th>
-                                            <th>Estado</th>
-                                            <th>Forma pago</th>
-                                            <th>Monto total</th>
-                                            <th>fecha</th>
+                                    <thead>
+                                        <tr class="table-success">
+                                            <th>Imagen</th>
+                                            <th>Nombre</th>
+                                            <th>documento</th>
+                                            <th>Celular</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while ($fila = $resultado->fetch_assoc()): ?>
+                                        <?php while ($fila = $resultado->fetch_assoc()):?>
                                             <tr>
-                                                <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
                                                 <td>
-                                                    <span class="badge bg-success"><?= htmlspecialchars($fila['vendedor']) ?></span>
+                                                    <?php if ($fila['imagen']): ?>
+                                                        <img src="data:image/jpeg;base64,<?= base64_encode($fila['imagen']); ?>"
+                                                            width="50" height="50" />
+                                                    <?php else: ?>
+                                                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                                                    <?php endif; ?>
+
                                                 </td>
-                                                <td><?php echo htmlspecialchars($fila['estado_venta']); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['metodo_pago']); ?></td>
-                                                <td><?php echo "S/. " . number_format($fila['total_venta'], 2); ?></td>
-                                                <td><?php echo htmlspecialchars($fila['fecha_venta']); ?></td>
+                                                <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
+                                                <td><?php echo htmlspecialchars($fila['dni']); ?></td>
+                                                <td><?php echo htmlspecialchars($fila['celular']); ?></td>
                                                 <td>
-                                                    <!-- Botón para ver detalles del ticket de ventas  -->
-                                                    <a href="ver_detalles_venta.php?itv=<?= $fila['id_ticket_ventas'] ?>"
-                                                        class="btn btn-success btn-sm">
-                                                        <i class="fas fa-eye"></i>
+                                                    <!-- Boton para enviar mensaje de whatsapp a el cliente: Hola [nombre del cliente], nos comunicamos de Inventa.-->
+                                                    <!--<a href="https://wa.me/<?php //echo htmlspecialchars($fila['celular']); 
+                                                                                ?>" class="btn btn-sm btn-success" target="_blank">WhatsApp</a>-->
+                                                    <a href="https://wa.me/<?php echo htmlspecialchars($fila['celular']); ?>?text=Hola%20<?php echo urlencode($fila['nombre']); ?>,%20nos%20comunicamos." class="btn btn-sm btn-success" target="_blank">
+                                                        <i class="fab fa-whatsapp icono-input-whatsapp"></i>
                                                     </a>
+                                                    <?php if (!empty($fila['email'])):
+                                                        $nombreEmpresa = $usuario['nombreEmpresa'];
 
+                                                        $asunto = "Mensaje de $nombreEmpresa";
+                                                        $cuerpo = "Hola {$fila['nombre']}, nos comunicamos de {$nombreEmpresa}.";
+                                                    ?>
+                                                        <a
+                                                            href="mailto:<?php echo htmlspecialchars($fila['email']); ?>?subject=<?php echo urlencode($asunto); ?>&body=<?php echo urlencode($cuerpo); ?>"
+                                                            class="btn btn-sm btn-primary"
+                                                            title="Enviar correo">
+                                                            <i class="fas fa-envelope"></i>
+                                                        </a>
+                                                    <?php endif; ?>
 
+                                                    <!--Boton para editar-->
+                                                    <button
+                                                        class="btn btn-sm btn-warning"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalEditar"
+                                                        data-id="<?php echo $fila['id_empleado']; ?>"
+                                                        data-nombre="<?php echo htmlspecialchars($fila['nombre']); ?>"
+                                                        data-apellido="<?php echo htmlspecialchars($fila['apellido']); ?>"
+                                                        data-dni="<?php echo htmlspecialchars($fila['dni']); ?>"
+                                                        data-direccion="<?php echo htmlspecialchars($fila['direccion']); ?>"
+                                                        data-celular="<?php echo htmlspecialchars($fila['celular']); ?>"
+                                                        data-departamento="<?php echo htmlspecialchars($fila['id_departamento'] ?? ''); ?>"
+                                                        data-provincia="<?php echo htmlspecialchars($fila['provincia']); ?>"
+                                                        data-distrito="<?php echo htmlspecialchars($fila['distrito']); ?>"
+                                                        data-estado="<?php echo htmlspecialchars($fila['estado']); ?>"
+                                                        data-email="<?php echo htmlspecialchars($fila['email']); ?>">
+                                                        <i class="fas fa-pen-to-square"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endwhile; ?>
@@ -470,51 +537,48 @@ $tipoAlerta = "";
                                 </table>
                             </div>
                         </div>
+                        <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
+                        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                            <div class="fw-bold text-success">
+                                Página <?php echo $pagina; ?> de <?php echo $totalPaginas; ?>
+                            </div>
+
+                            <!-- Botones de paginación -->
+                            <div>
+                                <?php if ($pagina > 1): ?>
+                                    <a class="btn btn-outline-success btn-sm me-2"
+                                        href="?pagina=<?php echo $pagina - 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                        ⬅ Anterior
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-outline-success btn-sm me-2" disabled>⬅ Anterior</button>
+                                <?php endif; ?>
+
+                                <?php if ($pagina < $totalPaginas): ?>
+                                    <a class="btn btn-outline-success btn-sm"
+                                        href="?pagina=<?php echo $pagina + 1; ?>&buscar=<?php echo urlencode($busqueda); ?>">
+                                        Siguiente ➡
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-outline-success btn-sm" disabled>Siguiente ➡</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <!--Mostrar el total de registro del la tabla, anterior, siguiente-->
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-
-                    <div class="fw-bold text-success">
-                        Página <?= $pagina ?> de <?= $totalPaginas ?>
-                        | Total registros: <?= $totalVentasRealizadas ?>
-                    </div>
-
-                    <div>
-                        <!-- BOTÓN ANTERIOR -->
-                        <?php if ($pagina > 1): ?>
-                            <a class="btn btn-outline-success btn-sm me-2"
-                                href="?pagina=<?= $pagina - 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                ⬅ Anterior
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm me-2" disabled>
-                                ⬅ Anterior
-                            </button>
-                        <?php endif; ?>
-
-                        <!-- BOTÓN SIGUIENTE -->
-                        <?php if ($pagina < $totalPaginas): ?>
-                            <a class="btn btn-outline-success btn-sm"
-                                href="?pagina=<?= $pagina + 1 ?>&buscar=<?= urlencode($busqueda) ?>">
-                                Siguiente ➡
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                Siguiente ➡
-                            </button>
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-
             </div>
         </div>
     </div>
+
+    <!-- llamar modal_clientes.php -->
+    <?php include 'modal/modal_empelados.php'; ?>
+    <script src="js/lista_empelados.js"></script>
     <script src="js/menu_sidebar.js"></script>
-    <script src="js/lista_ticket_ventas.js"></script>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
 </body>
 
 </html>
