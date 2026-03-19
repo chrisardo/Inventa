@@ -1,0 +1,96 @@
+<?php
+$usId = $_SESSION['id_empleado'];
+
+//seccion de controladores/procesar_lista_productos.php
+// Conexión
+include '../controladores/conexion.php';
+
+$mensaje = "";
+$tipoAlerta = "";
+$tipoMensaje = ""; // success, danger, warning, info
+
+// ==== PAGINACIÓN ====
+$porPagina = 5; // cantidad de productos por página
+$pagina = isset($_GET['pagina']) && is_numeric($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+$inicio = ($pagina - 1) * $porPagina;
+// ==== CONSULTAS PARA MOSTRAR EN LA TABLA ====
+
+// ==== BUSQUEDA ====
+$busqueda = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
+
+if ($busqueda !== '') {
+
+    $busquedaEsc = $conexion->real_escape_string($busqueda);
+
+    $sql = "
+        SELECT 
+            tv.*,
+            COALESCE(c.nombre, 'Clientes varios') AS nombre,
+            m.nombre AS metodo_pago,
+            COALESCE(CONCAT(e.nombre, ' ', e.apellido), 'Administrador') AS vendedor
+        FROM ticket_ventas tv
+        LEFT JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        LEFT JOIN empleados e ON tv.id_empleado = e.id_empleado
+        WHERE tv.id_empleado = $usId
+        AND (
+            tv.numero LIKE '%$busquedaEsc%'
+            OR c.nombre LIKE '%$busquedaEsc%'
+            OR tv.fecha_venta LIKE '%$busquedaEsc%'
+            OR m.nombre LIKE '%$busquedaEsc%'
+            OR CONCAT(e.nombre, ' ', e.apellido) LIKE '%$busquedaEsc%'
+            OR (tv.idCliente = 0 AND 'Clientes varios' LIKE '%$busquedaEsc%')
+        )
+        ORDER BY tv.id_ticket_ventas DESC
+        LIMIT $inicio, $porPagina
+    ";
+
+    $resultado = $conexion->query($sql);
+
+    $sqlTotal = "
+        SELECT COUNT(*) AS total
+        FROM ticket_ventas tv
+        LEFT  JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        WHERE tv.id_empleado = $usId
+        AND (
+            tv.numero LIKE '%$busquedaEsc%'
+            OR c.nombre LIKE '%$busquedaEsc%'
+            OR tv.fecha_venta LIKE '%$busquedaEsc%'
+            OR m.nombre LIKE '%$busquedaEsc%'
+            OR (tv.idCliente = 0 AND 'Clientes varios' LIKE '%$busquedaEsc%')
+
+        )
+    ";
+
+    $resultado2 = $conexion->query($sqlTotal);
+} else {
+
+    $resultado = $conexion->query("
+        SELECT 
+            tv.*,
+            COALESCE(c.nombre, 'Clientes varios') AS nombre,
+            m.nombre AS metodo_pago,
+            COALESCE(CONCAT(e.nombre, ' ', e.apellido), 'Administrador') AS vendedor
+        FROM ticket_ventas tv
+        LEFT JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        LEFT JOIN empleados e ON tv.id_empleado = e.id_empleado
+        WHERE tv.id_empleado = $usId
+        ORDER BY tv.id_ticket_ventas DESC
+        LIMIT $inicio, $porPagina
+    ");
+
+    $resultado2 = $conexion->query("
+        SELECT COUNT(*) AS total 
+        FROM ticket_ventas tv
+        INNER JOIN clientes c ON tv.idCliente = c.idCliente
+        LEFT JOIN metodo_pago m ON m.id_metodo_pago = tv.id_metodo_pago
+        WHERE tv.id_empleado = $usId
+    ");
+}
+
+// ==== TOTALES ====
+$fila = $resultado2->fetch_assoc();
+$totalVentasRealizadas = $fila['total'];
+$totalPaginas = ceil($totalVentasRealizadas / $porPagina);
