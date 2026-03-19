@@ -169,36 +169,90 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("formaPago")
     .addEventListener("change", calcularVuelto);
+  document
+    .getElementById("tipoComprobante")
+    .addEventListener("change", calcularVuelto);
 });
 
 /*****************************************************
  * VALIDACIONES
  *****************************************************/
-
-function validarClienteFormaPago() {
+async function validarClienteFormaPago() {
   const idCliente = document.getElementById("idCliente").value;
   const formaPago = document.getElementById("formaPago").value;
+  const tipo = document.getElementById("tipoComprobante").value;
   const mensaje = document.getElementById("mensajePago");
 
-  if (!idCliente || !formaPago ||idCliente === "" ) { //!idCliente || !formaPago
-    mensaje.innerText = "⚠️ Debe seleccionar un cliente yuna forma de pago";
+  if (!idCliente || !formaPago || idCliente === "" || !tipo) {
+    mensaje.innerText =
+      "⚠️ Debe seleccionar cliente, forma de pago y tipo de comprobante";
     mensaje.classList.remove("d-none");
     return false;
+  }
+
+  // 🔵 SIN COMPROBANTE → no validar nada
+  if (tipo === "Sin comprobante") {
+    mensaje.classList.add("d-none");
+    return true;
+  }
+
+  // 🔵 CLIENTES VARIOS
+  if (idCliente === "0") {
+    if (tipo === "Factura") {
+      mensaje.innerText =
+        "⚠️ Para emitir Factura debe seleccionar un cliente con RUC";
+      mensaje.classList.remove("d-none");
+      return false;
+    }
+
+    // Boleta con clientes varios → permitido
+    mensaje.classList.add("d-none");
+    return true;
+  }
+
+  // 🔵 CONSULTAR DOCUMENTO DEL CLIENTE
+  const response = await fetch("controladores/obtener_documento_cliente.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "idCliente=" + idCliente,
+  });
+
+  const data = await response.json();
+  const documento = data.documento || "";
+
+  if (tipo === "Factura") {
+    if (documento.length !== 11) {
+      mensaje.innerText =
+        "⚠️ Para emitir Factura el cliente debe tener RUC válido (11 dígitos)";
+      mensaje.classList.remove("d-none");
+      return false;
+    }
+  }
+
+  if (tipo === "Boleta") {
+    if (documento && documento.length !== 8) {
+      mensaje.innerText =
+        "⚠️ Para emitir Boleta el cliente debe tener DNI válido (8 dígitos)";
+      mensaje.classList.remove("d-none");
+      return false;
+    }
   }
 
   mensaje.classList.add("d-none");
   return true;
 }
 
-function calcularVuelto() {
+async function calcularVuelto() {
   const total =
     parseFloat(document.getElementById("totalModal").innerText) || 0;
   const pago = parseFloat(document.getElementById("pago").value) || 0;
   const vueltoSpan = document.getElementById("vuelto");
   const mensaje = document.getElementById("mensajePago");
   const btnConfirmar = document.getElementById("btnConfirmarVenta");
+  const aplicaIGV = document.getElementById("chkIGV").checked ? 1 : 0;
+  const validacion = await validarClienteFormaPago();
 
-  if (!validarClienteFormaPago()) {
+  if (!validacion) {
     btnConfirmar.disabled = true;
     vueltoSpan.innerText = "0.00";
     return;
@@ -228,6 +282,11 @@ document.getElementById("btnConfirmarVenta").addEventListener("click", () => {
   data.append("vuelto", document.getElementById("vuelto").innerText);
   data.append("idCliente", document.getElementById("idCliente").value);
   data.append("formaPago", document.getElementById("formaPago").value);
+  data.append(
+    "tipoComprobante",
+    document.getElementById("tipoComprobante").value,
+  );
+  data.append("aplicaIGV", document.getElementById("chkIGV").checked ? 1 : 0);
 
   fetch("controladores/registrar_venta.php", {
     method: "POST",
@@ -237,9 +296,24 @@ document.getElementById("btnConfirmarVenta").addEventListener("click", () => {
     .then((resp) => {
       if (resp.status === "ok") {
         alert("✅ Venta registrada correctamente");
+
+        const tipo = document.getElementById("tipoComprobante").value;
+
         bootstrap.Modal.getInstance(
-          document.getElementById("modalVenta")
+          document.getElementById("modalVenta"),
         ).hide();
+
+        // 🔵 SOLO GENERAR PDF SI ES BOLETA O FACTURA
+        if (tipo === "Boleta" || tipo === "Factura") {
+          window.open(
+            "controladores/generar_pdf_comprobante2.php?id=" +
+              resp.id_ticket +
+              "&tipo=" +
+              tipo.toUpperCase(),
+            "_blank",
+          );
+        }
+
         cargarCarrito();
       } else {
         alert("❌ " + resp.msg);

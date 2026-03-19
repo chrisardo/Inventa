@@ -1,5 +1,6 @@
 /*Toda esta parte es de js/dashboards_ventas.js*/
 let chartCompraMes,
+  chartCompraDia,
   chartCantidadMes,
   chartTopProductos,
   chartTopCategorias,
@@ -122,10 +123,15 @@ async function cargarGraficosYTablas() {
         plugins: {
           legend: { display: false },
           datalabels: {
+            display: true,
+            color: "#000",
             anchor: "end",
-            align: "end",
-            formatter: formatoNumero,
-            font: { size: 10 },
+            align: "top",
+            font: {
+              weight: "bold",
+              size: 11,
+            },
+            formatter: (value) => "S/ " + formatoNumero(value),
           },
           tooltip: {
             callbacks: {
@@ -146,7 +152,62 @@ async function cargarGraficosYTablas() {
       plugins: [ChartDataLabels],
     },
   );
+  /* ================= MONTO POR DIA ================= */
+  // 🔥 Crear estructura limpia solo con días que tengan ventas
+  const datosFiltrados = data.montoDia
+    .map((monto, index) => ({
+      dia: index + 1,
+      monto: monto,
+    }))
+    .filter((item) => item.monto > 0);
 
+  // Separar labels y data
+  const diasConVenta = datosFiltrados.map((item) => item.dia);
+  const montosConVenta = datosFiltrados.map((item) => item.monto);
+
+  chartCompraDia = actualizarChart(
+    chartCompraDia,
+    document.getElementById("compraDia"),
+    {
+      type: "line",
+      data: {
+        labels: diasConVenta,
+        datasets: [
+          {
+            label: "Venta diaria",
+            data: montosConVenta,
+            borderColor: "rgba(40,167,69,1)",
+            backgroundColor: "rgba(40,167,69,0.2)",
+            tension: 0.3,
+            fill: true,
+            pointRadius: 4,
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            display: true,
+            color: "#198754",
+            anchor: "end",
+            align: "top",
+            font: {
+              weight: "bold",
+              size: 10,
+            },
+            formatter: (value) => "S/ " + formatoNumero(value),
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+      plugins: [ChartDataLabels],
+    },
+  );
   /* ================= CANTIDAD POR MES ================= */
   chartCantidadMes = actualizarChart(
     chartCantidadMes,
@@ -579,6 +640,49 @@ document.getElementById("btnExportPPT").addEventListener("click", async () => {
 
   /* ================= SLIDES GRÁFICOS ================= */
   await agregarSlideDesdeElemento("#compraMes", "Monto Total por Mes");
+  /* ================= SLIDE MONTO POR DIA CON TOTAL ================= */
+  {
+    const elemento = document.querySelector("#compraDia");
+    const canvas = await html2canvas(elemento, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+    });
+
+    const img = canvas.toDataURL("image/png");
+
+    const s = pptx.addSlide();
+
+    // Título
+    s.addText("Monto Total por Día", {
+      x: 0.5,
+      y: 0.3,
+      fontSize: 16,
+      bold: true,
+    });
+
+    // Imagen del gráfico
+    s.addImage({
+      data: img,
+      x: 0.5,
+      y: 0.9,
+      w: 9,
+      h: 4.5,
+    });
+
+    // 🔥 TOTAL GRANDE ABAJO
+    const total = window.TOTAL_VENTA_DIA || 0;
+
+    s.addText(`TOTAL VENDIDO: S/ ${formatoNumero(total)}`, {
+      x: 0.5,
+      y: 5.6,
+      w: 9,
+      h: 1,
+      fontSize: 20,
+      bold: true,
+      align: "center",
+      color: "008000", // verde
+    });
+  }
   await agregarSlideDesdeElemento("#cantidadMes", "Cantidad Vendida por Mes");
   await agregarSlideDesdeElemento("#topProductos", "TOP 6 Productos");
   await agregarSlideDesdeElemento("#topCategorias", "TOP 6 Categorías");

@@ -1,44 +1,42 @@
-//Toda esta parte es de js/numero.js
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".kpi-number").forEach((el) => {
-    const target = parseFloat(el.dataset.value);
-    const isDecimal = el.classList.contains("kpi-decimal");
+function animarKPI(elemento, valor) {
 
-    const duration = 1200;
-    const start = performance.now();
+  const target = Number(valor) || 0;
+  const isDecimal = elemento.classList.contains("kpi-decimal");
 
-    function animate(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      let value = progress * target;
+  const duration = 1200;
+  const start = performance.now();
 
-      if (!isDecimal) value = Math.round(value);
+  function animate(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    let value = progress * target;
 
-      el.textContent = isDecimal
-        ? value.toLocaleString("es-PE", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : Math.round(value).toLocaleString("es-PE");
+    if (!isDecimal) value = Math.round(value);
 
-      if (progress < 1) requestAnimationFrame(animate);
-      else aplicarIcono();
+    elemento.textContent = isDecimal
+      ? value.toLocaleString("es-PE", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      : Math.round(value).toLocaleString("es-PE");
+
+    if (progress < 1) requestAnimationFrame(animate);
+    else aplicarIcono();
+  }
+
+  function aplicarIcono() {
+    if (elemento.id !== "kpi-ganancia") return;
+
+    const icon = document.getElementById("icono-ganancia");
+    if (!icon) return;
+
+    if (target > 0) {
+      icon.className = "fas fa-arrow-up kpi-up ms-2";
+    } else if (target < 0) {
+      icon.className = "fas fa-arrow-down kpi-down ms-2";
+    } else {
+      icon.className = "";
     }
+  }
 
-    function aplicarIcono() {
-      if (el.id !== "kpi-ganancia") return;
-
-      const icon = document.getElementById("icono-ganancia");
-      if (!icon) return;
-
-      if (target > 0) {
-        icon.className = "fas fa-arrow-up kpi-up ms-2";
-      } else if (target < 0) {
-        icon.className = "fas fa-arrow-down kpi-down ms-2";
-      } else {
-        icon.className = "";
-      }
-    }
-
-    requestAnimationFrame(animate);
-  });
-});
+  requestAnimationFrame(animate);
+}

@@ -63,9 +63,11 @@ function cargarGraficos() {
     .then((res) => res.json())
     .then((data) => {
       crearComprasMes(data.compras_mes);
+      crearComprasSemana(data.compras_semana);
       crearComprasDia(data.compras_dia);
       crearTopProductos(data.top_productos);
       crearTopClientes(data.top_clientes);
+      crearTopVendedores(data.top_vendedores);
       crearProductosMes(data.productos_mes);
       crearClientesMes(data.clientes_mes);
     });
@@ -129,7 +131,35 @@ function crearComprasDia(data) {
     },
   });
 }
+/* ===================== VENTAS POR SEMANA ===================== */
+function crearComprasSemana(data) {
+  destruir("compraSemana");
 
+  charts.compraSemana = new Chart(document.getElementById("compraSemana"), {
+    type: "line",
+    data: {
+      labels: data.map((d) => "Semana " + d.semana),
+      datasets: [
+        {
+          label: "Ventas por semana (S/.)",
+          data: data.map((d) => d.total),
+          tension: 0.4,
+          fill: false,
+        },
+      ],
+    },
+    plugins: [ChartDataLabels],
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true },
+      },
+      plugins: {
+        datalabels: dataLabelInteligente,
+      },
+    },
+  });
+}
 /* ===================== TOP PRODUCTOS ===================== */
 function crearTopProductos(data) {
   destruir("topProductos");
@@ -246,32 +276,73 @@ function crearTopClientes(data) {
     },
   });
 }
+/* ===================== TOP VENDEDORES ===================== */
+function crearTopVendedores(data) {
+  destruir("topVendedores");
+
+  charts.topVendedores = new Chart(document.getElementById("topVendedores"), {
+    type: "bar",
+    data: {
+      labels: data.map((d) => d.nombre + " " + d.apellido),
+      datasets: [
+        {
+          label: "Total vendido (S/.)",
+          data: data.map((d) => d.total),
+          borderRadius: 10,
+        },
+      ],
+    },
+    plugins: [ChartDataLabels],
+    options: {
+      indexAxis: "y",
+      scales: { x: { beginAtZero: true } },
+      plugins: {
+        datalabels: dataLabelInteligente,
+      },
+    },
+  });
+}
 function cargarKPI() {
   const anio = document.getElementById("anio").value;
 
   fetch(`controladores/procesar_kpi_index.php?anio=${anio}`)
     .then((res) => res.json())
     .then((data) => {
-      actualizarKPI("kpi-total-ventas", data.totalVentas, true);
-      actualizarKPI("kpi-ganancia", data.ganancia, true);
-      actualizarKPI("kpi-clientes", data.totalClientes, false);
-      actualizarKPI("kpi-productos", data.totalProductos, false);
+      actualizarKPI("kpi-total-ventas", Number(data.totalVentas) || 0, true);
+      actualizarKPI(
+        "kpi-total-ventas-dia",
+        Number(data.totalVentasDia) || 0,
+        true,
+      );
+      actualizarKPI("kpi-ganancia", Number(data.ganancia) || 0, true);
+      actualizarKPI("kpi-clientes", Number(data.totalClientes) || 0, false);
+      actualizarKPI("kpi-productos", Number(data.totalProductos) || 0, false);
+      actualizarKPI("kpi-empleados", Number(data.totalEmpleados) || 0, false);
+
+      // 🔥 CAMBIAR COLOR DINÁMICAMENTE
+      const header = document.getElementById("card-ganancia-header");
+
+      if (data.ganancia >= 0) {
+        header.classList.remove("bg-danger");
+        header.classList.add("bg-success");
+      } else {
+        header.classList.remove("bg-success");
+        header.classList.add("bg-danger");
+      }
+
+      // 🔥 CAMBIAR ICONO
+      const icono = document.getElementById("icono-ganancia");
+      icono.className =
+        data.ganancia >= 0
+          ? "fas fa-arrow-up text-success ms-2"
+          : "fas fa-arrow-down text-danger ms-2";
     });
 }
 
-function actualizarKPI(id, valor, decimal) {
+function actualizarKPI(id, valor) {
   const el = document.getElementById(id);
-  if (!el) return;
-
   el.dataset.value = valor;
-  el.textContent = decimal
-    ? Number(valor).toLocaleString("es-PE", { minimumFractionDigits: 2 })
-    : Number(valor).toLocaleString("es-PE");
-
-  // Re-disparar animación
-  el.classList.remove("kpi-number");
-  void el.offsetWidth;
-  el.classList.add("kpi-number");
+  animarKPI(el, valor);
 }
 /* ===================== EVENTOS ===================== */
 // document.getElementById("anio").addEventListener("change", cargarGraficos);
